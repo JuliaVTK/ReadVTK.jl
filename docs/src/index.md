@@ -58,6 +58,9 @@ julia> data = get_data(element_ids)
  3085
 ```
 
+Further example VTK files can be found in the
+[`ReadVTK_examples` repository](https://github.com/trixi-framework/ReadVTK_examples).
+
 ### What works
 * Reading in VTK XML files of type `UnstructuredGrid`
 * Extracting cell or point data
