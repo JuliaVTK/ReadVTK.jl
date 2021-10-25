@@ -24,6 +24,13 @@ mkpath(TEST_EXAMPLES_DIR)
   @testset "basic tests" begin
     @testset "VTKFile" begin
       @test VTKFile(get_test_example_file("celldata_inline_binary_uncompressed.vtu")) isa VTKFile
+
+      mktemp() do path, io
+        write(io, "# vtk DataFile Version")
+        flush(io)
+
+        @test_throws ErrorException VTKFile(path)
+      end
     end
 
     vtk_file = VTKFile(get_test_example_file("celldata_inline_binary_uncompressed.vtu"))

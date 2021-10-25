@@ -71,6 +71,11 @@ function VTKFile(filename)
   # Read in file into memory as a string
   raw_file_contents = read(filename, String)
 
+  # Check if file begins with string that indicates this is a VTK file but *not* in XML format
+  if startswith(raw_file_contents, "# vtk DataFile Version")
+    error("bad VTK file format (found legacy format; only VTK XML files are currently supported)")
+  end
+
   # Check if data is stored in "appended" mode
   marker = findfirst("<AppendedData encoding=\"raw\">", raw_file_contents)
   if isnothing(marker)
