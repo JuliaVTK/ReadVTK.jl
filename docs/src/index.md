@@ -1,7 +1,7 @@
 # ReadVTK.jl
 
 With [ReadVTK.jl](https://github.com/trixi-framework/ReadVTK.jl) you can
-read in data from VTK files in Julia. It aims to complement
+read in data from VTK XML files in Julia. It aims to complement
 the excellent package [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl).
 ReadVTK is part of the [Trixi Framework](https://trixi-framework.github.io).
 
@@ -69,14 +69,15 @@ Further example VTK files can be found in the
 * Extracting information about cell types
 
 ### What does not work
-* Reading VTK XML files of other type than `UnstructuredGrid`
+* Reading VTK files not stored in the VTK XML format
+* Reading VTK files of other type than `UnstructuredGrid`
 * Multiblock files, PVD files
 * Different byte orders in file and host system
 * Probably reading from VTK files that were *not* created by [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl) will fail, specifically since
   * compressed data is assumed to be stored as a single block
   * appended data is assumed to be stored as `raw`
   * `header_type` is hardcoded to `UInt64`
-* Likely anything else that is not specifically mentioned here
+* Likely anything else that is not specifically mentioned under *What works*
 
 ## Development
 Helpful resources for working with (i.e., reading and writing) VTK XML files:
