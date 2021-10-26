@@ -1,5 +1,6 @@
 # ReadVTK.jl
 
+[![Docs-stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://trixi-framework.github.io/ReadVTK.jl/stable)
 [![Docs-dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://trixi-framework.github.io/ReadVTK.jl/dev)
 [![Build Status](https://github.com/trixi-framework/ReadVTK.jl/workflows/CI/badge.svg)](https://github.com/trixi-framework/ReadVTK.jl/actions?query=workflow%3ACI)
 [![Coveralls](https://coveralls.io/repos/github/trixi-framework/ReadVTK.jl/badge.svg?branch=main)](https://coveralls.io/github/trixi-framework/ReadVTK.jl?branch=main)
