@@ -109,8 +109,8 @@ function VTKFile(filename)
     compressor = ""
   end
 
-  # Ensure matching file type
-  @assert file_type == "UnstructuredGrid"
+  # Ensure matching file types
+  @assert ( file_type == "UnstructuredGrid" || file_type == "ImageData" )
 
   # Ensure correct version
   @assert version == v"1.0"
@@ -126,14 +126,21 @@ function VTKFile(filename)
   # Ensure supported compression type
   @assert in(compressor, ("", "vtkZLibDataCompressor"))
 
-  # Extract piece
-  piece = root[file_type][1]["Piece"][1]
-  n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
-  n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
+  if file_type == "UnstructuredGrid"
+    # Extract piece
+    piece = root[file_type][1]["Piece"][1]
+    n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
+    n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
 
-  # Create and return VTKFile
-  VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points,
-          n_cells)
+    # Create and return VTKFile
+    VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points,
+            n_cells)
+
+  elseif file_type == "ImageData"
+    piece = root[file_type][1]["Piece"][1]
+    
+  end
+
 end
 
 # Show basic information on REPL
