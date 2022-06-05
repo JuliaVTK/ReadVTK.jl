@@ -200,7 +200,7 @@ function get_data_section(vtk_file, section)
   for xml_element in child_elements(piece(vtk_file)[section][1])
     # We do not know how to handle anything other than `DataArray`s
     @assert LightXML.name(xml_element) == "DataArray"
-    
+
     # Store the name and the XML element for each found data array
     push!(names, attribute(xml_element, "Name", required=true))
     push!(data_arrays, xml_element)
