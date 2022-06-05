@@ -132,16 +132,26 @@ function VTKFile(filename)
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
     n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
 
+    print("holaaaa", piece, "\n tupe: ", typeof(piece) )
+    print("\nhola 2", root[file_type][1]["Piece"][1], "\n tupe: ", typeof( root[file_type][1]["Piece"][1] )  )
     # Create and return VTKFile
     VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points,
             n_cells)
 
   elseif file_type == "ImageData"
-    piece = root[file_type][1]["Piece"][1]
-    
+    piece = root[file_type][1]
+    wholeExtent = parse.(Int,     split( attribute(piece, "WholeExtent", required=true) , ' ' ) )
+    originPoint = parse.(Float64, split( attribute(piece, "Origin",      required=true) , ' ' ) )
+    spacing     = parse.(Float64, split( attribute(piece, "Spacing",     required=true) , ' ' ) )
+
+    # Create and return VTKFile
+    VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, 0, 0)
+
   end
 
 end
+
+
 
 # Show basic information on REPL
 function Base.show(io::IO, vtk_file::VTKFile)
