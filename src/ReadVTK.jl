@@ -8,10 +8,6 @@ using CodecZlib: ZlibDecompressor
 using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_attribute,
                 child_elements, free, content, find_element
 
-export VTKFile, get_points, get_cells, VTKData, get_point_data, get_cell_data, VTKDataArray,
-       get_data, VTKCells, get_example_file
-
-
 """
     VTKFile
 
@@ -61,6 +57,7 @@ header_type(::VTKFile) = UInt64
 # Return true if data is compressed (= XML attribute `compressor` is non-empty in VTK file)
 is_compressed(vtk_file::VTKFile) = !isempty(vtk_file.compressor)
 
+include("get_functions.jl")
 
 """
     VTKFile(filename)
@@ -550,5 +547,7 @@ function get_example_file(filename; head="main", output_directory=".", force=fal
 
   return filepath
 end
+
+include("exports.jl")
 
 end # module
