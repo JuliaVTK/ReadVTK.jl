@@ -132,8 +132,6 @@ function VTKFile(filename)
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
     n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
 
-    print("holaaaa", piece, "\n tupe: ", typeof(piece) )
-    print("\nhola 2", root[file_type][1]["Piece"][1], "\n tupe: ", typeof( root[file_type][1]["Piece"][1] )  )
     # Create and return VTKFile
     VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points,
             n_cells)

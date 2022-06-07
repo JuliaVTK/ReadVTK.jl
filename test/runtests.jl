@@ -1,5 +1,5 @@
 using Test
-using ReadVTK
+using ReadVTK, WriteVTK
 
 # Commit in the example file repository for which the test files will be downloaded
 # Note: The purpose of using a specific commit hash (instead of `main`) is to be able to tie a given
@@ -162,6 +162,46 @@ mkpath(TEST_EXAMPLES_DIR)
       @test last(data) ≈ 0.8004962389182811
       @test sum(data) ≈ 192.1204941112099
     end
+  end
+
+  # ----------------------------
+  # Test for validation of structured grid read feature
+  # ----------------------------
+  @testset "ImageData" begin
+
+    ## Generate grid file and write vti
+    x, y, z = 1:3, 1:2, 2:0.1:2.2
+    Nx, Ny, Nz = length(x), length(y), length(z)
+
+    pointScalarField = rand(Nx, Ny, Nz)
+    cellScalarField  = rand(Nx-1, Ny-1, Nz-1)
+
+    print( "cell scalar field", cellScalarField,"\n")
+
+    cellDataName  = "Name of Test Cell scalar data"
+    pointDataName = "Point scalar data"
+
+    print("  writing vtk file...")
+
+    vtk_grid("grid", x, y, z) do vtk
+        vtk[ pointDataName, VTKPointData()] = pointScalarField  # scalar field attached to points
+        vtk[ cellDataName, VTKCellData()] = cellScalarField     # scalar field attached to cells
+    end
+    print("done.\n")
+
+    ## Read vti file
+    print("  reading vtk file...")
+    filepath = "grid.vti"
+    vtk = VTKFile( filepath )
+    data = get_data( get_cell_data(vtk)[cellDataName] )
+    print("done.\n")
+
+    reshapedData = reshape( cellScalarField, ( (Nx-1), (Ny-1), (Nz-1) ) )
+
+    difference = reshapedData .- cellScalarField
+
+    @test iszero( difference )
+
   end
 end
 
