@@ -145,8 +145,8 @@ function VTKFile(filename)
   end
 
   # Create and return VTKFile
-  VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points, n_cells)
-
+  VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points,
+          n_cells)
 end
 
 
