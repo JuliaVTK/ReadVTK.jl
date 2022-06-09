@@ -204,11 +204,11 @@ mkpath(TEST_EXAMPLES_DIR)
     reshaped_data = reshape( cell_scalar_field, ( (Nx-1), (Ny-1), (Nz-1) ) )
 
     # test if cell data is well read
-    @test iszero( reshaped_data .- cell_scalar_field )
+    @test reshaped_data == cell_scalar_field
 
     # test if the origin and spacing are well read
-    @test iszero( origin  .- input_origin  )
-    @test iszero( spacing .- input_spacing )
+    @test origin  == input_origin
+    @test spacing == input_spacing
 
   end
 end
