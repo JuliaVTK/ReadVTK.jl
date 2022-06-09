@@ -133,10 +133,6 @@ function VTKFile(filename)
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
     n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
 
-    # Create and return VTKFile
-    VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points,
-            n_cells)
-
   elseif file_type == "ImageData"
     piece = root[file_type][1]
     wholeExtent = parse.(Int,     split( attribute(piece, "WholeExtent", required=true) , ' ' ) )
@@ -145,11 +141,10 @@ function VTKFile(filename)
     n_points_per_grid_dir = [ wholeExtent[2*i]+1 for i in (1:3) ]
     n_points = prod( n_points_per_grid_dir )
     n_cells = prod( n_points_per_grid_dir .- 1 )
-
-    # Create and return VTKFile
-    VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points, n_cells)
-
   end
+
+  # Create and return VTKFile
+  VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points, n_cells)
 
 end
 
