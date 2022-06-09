@@ -149,8 +149,6 @@ function VTKFile(filename)
           n_cells)
 end
 
-
-
 # Show basic information on REPL
 function Base.show(io::IO, vtk_file::VTKFile)
   print(io, "VTKFile(",
