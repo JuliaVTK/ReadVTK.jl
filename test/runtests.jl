@@ -190,25 +190,33 @@ mkpath(TEST_EXAMPLES_DIR)
         vtk[ cell_data_name,  VTKCellData() ] = cell_scalar_field   # scalar field attached to cells
     end
     
-    ## Read vti file using ReadVTK
+    # Read vti file using ReadVTK
     filepath = "grid.vti"
-    vtk = VTKFile( filepath )
-    
-    origin  = get_origin( vtk )
-    spacing = get_spacing( vtk )
-    cell_data_read = get_data( get_cell_data(vtk)[cell_data_name] )
-    point_data_read = get_data( get_point_data(vtk)[point_data_name] )
-    
-    cell_data_read = reshape( cell_data_read,    ( (Nx-1), (Ny-1), (Nz-1) ) )
-    point_data_read = reshape( point_data_read,  (     Nx,     Ny,     Nz ) )
+    @testset "VTKFile" begin
+      @test VTKFile(filepath) isa VTKFile
+    end
+    vtk = VTKFile(filepath)
 
-    # test if cell and point data are well read
-    @test cell_data_read == cell_scalar_field
-    @test point_data_read == point_scalar_field
+    # check getter functions
+    @testset "get_origin" begin
+      @test get_origin(vtk) == input_origin
+    end
 
-    # test if the origin and spacing are well read
-    @test origin  == input_origin
-    @test spacing == input_spacing
+    @testset "get_spacing" begin
+      @test get_spacing(vtk) == input_spacing
+    end
+
+    @testset "get cell data" begin
+      cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
+      cell_data_reshaped = reshape(cell_data_raw, ((Nx-1), (Ny-1), (Nz-1)))
+      @test cell_data_reshaped == cell_scalar_field
+    end
+
+    @testset "get point data" begin
+      point_data_raw = get_data(get_point_data(vtk)[point_data_name])
+      point_data_reshaped = reshape(point_data_raw, (Nx, Ny, Nz))
+      @test point_data_reshaped == point_scalar_field
+    end
   end
 end
 
