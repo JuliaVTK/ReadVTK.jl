@@ -164,9 +164,7 @@ mkpath(TEST_EXAMPLES_DIR)
     end
   end
 
-  # ----------------------------
-  # Test for validation of structured grid read feature
-  # ----------------------------
+  # Test for validation of uniform grid ("image data") read feature
   @testset "ImageData" begin
 
     ## Generate grid file and write vti
