@@ -209,7 +209,6 @@ mkpath(TEST_EXAMPLES_DIR)
     # test if the origin and spacing are well read
     @test origin  == input_origin
     @test spacing == input_spacing
-
   end
 end
 
