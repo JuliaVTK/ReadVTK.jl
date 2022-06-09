@@ -9,8 +9,8 @@ using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_
                 child_elements, free, content, find_element
 
 export VTKFile, VTKData, VTKDataArray, VTKCells,             # structs
-       get_point_data, get_cell_data, get_data               # get data functions
-       get_points, get_cells, get_origin, get_example_file,  # other get functions
+       get_point_data, get_cell_data, get_data,              # get data functions
+       get_points, get_cells, get_origin, get_example_file   # other get functions
 
 """
     VTKFile
@@ -544,7 +544,5 @@ function get_example_file(filename; head="main", output_directory=".", force=fal
 
   return filepath
 end
-
-include("exports.jl")
 
 end # module
