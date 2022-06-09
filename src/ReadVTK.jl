@@ -136,8 +136,6 @@ function VTKFile(filename)
   elseif file_type == "ImageData"
     piece = root[file_type][1]
     wholeExtent = parse.(Int,     split( attribute(piece, "WholeExtent", required=true) , ' ' ) )
-    #originPoint = parse.(Float64, split( attribute(piece, "Origin",      required=true) , ' ' ) )
-    #spacing     = parse.(Float64, split( attribute(piece, "Spacing",     required=true) , ' ' ) )
     n_points_per_grid_dir = [ wholeExtent[2*i]+1 for i in (1:3) ]
     n_points = prod( n_points_per_grid_dir )
     n_cells = prod( n_points_per_grid_dir .- 1 )
