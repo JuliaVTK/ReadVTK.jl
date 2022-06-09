@@ -170,40 +170,45 @@ mkpath(TEST_EXAMPLES_DIR)
   @testset "ImageData" begin
 
     ## Generate grid file and write vti
-    inputOrigin  = [ 1.0, 1.0, 2.0 ]
-    inputSpacing =  [1.0, 1.0, 0.1 ]
-    inputEnding  =  [3.0, 2.0, 2.2 ]
     
-    x, y, z = [ (inputOrigin[i] : inputSpacing[i] : inputEnding[i]) for i in (1:3) ]
+    # grid geometry parameter
+    input_origin  = [ 1.0, 1.0, 2.0 ]
+    input_spacing = [ 1.0, 1.0, 0.1 ]
+    input_ending  = [ 3.0, 2.0, 2.2 ]
+
+    # compute ranges
+    x, y, z = [ (input_origin[i] : input_spacing[i] : input_ending[i])  for i in (1:3) ]
     Nx, Ny, Nz = length(x), length(y), length(z)
 
-    pointScalarField = rand(Nx, Ny, Nz)
-    cellScalarField  = rand(Nx-1, Ny-1, Nz-1)
+    # generate random data
+    point_scalar_field = rand(Nx, Ny, Nz)
+    point_data_name    = "Point scalar data"
 
-    cellDataName  = "Name of Test Cell scalar data"
-    pointDataName = "Point scalar data"
+    cell_scalar_field  = rand(Nx-1, Ny-1, Nz-1)
+    cell_data_name     = "Name of Test Cell scalar data"
 
+    # write vti file using WriteVTK
     vtk_grid("grid", x, y, z) do vtk
-        vtk[ pointDataName, VTKPointData()] = pointScalarField  # scalar field attached to points
-        vtk[ cellDataName, VTKCellData()] = cellScalarField     # scalar field attached to cells
+        vtk[ point_data_name, VTKPointData()] = point_scalar_field  # scalar field attached to points
+        vtk[ cell_data_name,  VTKCellData() ] = cell_scalar_field   # scalar field attached to cells
     end
     
-    ## Read vti file
+    ## Read vti file using ReadVTK
     filepath = "grid.vti"
     vtk = VTKFile( filepath )
     
     origin  = get_origin( vtk )
     spacing = get_spacing( vtk )
-    data    = get_data( get_cell_data(vtk)[cellDataName] )
+    data    = get_data( get_cell_data(vtk)[cell_data_name] )
     
-    reshapedData = reshape( cellScalarField, ( (Nx-1), (Ny-1), (Nz-1) ) )
+    reshaped_data = reshape( cell_scalar_field, ( (Nx-1), (Ny-1), (Nz-1) ) )
 
     # test if cell data is well read
-    @test iszero( reshapedData .- cellScalarField )
+    @test iszero( reshaped_data .- cell_scalar_field )
 
     # test if the origin and spacing are well read
-    @test iszero( origin  .- inputOrigin  )
-    @test iszero( spacing .- inputSpacing )
+    @test iszero( origin  .- input_origin  )
+    @test iszero( spacing .- input_spacing )
 
   end
 end
