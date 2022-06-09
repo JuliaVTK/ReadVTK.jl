@@ -6,7 +6,6 @@ Retrieve the vector of coordinates of the origin of a uniform grid from the give
 See also: [`VTKFile`](@ref)
 """
 function get_origin(vtk_file)
-
   # check imagedata
   if !(vtk_file.file_type == "ImageData")
     error("origin can be read only for ImageData file_type.")
@@ -32,7 +31,6 @@ Retrieve a vector with the regular increments in each coordinate direction of th
 See also: [`VTKFile`](@ref)
 """
 function get_spacing(vtk_file)
-
   # check imagedata
   if !(vtk_file.file_type == "ImageData")
     error("spacing can be read only for ImageData file_type.")
