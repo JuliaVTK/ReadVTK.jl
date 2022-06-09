@@ -22,7 +22,7 @@ end
 """
     get_spacing( vtk_file )
 
-Retrieve a vector with the regular increments in each coordinate of the regular structured grid from a given VTK XML file.
+Retrieve a vector with the regular increments in each coordinate direction of the uniform grid from the given [`VTKFile`](@ref) file.
 
 See also: [`VTKFile`](@ref)
 """
