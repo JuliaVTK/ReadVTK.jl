@@ -9,7 +9,7 @@ function get_origin( vtk_file )
 
   # open the file and locate the ImageData section
   root = LightXML.root( vtk_file.xml_file )
-  piece = root["ImageData"][1]
+  dataset_element = root["ImageData"][1]
 
   # obtain the origin
   origin_point = parse.(Float64, split( attribute(piece, "Origin", required=true) , ' ' ) )
