@@ -199,12 +199,15 @@ mkpath(TEST_EXAMPLES_DIR)
     
     origin  = get_origin( vtk )
     spacing = get_spacing( vtk )
-    data    = get_data( get_cell_data(vtk)[cell_data_name] )
+    cell_data_read = get_data( get_cell_data(vtk)[cell_data_name] )
+    point_data_read = get_data( get_point_data(vtk)[point_data_name] )
     
-    reshaped_data = reshape( cell_scalar_field, ( (Nx-1), (Ny-1), (Nz-1) ) )
+    cell_data_read = reshape( cell_data_read,    ( (Nx-1), (Ny-1), (Nz-1) ) )
+    point_data_read = reshape( point_data_read,  (     Nx,     Ny,     Nz ) )
 
-    # test if cell data is well read
-    @test reshaped_data == cell_scalar_field
+    # test if cell and point data are well read
+    @test cell_data_read == cell_scalar_field
+    @test point_data_read == point_scalar_field
 
     # test if the origin and spacing are well read
     @test origin  == input_origin
