@@ -169,12 +169,12 @@ mkpath(TEST_EXAMPLES_DIR)
     ## Generate grid file and write vti
     
     # grid geometry parameter
-    input_origin  = [ 1.0, 1.0, 2.0 ]
-    input_spacing = [ 1.0, 1.0, 0.1 ]
-    input_ending  = [ 3.0, 2.0, 2.2 ]
+    input_origin  = [1.0, 1.0, 2.0]
+    input_spacing = [1.0, 1.0, 0.1]
+    input_ending  = [3.0, 2.0, 2.2]
 
     # compute ranges
-    x, y, z = [ (input_origin[i] : input_spacing[i] : input_ending[i])  for i in (1:3) ]
+    x, y, z = [(input_origin[i]:input_spacing[i]:input_ending[i]) for i in (1:3)]
     Nx, Ny, Nz = length(x), length(y), length(z)
 
     # generate random data
@@ -186,8 +186,8 @@ mkpath(TEST_EXAMPLES_DIR)
 
     # write vti file using WriteVTK
     vtk_grid("grid", x, y, z) do vtk
-        vtk[ point_data_name, VTKPointData()] = point_scalar_field  # scalar field attached to points
-        vtk[ cell_data_name,  VTKCellData() ] = cell_scalar_field   # scalar field attached to cells
+        vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
+        vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
     end
     
     # Read vti file using ReadVTK
