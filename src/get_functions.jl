@@ -1,6 +1,6 @@
 
 """
-get_origin(vtk_file)
+    get_origin(vtk_file)
 
 Retrieve the origin of a VTK regular structured grid file.
 
