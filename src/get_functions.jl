@@ -1,5 +1,5 @@
 """
-    get_origin( vtk_file )
+    get_origin(vtk_file)
 
 Retrieve the vector of coordinates of the origin of a uniform grid from the given [`VTKFile`](@ref) file.
 
