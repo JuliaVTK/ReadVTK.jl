@@ -41,8 +41,8 @@ function get_spacing(vtk_file)
   dataset_element = root["ImageData"][1]
 
   # obtain the origin
-  origin_spacing = parse.(Float64, split(attribute(dataset_element, "Spacing", required=true), ' '))
+  spacing = parse.(Float64, split(attribute(dataset_element, "Spacing", required=true), ' '))
 
-  return origin_spacing
+  return spacing
 end
 
