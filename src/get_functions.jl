@@ -16,9 +16,9 @@ function get_origin(vtk_file)
   dataset_element = root["ImageData"][1]
 
   # obtain the origin
-  origin_point = parse.(Float64, split(attribute(dataset_element, "Origin", required=true), ' '))
+  origin = parse.(Float64, split(attribute(dataset_element, "Origin", required=true), ' '))
 
-  return origin_point
+  return origin
 end
 
 
