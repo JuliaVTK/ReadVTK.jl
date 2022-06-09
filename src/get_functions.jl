@@ -32,7 +32,7 @@ See also: [`VTKFile`](@ref)
 """
 function get_spacing(vtk_file)
   # check imagedata
-  if !(vtk_file.file_type == "ImageData")
+  if vtk_file.file_type != "ImageData"
     error("spacing can be read only for ImageData file_type.")
   end
   
