@@ -21,7 +21,7 @@ Hold all relevant information about a VTK XML file that has been read in.
 # Fields
 - `filename`: original path to the VTK file that has been read in
 - `xml_file`: object that represents the XML file
-- `file_type`: currently only `UnstructuredGrid` is supported
+- `file_type`: currently only `"UnstructuredGrid"` or `"ImageData"` are supported
 - `version`: currently only v1.0 is supported
 - `byte_order`: can be `LittleEndian` or `BigEndian` and must currently be the same as the system's
 - `compressor`: can be empty (no compression) or `vtkZLibDataCompressor`
