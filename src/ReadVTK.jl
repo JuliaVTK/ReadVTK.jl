@@ -135,7 +135,6 @@ function VTKFile(filename)
     piece = root[file_type][1]["Piece"][1]
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
     n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
-
   elseif file_type == "ImageData"
     dataset_element = root[file_type][1]
     wholeExtent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
