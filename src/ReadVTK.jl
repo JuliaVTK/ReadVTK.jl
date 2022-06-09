@@ -8,9 +8,10 @@ using CodecZlib: ZlibDecompressor
 using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_attribute,
                 child_elements, free, content, find_element
 
-export VTKFile, VTKData, VTKDataArray, VTKCells,             # structs
-       get_point_data, get_cell_data, get_data,              # get data functions
-       get_points, get_cells, get_origin, get_example_file   # other get functions
+export VTKFile, VTKData, VTKDataArray, VTKCells,       # structs
+       get_point_data, get_cell_data, get_data,        # get data functions
+       get_points, get_cells, get_origin, get_spacing, # get geometry functions
+       get_example_file                                # other functions
 
 """
     VTKFile

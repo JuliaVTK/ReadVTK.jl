@@ -170,8 +170,11 @@ mkpath(TEST_EXAMPLES_DIR)
   @testset "ImageData" begin
 
     ## Generate grid file and write vti
-    inputOrigin = [1.0, 1.0, 2.0]
-    x, y, z = (inputOrigin[1]):3, (inputOrigin[2]):2, (inputOrigin[3]):0.1:2.2
+    inputOrigin  = [ 1.0, 1.0, 2.0 ]
+    inputSpacing =  [1.0, 1.0, 0.1 ]
+    inputEnding  =  [3.0, 2.0, 2.2 ]
+    
+    x, y, z = [ (inputOrigin[i] : inputSpacing[i] : inputEnding[i]) for i in (1:3) ]
     Nx, Ny, Nz = length(x), length(y), length(z)
 
     pointScalarField = rand(Nx, Ny, Nz)
@@ -189,16 +192,18 @@ mkpath(TEST_EXAMPLES_DIR)
     filepath = "grid.vti"
     vtk = VTKFile( filepath )
     
-    origin = get_origin( vtk )
-    data   = get_data( get_cell_data(vtk)[cellDataName] )
+    origin  = get_origin( vtk )
+    spacing = get_spacing( vtk )
+    data    = get_data( get_cell_data(vtk)[cellDataName] )
     
     reshapedData = reshape( cellScalarField, ( (Nx-1), (Ny-1), (Nz-1) ) )
 
     # test if cell data is well read
     @test iszero( reshapedData .- cellScalarField )
 
-    # test if the origin is well read
-    @test iszero( origin .- inputOrigin )
+    # test if the origin and spacing are well read
+    @test iszero( origin  .- inputOrigin  )
+    @test iszero( spacing .- inputSpacing )
 
   end
 end
