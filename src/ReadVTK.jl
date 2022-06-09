@@ -139,9 +139,9 @@ function VTKFile(filename)
   elseif file_type == "ImageData"
     dataset_element = root[file_type][1]
     wholeExtent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
-    n_points_per_grid_dir = [ wholeExtent[2*i]+1 for i in (1:3) ]
-    n_points = prod( n_points_per_grid_dir )
-    n_cells = prod( n_points_per_grid_dir .- 1 )
+    n_points_per_grid_dir = [wholeExtent[2*i]+1 for i in (1:3)]
+    n_points = prod(n_points_per_grid_dir)
+    n_cells = prod(n_points_per_grid_dir .- 1)
   end
 
   # Create and return VTKFile
