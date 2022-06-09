@@ -112,7 +112,9 @@ function VTKFile(filename)
   end
 
   # Ensure matching file types
-  @assert ( file_type == "UnstructuredGrid" || file_type == "ImageData" )
+  if !(file_type in ("UnstructuredGrid", "ImageData"))
+    error("Unsupported file type: ", file_type)
+  end
 
   # Ensure correct version
   @assert version == v"1.0"
