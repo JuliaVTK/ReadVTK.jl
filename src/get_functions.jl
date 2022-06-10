@@ -55,7 +55,6 @@ Retrieve a vector with the extent in each direction of the uniform grid from the
 See also: [`VTKFile`](@ref)
 """
 function get_extent(vtk_file)
-
   # obtain dataset
   dataset_element = get_imagedata_dataset(vtk_file)
 
