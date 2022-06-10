@@ -14,7 +14,7 @@ function get_origin(vtk_file)
   # obtain the origin
   origin = parse.(Float64, split(attribute(dataset_element, "Origin", required=true), ' '))
 
-  if (whole_extent[5:6]==[0,0]) && (origin[3]==0)
+  if (whole_extent[5:6] == [0,0]) && (origin[3] == 0)
     deleteat!(origin, 3)
   end
 
@@ -36,7 +36,7 @@ function get_spacing(vtk_file)
   # obtain the spacing
   spacing = parse.(Float64, split(attribute(dataset_element, "Spacing", required=true), ' '))
 
-  if length(get_origin(vtk_file))==2
+  if length(get_origin(vtk_file)) == 2
     deleteat!(spacing, 3)
   end
 
@@ -47,7 +47,7 @@ end
 """
     get_whole_extent(vtk_file)
 
-Retrieve a vector with the whole_extent 6-entry vector from the uniform grid [`VTKFile`](@ref) file.
+Retrieve a vector with the `WholeExtent` 6-entry vector from the uniform grid [`VTKFile`](@ref) file.
 
 See also: [`VTKFile`](@ref)
 """
