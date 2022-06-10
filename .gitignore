@@ -6,4 +6,5 @@ coverage/
 coverage_report/
 **/*.jl.*.cov
 /*.vtu
+/*.vti
 test/examples

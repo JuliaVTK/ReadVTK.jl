@@ -8,9 +8,10 @@ using CodecZlib: ZlibDecompressor
 using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_attribute,
                 child_elements, free, content, find_element
 
-export VTKFile, get_points, get_cells, VTKData, get_point_data, get_cell_data, VTKDataArray,
-       get_data, VTKCells, get_example_file
-
+export VTKFile, VTKData, VTKDataArray, VTKCells,       # structs
+       get_point_data, get_cell_data, get_data,        # get data functions
+       get_points, get_cells, get_origin, get_spacing, # get geometry functions
+       get_example_file                                # other functions
 
 """
     VTKFile
@@ -20,7 +21,7 @@ Hold all relevant information about a VTK XML file that has been read in.
 # Fields
 - `filename`: original path to the VTK file that has been read in
 - `xml_file`: object that represents the XML file
-- `file_type`: currently only `UnstructuredGrid` is supported
+- `file_type`: currently only `"UnstructuredGrid"` or `"ImageData"` are supported
 - `version`: currently only v1.0 is supported
 - `byte_order`: can be `LittleEndian` or `BigEndian` and must currently be the same as the system's
 - `compressor`: can be empty (no compression) or `vtkZLibDataCompressor`
@@ -61,6 +62,7 @@ header_type(::VTKFile) = UInt64
 # Return true if data is compressed (= XML attribute `compressor` is non-empty in VTK file)
 is_compressed(vtk_file::VTKFile) = !isempty(vtk_file.compressor)
 
+include("get_functions.jl")
 
 """
     VTKFile(filename)
@@ -109,8 +111,10 @@ function VTKFile(filename)
     compressor = ""
   end
 
-  # Ensure matching file type
-  @assert file_type == "UnstructuredGrid"
+  # Ensure matching file types
+  if !(file_type in ("UnstructuredGrid", "ImageData"))
+    error("Unsupported file type: ", file_type)
+  end
 
   # Ensure correct version
   @assert version == v"1.0"
@@ -126,10 +130,18 @@ function VTKFile(filename)
   # Ensure supported compression type
   @assert in(compressor, ("", "vtkZLibDataCompressor"))
 
-  # Extract piece
-  piece = root[file_type][1]["Piece"][1]
-  n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
-  n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
+  if file_type == "UnstructuredGrid"
+    # Extract piece
+    piece = root[file_type][1]["Piece"][1]
+    n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
+    n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
+  elseif file_type == "ImageData"
+    dataset_element = root[file_type][1]
+    whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
+    n_points_per_grid_dir = [whole_extent[2*i]+1 for i in (1:3)]
+    n_points = prod(n_points_per_grid_dir)
+    n_cells = prod(n_points_per_grid_dir .- 1)
+  end
 
   # Create and return VTKFile
   VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data, n_points,

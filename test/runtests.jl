@@ -1,5 +1,5 @@
 using Test
-using ReadVTK
+using ReadVTK, WriteVTK
 
 # Commit in the example file repository for which the test files will be downloaded
 # Note: The purpose of using a specific commit hash (instead of `main`) is to be able to tie a given
@@ -162,6 +162,100 @@ mkpath(TEST_EXAMPLES_DIR)
       @test last(data) ≈ 0.8004962389182811
       @test sum(data) ≈ 192.1204941112099
     end
+  end
+
+  # Test for validation of uniform grid ("image data") read feature
+  @testset "ImageData" begin
+    ## Generate grid file and write vti
+    
+    # grid geometry parameters
+    input_origin   = [1.0, 1.0, 2.0]
+    input_ending   = [3.0, 2.0, 2.2]
+    input_numNodes = [  4,   2,   2]  
+
+    # compute ranges
+    input_spacing = (input_ending .- input_origin) ./ (input_numNodes.-1)
+    x, y, z = [(input_origin[i]:input_spacing[i]:input_ending[i]) for i in (1:3)]
+    Nx, Ny, Nz = length(x), length(y), length(z)
+
+    # generate random data
+    point_scalar_field = rand(Nx, Ny, Nz)
+    point_data_name    = "Point scalar data"
+
+    cell_scalar_field  = rand(Nx-1, Ny-1, Nz-1)
+    cell_data_name     = "Cell scalar data"
+
+    # write vti file using WriteVTK
+    vtk_grid("grid", x, y, z) do vtk
+        vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
+        vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
+    end
+    
+    # Read vti file using ReadVTK
+    filepath = "grid.vti"
+    @testset "VTKFile" begin
+      @test VTKFile(filepath) isa VTKFile
+    end
+    vtk = VTKFile(filepath)
+
+    # check getter functions
+    @testset "get_origin" begin
+      @test get_origin(vtk) == input_origin
+    end
+
+    @testset "get_spacing" begin
+      @test get_spacing(vtk) == input_spacing
+    end
+
+    @testset "get scalar cell data" begin
+      cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
+      cell_data_reshaped = reshape(cell_data_raw, ((Nx-1), (Ny-1), (Nz-1)))
+      @test cell_data_reshaped == cell_scalar_field
+    end
+
+    @testset "get scalar point data" begin
+      point_data_raw = get_data(get_point_data(vtk)[point_data_name])
+      point_data_reshaped = reshape(point_data_raw, (Nx, Ny, Nz))
+      @test point_data_reshaped == point_scalar_field
+    end
+
+
+    # generate random 2D data
+    point_scalar_field = rand(Nx, Ny)
+    cell_scalar_field  = rand(Nx-1, Ny-1)
+    
+    # write 2D vti file using WriteVTK
+    vtk_grid("grid_2D", x, y) do vtk
+      vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
+      vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
+    end
+
+    filepath = "grid_2D.vti"
+    @testset "VTKFile2D" begin
+      @test VTKFile(filepath) isa VTKFile
+    end
+    vtk = VTKFile(filepath)
+
+    @testset "get_2D_origin" begin
+      @test get_origin(vtk) == input_origin[1:2]
+    end
+
+    @testset "get_2D_spacing" begin
+      @test get_spacing(vtk) == input_spacing[1:2]
+    end
+
+    @testset "get 2D scalar cell data" begin
+      cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
+      cell_data_reshaped = reshape(cell_data_raw, ((Nx-1), (Ny-1)))
+      @test cell_data_reshaped == cell_scalar_field
+    end
+
+    @testset "get 2D scalar point data" begin
+      point_data_raw = get_data(get_point_data(vtk)[point_data_name])
+      point_data_reshaped = reshape(point_data_raw, (Nx, Ny))
+      @test point_data_reshaped == point_scalar_field
+    end
+
   end
 end
 
