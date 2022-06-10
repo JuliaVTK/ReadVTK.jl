@@ -168,12 +168,13 @@ mkpath(TEST_EXAMPLES_DIR)
   @testset "ImageData" begin
     ## Generate grid file and write vti
     
-    # grid geometry parameter
-    input_origin  = [1.0, 1.0, 2.0]
-    input_spacing = [1.0, 1.0, 0.1]
-    input_ending  = [3.0, 2.0, 2.2]
+    # grid geometry parameters
+    input_origin   = [1.0, 1.0, 2.0]
+    input_ending   = [3.0, 2.0, 2.2]
+    input_numNodes = [  4,   2,   2]  
 
     # compute ranges
+    input_spacing = (input_ending .- input_origin) ./ (input_numNodes.-1)
     x, y, z = [(input_origin[i]:input_spacing[i]:input_ending[i]) for i in (1:3)]
     Nx, Ny, Nz = length(x), length(y), length(z)
 
