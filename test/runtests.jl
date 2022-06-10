@@ -183,7 +183,7 @@ mkpath(TEST_EXAMPLES_DIR)
     point_data_name    = "Point scalar data"
 
     cell_scalar_field  = rand(Nx-1, Ny-1, Nz-1)
-    cell_data_name     = "Name of Test Cell scalar data"
+    cell_data_name     = "Cell scalar data"
 
     # write vti file using WriteVTK
     vtk_grid("grid", x, y, z) do vtk
