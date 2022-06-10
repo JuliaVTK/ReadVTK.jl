@@ -58,7 +58,7 @@ function get_extent(vtk_file)
   # obtain dataset
   dataset_element = get_imagedata_dataset(vtk_file)
 
-  # obtain the origin
+  # obtain extent
   extent = parse.(Float64, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
 
   return extent
