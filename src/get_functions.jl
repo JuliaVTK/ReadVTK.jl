@@ -35,7 +35,7 @@ function get_spacing(vtk_file)
 
   whole_extent = get_extent(vtk_file)
   
-  # obtain the origin
+  # obtain the spacing
   spacing = parse.(Float64, split(attribute(dataset_element, "Spacing", required=true), ' '))
 
   if whole_extent[5:6]==[0,0]
