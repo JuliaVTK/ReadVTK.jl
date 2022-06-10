@@ -14,7 +14,7 @@ function get_origin(vtk_file)
   # obtain the origin
   origin = parse.(Float64, split(attribute(dataset_element, "Origin", required=true), ' '))
 
-  if (whole_extent[5:6] == [0,0]) && (origin[3] == 0)
+  if (whole_extent[5:6] == [0,0]) && (origin[3] == 0.0)
     deleteat!(origin, 3)
   end
 
