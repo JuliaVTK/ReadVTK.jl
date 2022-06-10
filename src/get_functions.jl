@@ -40,7 +40,7 @@ function get_spacing(vtk_file)
   root = LightXML.root(vtk_file.xml_file)
   dataset_element = root["ImageData"][1]
 
-  # obtain the origin
+  # obtain the spacing
   spacing = parse.(Float64, split(attribute(dataset_element, "Spacing", required=true), ' '))
 
   return spacing
