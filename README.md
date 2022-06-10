@@ -102,6 +102,10 @@ Its principal developers are
 (University of Stuttgart, Germany) and [Hendrik Ranocha](https://ranocha.de)
 (University of Hamburg, Germany).
 
+Further contributions to ReadVTK have been made by the following people:
+* [Jorge Pérez Zerpa](https://www.fing.edu.uy/~jorgepz/)
+(Universidad de la República, Uruguay)
+
 ## License and contributing
 ReadVTK is licensed under the MIT license (see [LICENSE.md](LICENSE.md)).
 Since ReadVTK is an open-source project, we are very happy to accept contributions
