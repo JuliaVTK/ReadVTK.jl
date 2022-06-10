@@ -6,7 +6,6 @@ Retrieve the vector of coordinates of the origin of a uniform grid from the give
 See also: [`VTKFile`](@ref)
 """
 function get_origin(vtk_file)
-
   # obtain dataset
   dataset_element = get_imagedata_dataset(vtk_file)
 
@@ -72,7 +71,6 @@ Retrieve ImageData dataset from the given [`VTKFile`](@ref) file.
 See also: [`VTKFile`](@ref)
 """
 function get_imagedata_dataset(vtk_file)
-
     # check imagedata
     if vtk_file.file_type != "ImageData"
       error("the file_type must be ImageData.")
