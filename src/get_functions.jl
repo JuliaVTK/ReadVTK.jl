@@ -30,7 +30,6 @@ Retrieve a vector with the regular increments in each coordinate direction of th
 See also: [`VTKFile`](@ref)
 """
 function get_spacing(vtk_file)
-
   # obtain dataset
   dataset_element = get_imagedata_dataset(vtk_file)
 
