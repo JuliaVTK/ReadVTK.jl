@@ -1,8 +1,5 @@
 using Test
-#using ReadVTK, WriteVTK
-using WriteVTK
-include("../src/ReadVTK.jl")
-using .ReadVTK
+using ReadVTK, WriteVTK
 
 # Commit in the example file repository for which the test files will be downloaded
 # Note: The purpose of using a specific commit hash (instead of `main`) is to be able to tie a given
