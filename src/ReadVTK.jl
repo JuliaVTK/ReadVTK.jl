@@ -112,7 +112,7 @@ function VTKFile(filename)
   end
 
   # Ensure matching file types
-  if !(file_type in ("UnstructuredGrid", "ImageData"))
+  if !(file_type in ("UnstructuredGrid", "ImageData", "PolyData"))
     error("Unsupported file type: ", file_type)
   end
 
@@ -141,6 +141,10 @@ function VTKFile(filename)
     n_points_per_grid_dir = [whole_extent[2*i]+1 for i in (1:3)]
     n_points = prod(n_points_per_grid_dir)
     n_cells = prod(n_points_per_grid_dir .- 1)
+  elseif file_type == "PolyData"
+    piece = root[file_type][1]["Piece"][1]
+    n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
+    n_cells = 0
   end
 
   # Create and return VTKFile

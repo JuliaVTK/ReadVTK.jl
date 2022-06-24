@@ -1,5 +1,8 @@
 using Test
-using ReadVTK, WriteVTK
+#using ReadVTK, WriteVTK
+using WriteVTK
+include("../src/ReadVTK.jl")
+using .ReadVTK
 
 # Commit in the example file repository for which the test files will be downloaded
 # Note: The purpose of using a specific commit hash (instead of `main`) is to be able to tie a given
@@ -186,13 +189,14 @@ mkpath(TEST_EXAMPLES_DIR)
     cell_data_name     = "Cell scalar data"
 
     # write vti file using WriteVTK
-    vtk_grid("grid", x, y, z) do vtk
+    path = joinpath(TEST_EXAMPLES_DIR, "grid")
+    vtk_grid(path, x, y, z) do vtk
         vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
         vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
     end
     
     # Read vti file using ReadVTK
-    filepath = "grid.vti"
+    filepath = joinpath(TEST_EXAMPLES_DIR, "grid.vti")
     @testset "VTKFile" begin
       @test VTKFile(filepath) isa VTKFile
     end
@@ -225,12 +229,13 @@ mkpath(TEST_EXAMPLES_DIR)
     cell_scalar_field  = rand(Nx-1, Ny-1)
     
     # write 2D vti file using WriteVTK
-    vtk_grid("grid_2D", x, y) do vtk
+    path = joinpath(TEST_EXAMPLES_DIR, "grid_2D")
+    vtk_grid(path, x, y) do vtk
       vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
       vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
     end
 
-    filepath = "grid_2D.vti"
+    filepath = joinpath(TEST_EXAMPLES_DIR, "grid_2D.vti")
     @testset "VTKFile2D" begin
       @test VTKFile(filepath) isa VTKFile
     end
@@ -257,6 +262,54 @@ mkpath(TEST_EXAMPLES_DIR)
     end
 
   end
+
+  # Test set for PolyData
+  @testset "PolyData" begin
+    ## Generate sample vtp file
+    
+    # define points
+    n = 20
+    points = zeros(3,n)
+    points[1,:] .= [cos(4*pi*i/n) for i in 0:n-1]
+    points[2,:] .= [sin(4*pi*i/n) for i in 0:n-1]
+    points[3,:] .= [0.2i for i in 0:n-1]
+
+    # define polygons
+    polys = [MeshCell(PolyData.Polys(), i:(i + 3)) for i = 1:n-3]
+
+    # define values
+    point_values = [4*pi*i/n for i in 0:n-1]
+    poly_values = [0.3i for i in 1:n-3]
+
+    # save using WriteVTK
+    path = joinpath(TEST_EXAMPLES_DIR, "spiral")
+    vtk_grid(path, points, polys) do vtk
+      vtk["theta", VTKPointData()] = point_values # scalar field attached to points
+      vtk["h", VTKCellData()] = poly_values    # scalar field attached to cells
+    end
+
+    # read data from the vtp file
+    vtk = VTKFile(path*".vtp")
+
+    # check getter functions
+    @testset "get points" begin
+      _points = get_points(vtk)
+      @test all(points .== _points)
+    end
+
+    @testset "get point data" begin
+      _values = get_data(get_point_data(vtk)["theta"])
+      @test all(point_values .== _values)
+    end
+
+    @testset "get cell data" begin
+      _values = get_data(get_cell_data(vtk)["h"])
+      @test all(poly_values .== _values)
+    end
+
+  end 
+
+
 end
 
 
