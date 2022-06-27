@@ -74,16 +74,18 @@ Further example VTK files can be found in the
 * Extracting point coordinates
 * Extracting information about cell types
 * Only for `ImageData` files: get origin, spacing, and extent information
+* Reading `PolyData` files containing vortices, lines and/or polygons
 
 ### What does not work
 * Reading VTK files not stored in the VTK XML format
-* Reading VTK files of other type than `UnstructuredGrid`/`ImageData`
+* Reading VTK files of other type than `UnstructuredGrid`, `ImageData` or `PolyData`
 * Multiblock files, PVD files
 * Different byte orders in file and host system
 * Probably reading from VTK files that were *not* created by [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl) will fail, specifically since
   * compressed data is assumed to be stored as a single block
   * appended data is assumed to be stored as `raw`
   * `header_type` is hardcoded to `UInt64`
+* Extracting primitives from `PolyData` files other than vortices, lines and/or polygons
 * Likely anything else that is not specifically mentioned under *What works*
 
 ## Development
@@ -106,6 +108,8 @@ Its principal developers are
 Further contributions to ReadVTK have been made by the following people:
 * [Jorge Pérez Zerpa](https://www.fing.edu.uy/~jorgepz/)
 (Universidad de la República, Uruguay)
+* [Ondřej Kincl](https://www2.karlin.mff.cuni.cz/~kincl/)
+(Charles University, Czech Republic)
 
 ## License and contributing
 ReadVTK is licensed under the MIT license (see [LICENSE.md](LICENSE.md)).
