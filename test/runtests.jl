@@ -266,10 +266,10 @@ mkpath(TEST_EXAMPLES_DIR)
     
     # define points
     n = 20
-    points = zeros(3,n)
-    points[1,:] .= [cos(4*pi*i/n) for i in 0:n-1]
-    points[2,:] .= [sin(4*pi*i/n) for i in 0:n-1]
-    points[3,:] .= [0.2i for i in 0:n-1]
+    points = zeros(3, n)
+    points[1, :] .= [cos(4 * pi * i / n) for i in 0:(n - 1)]
+    points[2, :] .= [sin(4 * pi * i / n) for i in 0:(n - 1)]
+    points[3, :] .= [0.2 * i for i in 0:n-1]
 
     # define polygons
     polys = [MeshCell(PolyData.Polys(), i:(i + 3)) for i = 1:n-3]
