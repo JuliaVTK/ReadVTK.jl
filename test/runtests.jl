@@ -286,7 +286,7 @@ mkpath(TEST_EXAMPLES_DIR)
     end
 
     # read data from the vtp file
-    vtk = VTKFile(path*".vtp")
+    vtk = VTKFile(path * ".vtp")
 
     # check getter functions
     @testset "get points" begin
