@@ -282,7 +282,7 @@ mkpath(TEST_EXAMPLES_DIR)
     path = joinpath(TEST_EXAMPLES_DIR, "spiral")
     vtk_grid(path, points, polys) do vtk
       vtk["theta", VTKPointData()] = point_values # scalar field attached to points
-      vtk["h", VTKCellData()] = poly_values    # scalar field attached to cells
+      vtk["h", VTKCellData()] = poly_values       # scalar field attached to cells
     end
 
     # read data from the vtp file
