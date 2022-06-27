@@ -275,8 +275,8 @@ mkpath(TEST_EXAMPLES_DIR)
     polys = [MeshCell(PolyData.Polys(), i:(i + 3)) for i = 1:(n - 3)]
 
     # define values
-    point_values = [4*pi*i/n for i in 0:n-1]
-    poly_values = [0.3i for i in 1:n-3]
+    point_values = [4 * pi * i / n for i in 0:(n - 1)]
+    poly_values = [0.3 * i for i in 1:(n - 3)]
 
     # save using WriteVTK
     path = joinpath(TEST_EXAMPLES_DIR, "spiral")
