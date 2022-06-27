@@ -262,50 +262,101 @@ mkpath(TEST_EXAMPLES_DIR)
 
   # Test set for PolyData
   @testset "PolyData" begin
-    ## Generate sample vtp file
+
+    # function to convert VTKPrimitives to a sequence of Int arrays
+    function primitives_to_arrays(primitives::VTKPrimitives)::Vector
+      out = []
+      first = 1
+      for last in primitives.offsets
+        push!(out, primitives.connectivity[first:last] .+ 1)
+        first = last + 1
+      end
+      return out
+    end
+
+    @testset "single type" begin
+      
+      # define some points
+      n = 20
+      points = zeros(3, n)
+      points[1, :] .= [cos(4 * pi * i / n) for i in 0:(n - 1)]
+      points[2, :] .= [sin(4 * pi * i / n) for i in 0:(n - 1)]
+      points[3, :] .= [0.2 * i for i in 0:n-1]
+
+      # define polygons
+      polys = [i:(i + 3) for i = 1:(n - 3)]
+      cells = [MeshCell(PolyData.Polys(), p) for p in polys]
+
+      # define values
+      point_values = [4 * pi * i / n for i in 0:(n - 1)]
+      cell_values = [0.3 * i for i in 1:(n - 3)]
+
+      # save using WriteVTK
+      path = joinpath(TEST_EXAMPLES_DIR, "spiral")
+      vtk_grid(path, points, cells) do vtk
+        vtk["theta", VTKPointData()] = point_values # scalar field attached to points
+        vtk["h", VTKCellData()] = cell_values       # scalar field attached to cells
+      end
+
+      # read data from the vtp file
+      vtk = VTKFile(path * ".vtp")
+
+      # test correctness
+      @test points == get_points(vtk)
+      @test point_values == get_data(get_point_data(vtk)["theta"])
+      @test cell_values == get_data(get_cell_data(vtk)["h"])
+      @test vtk.n_cells == n - 3
+      @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
+      @test_throws Exception get_primitives(vtk, "Foo")
+      @test_throws Exception get_primitives(vtk, "Verts")
     
-    # define points
-    n = 20
-    points = zeros(3, n)
-    points[1, :] .= [cos(4 * pi * i / n) for i in 0:(n - 1)]
-    points[2, :] .= [sin(4 * pi * i / n) for i in 0:(n - 1)]
-    points[3, :] .= [0.2 * i for i in 0:n-1]
-
-    # define polygons
-    polys = [MeshCell(PolyData.Polys(), i:(i + 3)) for i = 1:(n - 3)]
-
-    # define values
-    point_values = [4 * pi * i / n for i in 0:(n - 1)]
-    poly_values = [0.3 * i for i in 1:(n - 3)]
-
-    # save using WriteVTK
-    path = joinpath(TEST_EXAMPLES_DIR, "spiral")
-    vtk_grid(path, points, polys) do vtk
-      vtk["theta", VTKPointData()] = point_values # scalar field attached to points
-      vtk["h", VTKCellData()] = poly_values       # scalar field attached to cells
     end
 
-    # read data from the vtp file
-    vtk = VTKFile(path * ".vtp")
+    @testset "mixed types" begin
 
-    # check getter functions
-    @testset "get points" begin
-      _points = get_points(vtk)
-      @test all(points .== _points)
-    end
+      # define points of a regular tetrahedron
+      isqrt2 = 1 / sqrt(2)
+      points = permutedims(Float32[
+          1  0 -isqrt2 #1
+         -1  0 -isqrt2 #2
+          0 -1  isqrt2 #3
+          0  1  isqrt2 #4
+      ])
 
-    @testset "get point data" begin
-      _values = get_data(get_point_data(vtk)["theta"])
-      @test all(point_values .== _values)
-    end
+      # define verts
+      verts = [[1], [2], [3], [4]]
+      cells_verts = [MeshCell(PolyData.Verts(), v) for v in verts]
 
-    @testset "get cell data" begin
-      _values = get_data(get_cell_data(vtk)["h"])
-      @test all(poly_values .== _values)
+      # define lines
+      lines = [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [4, 1]]
+      cells_lines = [MeshCell(PolyData.Lines(), l) for l in lines]
+      
+      # define polys
+      polys = [[1, 2, 3], [2, 3, 4], [3, 4, 1], [4, 1, 2]]
+      cells_polys = [MeshCell(PolyData.Polys(), p) for p in polys]
+
+      # define cell values
+      cell_values = [i for i in 1:14]
+
+      # save using WriteVTK
+      path = joinpath(TEST_EXAMPLES_DIR, "tetrahedron")
+      vtk_grid(path, points, cells_verts, cells_lines, cells_polys) do vtk
+        vtk["id", VTKCellData()] = cell_values
+      end
+
+      # read data from the vtp file
+      vtk = VTKFile(path*".vtp")
+
+      # test correctness
+      @test cell_values == get_data(get_cell_data(vtk)["id"])
+      @test vtk.n_cells == 14
+      @test verts == primitives_to_arrays(get_primitives(vtk, "Verts"))
+      @test lines == primitives_to_arrays(get_primitives(vtk, "Lines"))
+      @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
+    
     end
 
   end 
-
 
 end
 

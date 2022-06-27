@@ -81,3 +81,9 @@ function get_imagedata_dataset(vtk_file)
 
     return dataset_element
 end
+
+# Return int attribute from XML (if exists) or return 0
+function get_integer(x::LightXML.XMLElement, name::Core.AbstractString)::Int
+  n = attribute(x, name)
+  return isnothing(n) ? 0 : parse(Int, n)
+end

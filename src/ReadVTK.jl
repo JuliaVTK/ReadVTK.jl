@@ -8,10 +8,10 @@ using CodecZlib: ZlibDecompressor
 using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_attribute,
                 child_elements, free, content, find_element
 
-export VTKFile, VTKData, VTKDataArray, VTKCells,       # structs
-       get_point_data, get_cell_data, get_data,        # get data functions
-       get_points, get_cells, get_origin, get_spacing, # get geometry functions
-       get_example_file                                # other functions
+export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,        # structs
+       get_point_data, get_cell_data, get_data,                        # get data functions
+       get_points, get_cells, get_origin, get_spacing, get_primitives, # get geometry functions
+       get_example_file                                                # other functions
 
 """
     VTKFile
@@ -144,7 +144,10 @@ function VTKFile(filename)
   elseif file_type == "PolyData"
     piece = root[file_type][1]["Piece"][1]
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
-    n_cells = 0
+    n_verts  = get_integer(piece, "NumberOfVerts")
+    n_lines  = get_integer(piece, "NumberOfLines")
+    n_polys  = get_integer(piece, "NumberOfPolys")
+    n_cells = n_verts + n_lines + n_polys
   end
 
   # Create and return VTKFile
@@ -525,6 +528,69 @@ end
 # Convenience functions for working with `VTKCells` container
 Base.length(vtk_cells::VTKCells) = length(vtk_cells.types)
 Base.size(vtk_cells::VTKCells) = (length(vtk_cells),)
+
+
+"""
+  VTKPrimitives{Connectivity, Offsets}
+
+Store the `connectivity` and `offsets` information from the VTK PolyData file as one-dimensional
+array-like containers. See the
+[VTK file format documentation](http://vtk.org/VTK/img/file-formats.pdf) for information on how to
+connect the `connectivity` and `offset` arrays to the actual geometric points.
+
+You may use `length` to determine the number of cells from a `VTKPrimitives` object.
+
+See also: [`get_points`](@ref)
+"""
+struct VTKPrimitives{Connectivity, Offsets}
+  connectivity::Connectivity
+  offsets::Offsets
+end
+
+
+"""
+    get_polydata_primitives(vtk_file, primitive_type::Core.AbstractString)
+
+Retrieve VTK primitives as an object of type `VTKPrimitives`.
+Supported values of `primitive type` are : \"Verts\", \"Lines\" or \"Polys\".
+
+See also: [`VTKPrimitives`](@ref)
+"""
+function get_primitives(vtk_file, primitive_type::Core.AbstractString)
+  @assert vtk_file.file_type == "PolyData"
+  if !(primitive_type in ["Verts", "Lines", "Polys"])
+    error(
+      "Unsupported `primitive type`: ", primitive_type, "\n",
+      "supported values are: \"Verts\", \"Lines\" or \"Polys\""
+    )
+  end
+
+  xml = find_element(piece(vtk_file), primitive_type)
+  @assert !isnothing(xml)
+
+  # Iterate over available XML data arrays and store corresponding data in `VTKDataArray`s
+  connectivity = nothing
+  offsets      = nothing
+  for xml_element in xml["DataArray"]
+    a = attribute(xml_element, "Name", required=true)
+    if a == "connectivity"
+      connectivity = VTKDataArray(xml_element, vtk_file)
+    elseif a == "offsets"
+      offsets = VTKDataArray(xml_element, vtk_file)
+    end
+  end
+
+  # Ensure that nothing is missing
+  @assert !isnothing(connectivity)
+  @assert !isnothing(offsets)
+
+  # Create VTKPrimitives container
+  VTKPrimitives(get_data(connectivity), get_data(offsets))
+end
+
+# Convenience functions for working with `VTKPrimitives` container
+Base.length(primitives::VTKPrimitives) = length(primitives.offsets)
+Base.size(primitives::VTKPrimitives) = (length(primitives),)
 
 
 """
