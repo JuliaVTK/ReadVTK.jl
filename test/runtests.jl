@@ -272,7 +272,7 @@ mkpath(TEST_EXAMPLES_DIR)
     points[3, :] .= [0.2 * i for i in 0:n-1]
 
     # define polygons
-    polys = [MeshCell(PolyData.Polys(), i:(i + 3)) for i = 1:n-3]
+    polys = [MeshCell(PolyData.Polys(), i:(i + 3)) for i = 1:(n - 3)]
 
     # define values
     point_values = [4*pi*i/n for i in 0:n-1]
