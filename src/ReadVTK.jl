@@ -549,14 +549,14 @@ end
 
 
 """
-    get_polydata_primitives(vtk_file, primitive_type::Core.AbstractString)
+    get_polydata_primitives(vtk_file, primitive_type::AbstractString)
 
 Retrieve VTK primitives as an object of type `VTKPrimitives`.
 Supported values of `primitive type` are : \"Verts\", \"Lines\" or \"Polys\".
 
 See also: [`VTKPrimitives`](@ref)
 """
-function get_primitives(vtk_file, primitive_type::Core.AbstractString)
+function get_primitives(vtk_file, primitive_type::AbstractString)
   @assert vtk_file.file_type == "PolyData"
   if !(primitive_type in ["Verts", "Lines", "Polys"])
     error(
