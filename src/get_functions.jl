@@ -10,7 +10,7 @@ function get_origin(vtk_file)
   dataset_element = get_imagedata_dataset(vtk_file)
 
   whole_extent = get_whole_extent(vtk_file)
-  
+
   # obtain the origin
   origin = parse.(Float64, split(attribute(dataset_element, "Origin", required=true), ' '))
 
@@ -74,16 +74,10 @@ function get_imagedata_dataset(vtk_file)
     if vtk_file.file_type != "ImageData"
       error("the file_type must be ImageData.")
     end
-    
+
     # open the file and locate the ImageData section
     root = LightXML.root(vtk_file.xml_file)
     dataset_element = root["ImageData"][1]
 
     return dataset_element
-end
-
-# Return int attribute from XML (if exists) or return 0
-function get_integer(x::LightXML.XMLElement, name::Core.AbstractString)::Int
-  n = attribute(x, name)
-  return isnothing(n) ? 0 : parse(Int, n)
 end
