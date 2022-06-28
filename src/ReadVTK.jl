@@ -531,7 +531,7 @@ Base.size(vtk_cells::VTKCells) = (length(vtk_cells),)
 
 
 """
-  VTKPrimitives{Connectivity, Offsets}
+    VTKPrimitives{Connectivity, Offsets}
 
 Store the `connectivity` and `offsets` information from the VTK PolyData file as one-dimensional
 array-like containers. See the
