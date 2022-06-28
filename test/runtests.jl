@@ -1,6 +1,7 @@
 using Test
 using ReadVTK, WriteVTK
 
+
 # Commit in the example file repository for which the test files will be downloaded
 # Note: The purpose of using a specific commit hash (instead of `main`) is to be able to tie a given
 #       version of ReadVTK to a specific version of the test file repository. This way, also tests
@@ -186,13 +187,14 @@ mkpath(TEST_EXAMPLES_DIR)
     cell_data_name     = "Cell scalar data"
 
     # write vti file using WriteVTK
-    vtk_grid("grid", x, y, z) do vtk
+    path = joinpath(TEST_EXAMPLES_DIR, "grid")
+    vtk_grid(path, x, y, z) do vtk
         vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
         vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
     end
     
     # Read vti file using ReadVTK
-    filepath = "grid.vti"
+    filepath = joinpath(TEST_EXAMPLES_DIR, "grid.vti")
     @testset "VTKFile" begin
       @test VTKFile(filepath) isa VTKFile
     end
@@ -225,12 +227,13 @@ mkpath(TEST_EXAMPLES_DIR)
     cell_scalar_field  = rand(Nx-1, Ny-1)
     
     # write 2D vti file using WriteVTK
-    vtk_grid("grid_2D", x, y) do vtk
+    path = joinpath(TEST_EXAMPLES_DIR, "grid_2D")
+    vtk_grid(path, x, y) do vtk
       vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
       vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
     end
 
-    filepath = "grid_2D.vti"
+    filepath = joinpath(TEST_EXAMPLES_DIR, "grid_2D.vti")
     @testset "VTKFile2D" begin
       @test VTKFile(filepath) isa VTKFile
     end
@@ -257,6 +260,103 @@ mkpath(TEST_EXAMPLES_DIR)
     end
 
   end
+
+  # Test set for PolyData
+  @testset "PolyData" begin
+
+    # function to convert VTKPrimitives to a sequence of Int arrays
+    function primitives_to_arrays(primitives::VTKPrimitives)::Vector
+      out = []
+      first = 1
+      for last in primitives.offsets
+        push!(out, primitives.connectivity[first:last] .+ 1)
+        first = last + 1
+      end
+      return out
+    end
+
+    @testset "single type" begin
+      
+      # define some points
+      n = 20
+      points = zeros(3, n)
+      points[1, :] .= [cos(4 * pi * i / n) for i in 0:(n - 1)]
+      points[2, :] .= [sin(4 * pi * i / n) for i in 0:(n - 1)]
+      points[3, :] .= [0.2 * i for i in 0:n-1]
+
+      # define polygons
+      polys = [i:(i + 3) for i = 1:(n - 3)]
+      cells = [MeshCell(PolyData.Polys(), p) for p in polys]
+
+      # define values
+      point_values = [4 * pi * i / n for i in 0:(n - 1)]
+      cell_values = [0.3 * i for i in 1:(n - 3)]
+
+      # save using WriteVTK
+      path = joinpath(TEST_EXAMPLES_DIR, "spiral")
+      vtk_grid(path, points, cells) do vtk
+        vtk["theta", VTKPointData()] = point_values # scalar field attached to points
+        vtk["h", VTKCellData()] = cell_values       # scalar field attached to cells
+      end
+
+      # read data from the vtp file
+      vtk = VTKFile(path * ".vtp")
+
+      # test correctness
+      @test points == get_points(vtk)
+      @test point_values == get_data(get_point_data(vtk)["theta"])
+      @test cell_values == get_data(get_cell_data(vtk)["h"])
+      @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
+      @test_throws Exception get_primitives(vtk, "Foo")
+      @test_throws Exception get_primitives(vtk, "Verts")
+    
+    end
+
+    @testset "mixed types" begin
+
+      # define points of a regular tetrahedron
+      isqrt2 = 1 / sqrt(2)
+      points = permutedims(Float32[
+          1  0 -isqrt2 #1
+         -1  0 -isqrt2 #2
+          0 -1  isqrt2 #3
+          0  1  isqrt2 #4
+      ])
+
+      # define verts
+      verts = [[1], [2], [3], [4]]
+      cells_verts = [MeshCell(PolyData.Verts(), v) for v in verts]
+
+      # define lines
+      lines = [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [4, 1]]
+      cells_lines = [MeshCell(PolyData.Lines(), l) for l in lines]
+      
+      # define polys
+      polys = [[1, 2, 3], [2, 3, 4], [3, 4, 1], [4, 1, 2]]
+      cells_polys = [MeshCell(PolyData.Polys(), p) for p in polys]
+
+      # define cell values
+      cell_values = [i for i in 1:14]
+
+      # save using WriteVTK
+      path = joinpath(TEST_EXAMPLES_DIR, "tetrahedron")
+      vtk_grid(path, points, cells_verts, cells_lines, cells_polys) do vtk
+        vtk["id", VTKCellData()] = cell_values
+      end
+
+      # read data from the vtp file
+      vtk = VTKFile(path*".vtp")
+
+      # test correctness
+      @test cell_values == get_data(get_cell_data(vtk)["id"])
+      @test verts == primitives_to_arrays(get_primitives(vtk, "Verts"))
+      @test lines == primitives_to_arrays(get_primitives(vtk, "Lines"))
+      @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
+    
+    end
+
+  end 
+
 end
 
 
