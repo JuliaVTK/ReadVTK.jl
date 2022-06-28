@@ -74,7 +74,7 @@ Further example VTK files can be found in the
 * Extracting point coordinates
 * Extracting information about cell types
 * Only for `ImageData` files: get origin, spacing, and extent information
-* Reading `PolyData` files containing vortices, lines and/or polygons
+* Reading `PolyData` files containing vortices, lines, and/or polygons
 
 ### What does not work
 * Reading VTK files not stored in the VTK XML format
