@@ -78,7 +78,7 @@ Further example VTK files can be found in the
 
 ### What does not work
 * Reading VTK files not stored in the VTK XML format
-* Reading VTK files of other type than `UnstructuredGrid`, `ImageData` or `PolyData`
+* Reading VTK files of other type than `UnstructuredGrid`, `ImageData`, or `PolyData`
 * Multiblock files, PVD files
 * Different byte orders in file and host system
 * Probably reading from VTK files that were *not* created by [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl) will fail, specifically since
