@@ -85,7 +85,7 @@ Further example VTK files can be found in the
   * compressed data is assumed to be stored as a single block
   * appended data is assumed to be stored as `raw`
   * `header_type` is hardcoded to `UInt64`
-* Extracting primitives from `PolyData` files other than vortices, lines and/or polygons
+* Extracting primitives from `PolyData` files other than vortices, lines, and/or polygons
 * Likely anything else that is not specifically mentioned under *What works*
 
 ## Development
