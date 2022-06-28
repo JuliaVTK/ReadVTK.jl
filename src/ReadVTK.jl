@@ -26,7 +26,7 @@ Hold all relevant information about a VTK XML file that has been read in.
 - `byte_order`: can be `LittleEndian` or `BigEndian` and must currently be the same as the system's
 - `compressor`: can be empty (no compression) or `vtkZLibDataCompressor`
 - `appended_data`: in case of appended data (see XML documentation), the data is stored here for
-                   convenient retrievel (otherwise it is empty)
+                   convenient retrieval (otherwise it is empty)
 - `n_points`: number of points in the VTK file
 - `n_cells`: number of cells in the VTK file`
 """
@@ -144,10 +144,9 @@ function VTKFile(filename)
   elseif file_type == "PolyData"
     piece = root[file_type][1]["Piece"][1]
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
-    n_verts  = get_integer(piece, "NumberOfVerts")
-    n_lines  = get_integer(piece, "NumberOfLines")
-    n_polys  = get_integer(piece, "NumberOfPolys")
-    n_cells = n_verts + n_lines + n_polys
+    # TODO: decide how to handle the number of cells correctly, see  
+    #       https://github.com/trixi-framework/ReadVTK.jl/pull/11
+    n_cells = typemin(Int)
   end
 
   # Create and return VTKFile
@@ -539,8 +538,6 @@ array-like containers. See the
 connect the `connectivity` and `offset` arrays to the actual geometric points.
 
 You may use `length` to determine the number of cells from a `VTKPrimitives` object.
-
-See also: [`get_polydata_primitives`](@ref)
 """
 struct VTKPrimitives{Connectivity, Offsets}
   connectivity::Connectivity
@@ -552,7 +549,7 @@ end
     get_polydata_primitives(vtk_file, primitive_type::AbstractString)
 
 Retrieve VTK primitives as an object of type `VTKPrimitives`.
-Supported values of `primitive type` are : \"Verts\", \"Lines\" or \"Polys\".
+Supported values of `primitive type` are : \"Verts\", \"Lines\", or \"Polys\".
 
 See also: [`VTKPrimitives`](@ref)
 """
@@ -560,13 +557,12 @@ function get_primitives(vtk_file, primitive_type::AbstractString)
   @assert vtk_file.file_type == "PolyData"
   if !(primitive_type in ("Verts", "Lines", "Polys"))
     error(
-      "Unsupported `primitive type`: ", primitive_type, "\n",
-      "supported values are: \"Verts\", \"Lines\" or \"Polys\""
+      "Unsupported `primitive type`: \"", primitive_type, "\". Supported values are: \"Verts\", \"Lines\", or \"Polys\"."
     )
   end
 
   xml = find_element(piece(vtk_file), primitive_type)
-  @assert !isnothing(xml)
+  @assert !isnothing(xml) string("This PolyData file has no primitives of type \"", primitive_type, "\".") 
 
   # Iterate over available XML data arrays and store corresponding data in `VTKDataArray`s
   connectivity = nothing

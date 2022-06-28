@@ -1,6 +1,7 @@
 using Test
 using ReadVTK, WriteVTK
 
+
 # Commit in the example file repository for which the test files will be downloaded
 # Note: The purpose of using a specific commit hash (instead of `main`) is to be able to tie a given
 #       version of ReadVTK to a specific version of the test file repository. This way, also tests
@@ -305,7 +306,6 @@ mkpath(TEST_EXAMPLES_DIR)
       @test points == get_points(vtk)
       @test point_values == get_data(get_point_data(vtk)["theta"])
       @test cell_values == get_data(get_cell_data(vtk)["h"])
-      @test vtk.n_cells == n - 3
       @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
       @test_throws Exception get_primitives(vtk, "Foo")
       @test_throws Exception get_primitives(vtk, "Verts")
@@ -349,7 +349,6 @@ mkpath(TEST_EXAMPLES_DIR)
 
       # test correctness
       @test cell_values == get_data(get_cell_data(vtk)["id"])
-      @test vtk.n_cells == 14
       @test verts == primitives_to_arrays(get_primitives(vtk, "Verts"))
       @test lines == primitives_to_arrays(get_primitives(vtk, "Lines"))
       @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
