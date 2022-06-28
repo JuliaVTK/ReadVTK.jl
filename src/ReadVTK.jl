@@ -558,7 +558,7 @@ See also: [`VTKPrimitives`](@ref)
 """
 function get_primitives(vtk_file, primitive_type::AbstractString)
   @assert vtk_file.file_type == "PolyData"
-  if !(primitive_type in ["Verts", "Lines", "Polys"])
+  if !(primitive_type in ("Verts", "Lines", "Polys"))
     error(
       "Unsupported `primitive type`: ", primitive_type, "\n",
       "supported values are: \"Verts\", \"Lines\" or \"Polys\""
