@@ -540,7 +540,7 @@ connect the `connectivity` and `offset` arrays to the actual geometric points.
 
 You may use `length` to determine the number of cells from a `VTKPrimitives` object.
 
-See also: [`get_points`](@ref)
+See also: [`get_polydata_primitives`](@ref)
 """
 struct VTKPrimitives{Connectivity, Offsets}
   connectivity::Connectivity
