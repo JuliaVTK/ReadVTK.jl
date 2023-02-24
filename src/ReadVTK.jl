@@ -60,6 +60,7 @@ end
 # Header type is hardcoded and corresponds to VTK XML version 1.0
 header_type(::VTKFile) = UInt64
 
+
 # Return true if data is compressed (= XML attribute `compressor` is non-empty in VTK file)
 is_compressed(vtk_file::VTKFile) = !isempty(vtk_file.compressor)
 
@@ -126,7 +127,7 @@ function VTKFile(filename)
            (byte_order == "BigEndian" && !is_little_endian))
 
   # Ensure matching header type
-  @assert header_type == "UInt64"
+  #@assert header_type == "UInt64"
 
   # Ensure supported compression type
   @assert in(compressor, ("", "vtkZLibDataCompressor"))
@@ -136,13 +137,7 @@ function VTKFile(filename)
     piece = root[file_type][1]["Piece"][1]
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
     n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
-  elseif file_type == "ImageData"
-    dataset_element = root[file_type][1]
-    whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
-    n_points_per_grid_dir = [whole_extent[2*i]+1 for i in (1:3)]
-    n_points = prod(n_points_per_grid_dir)
-    n_cells = prod(n_points_per_grid_dir .- 1)
-  elseif file_type == "RectilinearGrid"
+  elseif file_type == "ImageData" || file_type == "RectilinearGrid"
     dataset_element = root[file_type][1]
     whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
     n_points_per_grid_dir = [whole_extent[2*i]+1 for i in (1:3)]
@@ -442,7 +437,6 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatAppended}) where {T,N}
     last = data_array.offset + sizeof(HeaderType)
     header = Int.(reinterpret(HeaderType, raw[first:last]))
     n_bytes = header[1]
-
     first = data_array.offset + sizeof(HeaderType) + 1
     last = first + n_bytes - 1
     uncompressed = view(raw, first:last)
@@ -467,7 +461,7 @@ Note that vectors or tensors will have their components stored in the first dime
 As there is no way to automatically tell from the VTK file format whether it is a tensor, the user has to reshape this accordingly.
 
 """
-function get_data_reshaped(data_array::VTKDataArray{T,Ncomponents}; cell_data=false) where {T,Ncomponents}
+function get_data_reshaped(data_array::VTKDataArray{T,N}; cell_data=false) where {T,N}
 
   data = get_data(data_array);
 

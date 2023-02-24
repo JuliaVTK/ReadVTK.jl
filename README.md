@@ -111,6 +111,8 @@ Further contributions to ReadVTK have been made by the following people:
 (Universidad de la República, Uruguay)
 * [Ondřej Kincl](https://www2.karlin.mff.cuni.cz/~kincl/)
 (Charles University, Czech Republic)
+* [Boris Kaus](https://www.geosciences.uni-mainz.de/geophysics-and-geodynamics/team/univ-prof-dr-boris-kaus/)
+  (Johannes-Gutenberg University Mainz, Germany)
 
 ## License and contributing
 ReadVTK is licensed under the MIT license (see [LICENSE.md](LICENSE.md)).
