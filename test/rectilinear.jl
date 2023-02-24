@@ -1,7 +1,7 @@
 using StaticArrays: SVector, SMatrix
 
 const FloatType = Float32
-const vtk_filename_noext = joinpath(TEST_EXAMPLES_DIR,"rectilinear")
+const vtk_filename_noext = joinpath(TEST_EXAMPLES_DIR, "rectilinear")
 
 outfiles = String[]
 
