@@ -235,9 +235,9 @@ See also: [`VTKData`](@ref), [`get_cell_data`](@ref)
 get_point_data(vtk_file) = get_data_section(vtk_file, "PointData")
 
 """
-  get_coordinate_data(vtk_file)
+    get_coordinate_data(vtk_file)
 
-Retrieve a lightweight `VTKData` object with the coordinates data of the given VTK file.
+Retrieve a lightweight `VTKData` object with the coordinate data of the given VTK file.
 
 See also: [`VTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
 """
