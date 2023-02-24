@@ -9,8 +9,9 @@ using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_
                 child_elements, free, content, find_element
 
 export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,        # structs
-       get_point_data, get_cell_data, get_data,                        # get data functions
+       get_point_data, get_cell_data, get_data, get_data_reshaped,     # get data functions
        get_points, get_cells, get_origin, get_spacing, get_primitives, # get geometry functions
+       get_coordinates, get_coordinate_data,                           # get geometry functions
        get_example_file                                                # other functions
 
 """
@@ -112,7 +113,7 @@ function VTKFile(filename)
   end
 
   # Ensure matching file types
-  if !(file_type in ("UnstructuredGrid", "ImageData", "PolyData"))
+  if !(file_type in ("UnstructuredGrid", "ImageData", "PolyData", "RectilinearGrid"))
     error("Unsupported file type: ", file_type)
   end
 
@@ -135,7 +136,7 @@ function VTKFile(filename)
     piece = root[file_type][1]["Piece"][1]
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
     n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
-  elseif file_type == "ImageData"
+  elseif file_type == "ImageData" || file_type == "RectilinearGrid"
     dataset_element = root[file_type][1]
     whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
     n_points_per_grid_dir = [whole_extent[2*i]+1 for i in (1:3)]
@@ -226,6 +227,15 @@ Retrieve a lightweight `VTKData` object with the point data of the given VTK fil
 See also: [`VTKData`](@ref), [`get_cell_data`](@ref)
 """
 get_point_data(vtk_file) = get_data_section(vtk_file, "PointData")
+
+"""
+    get_coordinate_data(vtk_file)
+
+Retrieve a lightweight `VTKData` object with the coordinate data of the given VTK file.
+
+See also: [`VTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
+"""
+get_coordinate_data(vtk_file) = get_data_section(vtk_file, "Coordinates")
 
 
 # Auxiliary methods for conveniently using `VTKData` objects like a dictionary/collectible
@@ -426,7 +436,6 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatAppended}) where {T,N}
     last = data_array.offset + sizeof(HeaderType)
     header = Int.(reinterpret(HeaderType, raw[first:last]))
     n_bytes = header[1]
-
     first = data_array.offset + sizeof(HeaderType) + 1
     last = first + n_bytes - 1
     uncompressed = view(raw, first:last)
@@ -442,6 +451,49 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatAppended}) where {T,N}
   end
 end
 
+
+"""
+    get_data_reshaped(data_array::VTKDataArray; cell_data=false)
+
+Retrieve actual data from a `VTKDataArray` and reshape it as 1D, 2D, or 3D arrays, in case we deal with structured grids.
+Note that vectors or tensors will have their components stored in the first dimension of the array. 
+As there is no way to automatically tell from the VTK file format whether it is a tensor, the user has to reshape this manually.
+"""
+function get_data_reshaped(data_array::VTKDataArray{T,N}; cell_data=false) where {T,N}
+  data = get_data(data_array);
+
+  # Retrieve size of grid
+  local_size = get_local_size(data_array.vtk_file.xml_file, data_array.vtk_file.file_type, cell_data)
+  
+  # reshape 
+  if N == 1
+    data_reshaped = reshape(data, local_size...)
+  else
+    data_reshaped = reshape(data, N, local_size...)
+  end
+
+  return data_reshaped
+end
+
+"""
+    get_local_size(xml_file, file_type, cell_data=false)
+
+Retrieve the local size of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
+"""
+function get_local_size(xml_file, file_type, cell_data=false)
+  root = LightXML.root(xml_file)
+  dataset_element = root[file_type][1]
+  whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
+
+  local_size = whole_extent[2:2:end] - whole_extent[1:2:end-1] .+ 1
+
+  if cell_data
+    local_size = local_size .- 1
+    local_size[local_size .== 0] .= 1
+  end
+
+  return local_size
+end
 
 """
     get_points(vtk_file)
@@ -466,6 +518,28 @@ function get_points(vtk_file)
   data_array = VTKDataArray(xml_data_array, vtk_file)
 
   get_data(data_array)
+end
+
+"""
+    get_coordinates(vtk_file; x_string="x", y_string="y", z_string="z")
+
+Retrieve VTK coordinate vectors in each direction as a tuple of 1D vectors for a RectilinearGrid file.
+
+Note that in VTK, points are always stored three-dimensional, even for 1D or 2D files, so you will always retrieve a tuple with three vectors.
+
+See also: [`get_cells`](@ref)
+"""
+function get_coordinates(vtk_file; x_string="x", y_string="y", z_string="z")
+  if vtk_file.file_type != "RectilinearGrid"
+      error("The file type of the VTK file must be 'RectilinearGrid' (current: $(vtk_file.file_type)).")
+  end
+
+  coordinates = get_coordinate_data(vtk_file)
+  x = get_data(coordinates[x_string])
+  y = get_data(coordinates[y_string])
+  z = get_data(coordinates[z_string])
+
+  return  x, y, z
 end
 
 
@@ -546,7 +620,7 @@ end
 
 
 """
-    get_polydata_primitives(vtk_file, primitive_type::AbstractString)
+  get_primitives(vtk_file, primitive_type::AbstractString)
 
 Retrieve VTK primitives as an object of type `VTKPrimitives`.
 Supported values of `primitive type` are : \"Verts\", \"Lines\", or \"Polys\".

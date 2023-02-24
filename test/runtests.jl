@@ -212,15 +212,20 @@ mkpath(TEST_EXAMPLES_DIR)
     @testset "get scalar cell data" begin
       cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
       cell_data_reshaped = reshape(cell_data_raw, ((Nx-1), (Ny-1), (Nz-1)))
+      cell_data_reshaped1 = get_data_reshaped(get_cell_data(vtk)[cell_data_name], cell_data=true)
+      
       @test cell_data_reshaped == cell_scalar_field
+      @test cell_data_reshaped1 == cell_scalar_field
     end
 
     @testset "get scalar point data" begin
       point_data_raw = get_data(get_point_data(vtk)[point_data_name])
       point_data_reshaped = reshape(point_data_raw, (Nx, Ny, Nz))
+      point_data_reshaped1 =  get_data_reshaped(get_point_data(vtk)[point_data_name])
+      
       @test point_data_reshaped == point_scalar_field
+      @test point_data_reshaped1 == point_scalar_field
     end
-
 
     # generate random 2D data
     point_scalar_field = rand(Nx, Ny)
@@ -356,6 +361,10 @@ mkpath(TEST_EXAMPLES_DIR)
     end
 
   end 
+  
+  @testset "RectilinearGrid" begin
+    include("rectilinear.jl")
+  end
 
 end
 
