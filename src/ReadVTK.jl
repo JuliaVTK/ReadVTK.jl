@@ -481,7 +481,6 @@ end
 Retrieve the local size of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
 """
 function get_local_size(xml_file, file_type, cell_data=false)
-
   root = LightXML.root(xml_file)
   dataset_element = root[file_type][1]
   whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
