@@ -486,15 +486,14 @@ function get_local_size(xml_file, file_type, cell_data=false)
   dataset_element = root[file_type][1]
   whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
 
-  N = whole_extent[2:2:end] - whole_extent[1:2:end-1] .+ 1
+  Nlocal_size = whole_extent[2:2:end] - whole_extent[1:2:end-1] .+ 1
 
   if cell_data
-    N = N .- 1
-    N[N.==0] .= 1
+    local_size = local_size .- 1
+    local_size[local_size .== 0] .= 1
   end
 
-
-  return N
+  return local_size
 end
 
 """
