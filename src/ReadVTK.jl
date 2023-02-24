@@ -486,9 +486,9 @@ function get_data_reshaped(data_array::VTKDataArray{T,Ncomponents}; cell_data=fa
 end
 
 """
-  get\\_local\\_size(xml_file, file_type, cell_data=false)
+    get_local_size(xml_file, file_type, cell_data=false)
 
-Retrieve the local size of a structured grid (ImageData, RectilinearGrid). Note that this always returns 3 dimensions, even if the data is 1D or 2D. 
+Retrieve the local size of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
 """
 function get_local_size(xml_file, file_type, cell_data=false)
 
