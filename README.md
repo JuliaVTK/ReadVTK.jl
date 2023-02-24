@@ -69,16 +69,17 @@ Further example VTK files can be found in the
 [`ReadVTK_examples` repository](https://github.com/trixi-framework/ReadVTK_examples).
 
 ### What works
-* Reading in VTK XML files of type `UnstructuredGrid` or `ImageData`
+* Reading in VTK XML files of type `UnstructuredGrid`, `RectilinearGrid`,`ImageData`, or `PolyData`
 * Extracting cell or point data
 * Extracting point coordinates
 * Extracting information about cell types
 * Only for `ImageData` files: get origin, spacing, and extent information
+* Only for `RectilinearGrid` files: get 1D coordinate vectors 
 * Reading `PolyData` files containing vortices, lines, and/or polygons
 
 ### What does not work
 * Reading VTK files not stored in the VTK XML format
-* Reading VTK files of other type than `UnstructuredGrid`, `ImageData`, or `PolyData`
+* Reading VTK files of other type than `UnstructuredGrid`, `ImageData`, `RectilinearGrid` or `PolyData`
 * Multiblock files, PVD files
 * Different byte orders in file and host system
 * Probably reading from VTK files that were *not* created by [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl) will fail, specifically since

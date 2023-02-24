@@ -361,7 +361,7 @@ mkpath(TEST_EXAMPLES_DIR)
   end 
   
   @testset "RectilinearGrid" begin
-    include("RectilinearGrid.jl")
+    include("rectilinear.jl")
   end
 
 end
