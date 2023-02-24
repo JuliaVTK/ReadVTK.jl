@@ -543,7 +543,7 @@ function get_coordinates(vtk_file; x_string="x",y_string="y",z_string="z")
   y = get_data(coordinates[y_string])
   z = get_data(coordinates[z_string])
 
-  return  x,y,z
+  return  x, y, z
 end
 
 
