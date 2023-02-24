@@ -214,7 +214,8 @@ mkpath(TEST_EXAMPLES_DIR)
       cell_data_reshaped = reshape(cell_data_raw, ((Nx-1), (Ny-1), (Nz-1)))
       cell_data_reshaped1 = get_data_reshaped(get_cell_data(vtk)[cell_data_name], cell_data=true)
       
-      @test cell_data_reshaped == cell_scalar_field 
+      @test cell_data_reshaped == cell_scalar_field
+      @test cell_data_reshaped1 == cell_scalar_field
     end
 
     @testset "get scalar point data" begin
