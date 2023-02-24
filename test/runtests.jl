@@ -223,7 +223,8 @@ mkpath(TEST_EXAMPLES_DIR)
       point_data_reshaped = reshape(point_data_raw, (Nx, Ny, Nz))
       point_data_reshaped1 =  get_data_reshaped(get_point_data(vtk)[point_data_name])
       
-      @test point_data_reshaped == point_scalar_field == point_data_reshaped1
+      @test point_data_reshaped == point_scalar_field
+      @test point_data_reshaped1 == point_scalar_field
     end
 
     # generate random 2D data
