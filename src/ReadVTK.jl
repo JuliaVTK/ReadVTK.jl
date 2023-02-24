@@ -60,7 +60,6 @@ end
 # Header type is hardcoded and corresponds to VTK XML version 1.0
 header_type(::VTKFile) = UInt64
 
-
 # Return true if data is compressed (= XML attribute `compressor` is non-empty in VTK file)
 is_compressed(vtk_file::VTKFile) = !isempty(vtk_file.compressor)
 
