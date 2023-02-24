@@ -127,7 +127,7 @@ function VTKFile(filename)
            (byte_order == "BigEndian" && !is_little_endian))
 
   # Ensure matching header type
-  #@assert header_type == "UInt64"
+  @assert header_type == "UInt64"
 
   # Ensure supported compression type
   @assert in(compressor, ("", "vtkZLibDataCompressor"))
