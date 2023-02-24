@@ -113,7 +113,7 @@ function VTKFile(filename)
   end
 
   # Ensure matching file types
-  if !(file_type in ("UnstructuredGrid", "ImageData", "PolyData","RectilinearGrid"))
+  if !(file_type in ("UnstructuredGrid", "ImageData", "PolyData", "RectilinearGrid"))
     error("Unsupported file type: ", file_type)
   end
 
