@@ -472,17 +472,16 @@ function get_data_reshaped(data_array::VTKDataArray{T,Ncomponents}; cell_data=fa
   data = get_data(data_array);
 
   # Retrieve size of grid
-  N   = get_local_size(data_array.vtk_file.xml_file, data_array.vtk_file.file_type, cell_data)
+  local_size = get_local_size(data_array.vtk_file.xml_file, data_array.vtk_file.file_type, cell_data)
   
   # reshape 
-  if Ncomponents==1
-    data_reshape = reshape(data, N...)
+  if N == 1
+    data_reshaped = reshape(data, local_size...)
   else
-    data_reshape = reshape(data, Ncomponents, N...)
+    data_reshaped = reshape(data, N, local_size...)
   end
 
-  return data_reshape
- 
+  return data_reshaped
 end
 
 """
