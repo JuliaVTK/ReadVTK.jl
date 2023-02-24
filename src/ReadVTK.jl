@@ -532,10 +532,9 @@ The
 
 See also: [`get_cells`](@ref)
 """
-function get_coordinates(vtk_file; x_string="x",y_string="y",z_string="z")
-
+function get_coordinates(vtk_file; x_string="x", y_string="y", z_string="z")
   if vtk_file.file_type != "RectilinearGrid"
-      error("the file_type must be RectilinearGrid.")
+      error("The file type of the VTK file must be 'RectilinearGrid' (current: $(vtk_file.file_type)).")
   end
 
   coordinates = get_coordinate_data(vtk_file)
