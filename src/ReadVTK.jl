@@ -460,7 +460,6 @@ Note that vectors or tensors will have their components stored in the first dime
 As there is no way to automatically tell from the VTK file format whether it is a tensor, the user has to reshape this manually.
 """
 function get_data_reshaped(data_array::VTKDataArray{T,N}; cell_data=false) where {T,N}
-
   data = get_data(data_array);
 
   # Retrieve size of grid
