@@ -4,6 +4,8 @@ const FloatType = Float32
 const vtk_filename_noext = joinpath(TEST_EXAMPLES_DIR,"rectilinear")
 
 outfiles = String[]
+
+for compress in [true, false]
 for dim in 2:3
     # Define grid.
     if dim == 2
@@ -71,9 +73,9 @@ for dim in 2:3
     # Initialise new vtr file (rectilinear grid).
     local vtk
     if dim == 2
-        vtk = vtk_grid(vtk_filename_noext*"_$(dim)D", x, y; extent=ext)
+        vtk = vtk_grid(vtk_filename_noext*"_$(dim)D", x, y; extent=ext, compress = compress)
     elseif dim == 3
-        vtk = vtk_grid(vtk_filename_noext*"_$(dim)D", x, y, z; extent=ext)
+        vtk = vtk_grid(vtk_filename_noext*"_$(dim)D", x, y, z; extent=ext, compress = compress)
     end
 
     # Add data.
@@ -95,7 +97,7 @@ for dim in 2:3
     name = vtk_save(vtk)[1]
 
     # read the file back     
-    @testset "$name" begin
+    @testset "$name compress=$compress" begin
         vtk_read = VTKFile(name)
         @testset "coordinates" begin 
             # read coordinates
@@ -130,6 +132,7 @@ for dim in 2:3
 
     end
 
+end
 end
 
 
