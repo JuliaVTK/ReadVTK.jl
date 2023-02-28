@@ -334,11 +334,18 @@ get_cell_data(vtk_file::VTKFile) = get_data_section(vtk_file, "CellData")
 """
     get_cell_data(pvtk_file::PVTKFile)
 
-Retrieve a lightweight `VTKData` object with the cell data of the given VTK file.
+Retrieve a lightweight vector with `PVTKData` objects with the cell data of the given PVTK files.
 
-See also: [`VTKData`](@ref), [`get_point_data`](@ref)
+See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
 """
-get_cell_data(pvtk_file::PVTKFile) = get_data_section.(pvtk_file.vtk, "CellData")
+function get_cell_data(pvtk_file::PVTKFile{N}) where N 
+  cdata_v = Vector{VTKData}(undef,N)
+  for i=1:N
+    cdata_v[i] = get_cell_data(pvtk_file.vtk[i])
+  end
+
+  return PVTKData(cdata_v, pvtk_file.xml_file)
+end
 
 
 """
@@ -658,7 +665,7 @@ function get_data_reshaped(data_array::VTKDataArray{T,N}; cell_data=false) where
 
   # Retrieve size of grid
   local_size = get_wholeextent(data_array.vtk_file.xml_file, cell_data)
-  
+
   # reshape 
   if N == 1
     data_reshaped = reshape(data, local_size...)
@@ -695,10 +702,13 @@ function get_data_reshaped(data_array::PVTKDataArray; cell_data=false)
   # collect parts 
   for i=1:length(data_array.data)
     ex = extents[i]
+    if cell_data
+      ex =  (ex[1][1:end-1], ex[2][1:end-1], ex[3][1:end-1]) 
+    end
     if N==1
-      data[ex...] .= get_data_reshaped(data_array.data[i])
+      data[ex...] .= get_data_reshaped(data_array.data[i], cell_data=cell_data)
     else
-      data[1:N, ex...] .= get_data_reshaped(data_array.data[i])
+      data[1:N, ex...] .= get_data_reshaped(data_array.data[i], cell_data=cell_data)
     end
   end
 
