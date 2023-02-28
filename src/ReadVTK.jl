@@ -9,7 +9,7 @@ using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_
                 child_elements, free, content, find_element
 
 export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,           # structs
-       PVTKFile, PVTKData, 
+       PVTKFile, PVTKData, PVTKDataArray,
        get_point_data, get_cell_data, get_data, get_data_reshaped,        # get data functions
        get_points, get_cells, get_origin, get_spacing, get_primitives,    # get geometry functions
        get_coordinates, get_coordinate_data,                              # get geometry functions
@@ -173,6 +173,24 @@ end
 # Return `Piece` XML element that contains all VTK data
 piece(vtk_file::VTKFile) = LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
 
+"""
+  isstructured(type::String)
+Returns `true` is it is a struct
+"""
+function isstructured(xml_file::XMLDocument)
+  root = LightXML.root(xml_file)
+  type = attribute(root, "type", required=true)
+  if type=="RectilinearGrid" || type=="ImageData" || 
+    type=="PRectilinearGrid" || type=="PImageData"
+    structured = true
+
+  else
+    structured = false
+  end
+
+  return structured
+end
+
 
 """
     PVTKFile
@@ -181,35 +199,19 @@ Hold all relevant information about a Parallel VTK XML file that has been read i
 
 # Fields
 - `filename`: original path to the PVTK file that has been read in
+- `xml_file`: xml info
 - `file_type`: currently only `"PRectilinearGrid"` or `"PImageData"` are supported
 - `version`: currently only v1.0 is supported
-- `extents`: the extent of each local portion of the grid (in case of structured grid file)
 - `saved_files`: vector with strings that contain the filenames of each of the parallel files
 - `vtk`: vector with `VTKFile` data that contains the info about each of the files
-- `PPointDataNames`: names of point data in the parallel dataset
-- `PPointDataType`: type of each of the pointdata
-- `PPointDataComponents`: number of components of each of the point data 
-- `PCellDataNames`: names of cell data in the parallel dataset
-- `PCellDataType`: type of each of the cell data
-- `PCellDataComponents`: number of components of each of the cell data 
-- `n_points`: number of points in the VTK file
-- `n_cells`: number of cells in the VTK file`
 """
-struct PVTKFile{N, Npoints, Ncells}
+struct PVTKFile{N}
   filename::String
   xml_file::XMLDocument
   file_type::String
   version::VersionNumber
-  whole_extent::NTuple{3,UnitRange{Int64}}    # extent of full grid (for structured grids)
-  extents::Vector                             # extent of local portion of grid
   saved_files::Vector{String}                  # filenames
   vtk::Vector{VTKFile}
-  PPointDataNames::Vector{String}
-  PPointDataType::Vector{String}
-  PPointDataComponents::Vector{Int}
-  PCellDataNames::Vector{String}
-  PCellDataType::Vector{String}
-  PCellDataComponents::Vector{Int}
 end
 
 """
@@ -255,55 +257,12 @@ function PVTKFile(filename)
     vtk[i] = VTKFile(saved_files[i])
   end
 
-  # Retrieve number of points 
-  dataset_element = root[file_type][1]
-  if file_type=="PImageData" || file_type=="PRectilinearGrid"
-    # Extent of full grid
-    we = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' ')) .+ 1;
-    whole_extent = (we[1]:we[2],  we[3]:we[4],  we[5]:we[6]);  
-    extents = Vector{NTuple{3,UnitRange{Int64}}}(undef,N)
-    for i=1:N
-      ex = parse.(Int,split(attribute(pieces[i],  "Extent", required=true))) .+ 1; 
-      extents[i] = ( ex[1]:ex[2],  ex[3]:ex[4],  ex[5]:ex[6]);          
-    end
-
-  else
-    whole_extent = [];
-    extents = [];
-  end
-
-  # Extract names, type & number of components of PointData and CellData
-  PPointData = root[file_type][1]["PPointData"]
-  if !isempty(PPointData)
-    PPointDataNames = split(attribute(PPointData[1]["PDataArray"][1],"Name"))
-    PPointDataTypes = split(attribute(PPointData[1]["PDataArray"][1],"type"))
-    PPointDataComponents = parse.(Int,split(attribute(PPointData[1]["PDataArray"][1],"NumberOfComponents")))
-  else
-    PPointDataNames=[];
-    PPointDataTypes=[];
-    PPointDataComponents=[]
-  end
-
-  PCellData = root[file_type][1]["PCellData"]
-  if !isempty(PCellData)
-    PCellDataNames = split(attribute(PPointData[1]["PDataArray"][1],"Name"))
-    PCellDataTypes = split(attribute(PPointData[1]["PDataArray"][1],"type"))
-    PCellDataComponents = parse.(Int,split(attribute(PPointData[1]["PDataArray"][1],"NumberOfComponents")))
-  else
-    PCellDataNames=[];
-    PCellDataTypes=[];
-    PCellDataComponents=[]
-  end
-
-  return PVTKFile{length(saved_files), length(PPointDataNames), length(PCellDataNames)}(filename, xml_file, file_type,
-                    version, whole_extent, extents, saved_files,vtk, 
-                    PPointDataNames, PPointDataTypes, PPointDataComponents, 
-                    PCellDataNames, PCellDataTypes, PCellDataComponents)
+  return PVTKFile{N}(filename, xml_file, file_type, version, saved_files, vtk)
 end
 
 # Reduce noise:
-function Base.show(io::IO, vtk_file::PVTKFile{N,Npoints, Ncells}) where {N,Npoints, Ncells}
-  print(io, "PVTKFile{$N,$Npoints,$Ncells}()")
+function Base.show(io::IO, vtk_file::PVTKFile{N}) where N
+  print(io, "PVTKFile{$N}()")
 end
 
 
@@ -432,11 +391,11 @@ Base.length(data::VTKData) = length(data.names)
 Base.size(data::VTKData) = (length(data),)
 Base.keys(data::VTKData) = tuple(data.names...)
 
-Base.firstindex(data::PVTKData) = first(data[1].names)
-Base.lastindex(data::PVTKData) = last(data[1].names)
-Base.length(data::PVTKData) = length(data[1].names)
-Base.size(data::PVTKData) = (length(data[1]),)
-Base.keys(data::PVTKData) = tuple(data[1].names...)
+Base.firstindex(data::PVTKData) = first(data.data[1].names)
+Base.lastindex(data::PVTKData) = last(data.data[1].names)
+Base.length(data::PVTKData) = length(data.data[1].names)
+Base.size(data::PVTKData) = (length(data.data[1]),)
+Base.keys(data::PVTKData) = tuple(data.data[1].names...)
 
 function Base.iterate(data::VTKData, state=1)
   if state > length(data)
@@ -469,11 +428,13 @@ function Base.getindex(data::PVTKData, name)
   for i=1:N
     data_array[i] = VTKDataArray(data.data[i].data_arrays[index], data.data[i].vtk_file)
   end
+  
 
-  return PVTKDataArray(data_array, data.parent_xml)
+  return PVTKDataArray(data.parent_xml, data_array);
 end
 
-Base.eltype(::PVTKData) = Pair{String, PVTKDataArray}
+# Reduce noise:
+Base.eltype(::PVTKData) = Pair{PVTKDataArray, String}
 
 
 """
@@ -496,6 +457,11 @@ struct VTKDataArray{T, N, Format}
   vtk_file::VTKFile
 end
 
+# convencience functions
+number_of_components(d::VTKDataArray{T, N, Format}) where {T, N, Format} = N 
+datatype(d::VTKDataArray{T, N, Format}) where {T, N, Format} = T
+
+
 """
     PVTKDataArray{T, N, Format}
 
@@ -507,9 +473,11 @@ The actual data can be retrieved by calling `get_data` on the `VTKDataArray` obj
 See also: [`get_data`](@ref)
 """
 struct PVTKDataArray
-  data::Vector{VTKDataArray}
   parent_xml::XMLDocument
+  data::Vector{VTKDataArray}
 end
+
+Base.show(io::IO, vtk_file::PVTKDataArray)  = print(io, "PVTKDataArray()")
 
 # Auxiliary types for type stability
 struct FormatBinary end
@@ -689,7 +657,7 @@ function get_data_reshaped(data_array::VTKDataArray{T,N}; cell_data=false) where
   data = get_data(data_array);
 
   # Retrieve size of grid
-  local_size = get_local_size(data_array.vtk_file.xml_file, data_array.vtk_file.file_type, cell_data)
+  local_size = get_wholeextent(data_array.vtk_file.xml_file, cell_data)
   
   # reshape 
   if N == 1
@@ -701,13 +669,56 @@ function get_data_reshaped(data_array::VTKDataArray{T,N}; cell_data=false) where
   return data_reshaped
 end
 
-"""
-    get_local_size(xml_file, file_type, cell_data=false)
 
-Retrieve the local size of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
 """
-function get_local_size(xml_file, file_type, cell_data=false)
+
+Retrieve actual data from a `PVTKDataArray` and reshapes it as 1D, 2D, or 3D arrays, in case we deal with parallel structured grids.
+It also puts it in the correct location the the full grid
+"""
+function get_data_reshaped(data_array::PVTKDataArray; cell_data=false)
+  
+  extents = get_extents( data_array.parent_xml)         # local extents
+  wholeextent = get_wholeextent(data_array.parent_xml)  # global grid size
+  if cell_data
+    wholeextent = wholeextent .- 1
+  end
+  N = number_of_components(data_array.data[1])
+  type = datatype(data_array.data[1])
+  
+  # initialize full grid
+  if N==1
+    data = zeros(type,wholeextent...)    
+  else
+    data = zeros(type,N, wholeextent...) 
+  end
+
+  # collect parts 
+  for i=1:length(data_array.data)
+    ex = extents[i]
+    if N==1
+      data[ex...] .= get_data_reshaped(data_array.data[i])
+    else
+      data[1:N, ex...] .= get_data_reshaped(data_array.data[i])
+    end
+  end
+
+  return data
+end
+
+
+"""
+  get_wholeextent(xml_file, cell_data=false)
+
+Retrieve the size of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
+"""
+function get_wholeextent(xml_file, cell_data=false)
+
+  if !isstructured(xml_file)
+    error("Only works for structured grids ")
+  end
+
   root = LightXML.root(xml_file)
+  file_type = attribute(root, "type", required=true)
   dataset_element = root[file_type][1]
   whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
 
@@ -720,6 +731,35 @@ function get_local_size(xml_file, file_type, cell_data=false)
 
   return local_size
 end
+
+"""
+  get_extents(xml_file)
+
+Retrieve the local size of pieces of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
+"""
+function get_extents(xml_file)
+
+  if !isstructured(xml_file)
+    error("Only works for structured grids ")
+  end
+
+  # Extract names of files & load the data
+  root = LightXML.root(xml_file)
+  file_type = attribute(root, "type", required=true)
+  pieces = root[file_type][1]["Piece"]
+  N      = length(pieces)
+ 
+  # Retrieve number of points 
+  extents = Vector{NTuple{3,UnitRange{Int64}}}(undef,N)
+  for i=1:N
+    ex = parse.(Int,split(attribute(pieces[i],  "Extent", required=true))) .+ 1; # julia starts @ 1
+    extents[i] = ( ex[1]:ex[2],  ex[3]:ex[4],  ex[5]:ex[6]);          
+  end
+
+  return extents
+end
+
+
 
 """
     get_points(vtk_file)
