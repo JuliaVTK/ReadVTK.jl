@@ -8,11 +8,12 @@ using CodecZlib: ZlibDecompressor
 using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_attribute,
                 child_elements, free, content, find_element
 
-export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,        # structs
-       get_point_data, get_cell_data, get_data, get_data_reshaped,     # get data functions
-       get_points, get_cells, get_origin, get_spacing, get_primitives, # get geometry functions
-       get_coordinates, get_coordinate_data,                           # get geometry functions
-       get_example_file                                                # other functions
+export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,           # structs
+       PVTKFile, PVTKData, 
+       get_point_data, get_cell_data, get_data, get_data_reshaped,        # get data functions
+       get_points, get_cells, get_origin, get_spacing, get_primitives,    # get geometry functions
+       get_coordinates, get_coordinate_data,                              # get geometry functions
+       get_example_file                                                   # other functions
 
 """
     VTKFile
@@ -174,6 +175,142 @@ piece(vtk_file::VTKFile) = LightXML.root(vtk_file.xml_file)[vtk_file.file_type][
 
 
 """
+    PVTKFile
+
+Hold all relevant information about a Parallel VTK XML file that has been read in.
+
+# Fields
+- `filename`: original path to the PVTK file that has been read in
+- `file_type`: currently only `"PRectilinearGrid"` or `"PImageData"` are supported
+- `version`: currently only v1.0 is supported
+- `extents`: the extent of each local portion of the grid (in case of structured grid file)
+- `saved_files`: vector with strings that contain the filenames of each of the parallel files
+- `vtk`: vector with `VTKFile` data that contains the info about each of the files
+- `PPointDataNames`: names of point data in the parallel dataset
+- `PPointDataType`: type of each of the pointdata
+- `PPointDataComponents`: number of components of each of the point data 
+- `PCellDataNames`: names of cell data in the parallel dataset
+- `PCellDataType`: type of each of the cell data
+- `PCellDataComponents`: number of components of each of the cell data 
+- `n_points`: number of points in the VTK file
+- `n_cells`: number of cells in the VTK file`
+"""
+struct PVTKFile{N, Npoints, Ncells}
+  filename::String
+  xml_file::XMLDocument
+  file_type::String
+  version::VersionNumber
+  whole_extent::NTuple{3,UnitRange{Int64}}    # extent of full grid (for structured grids)
+  extents::Vector                             # extent of local portion of grid
+  saved_files::Vector{String}                  # filenames
+  vtk::Vector{VTKFile}
+  PPointDataNames::Vector{String}
+  PPointDataType::Vector{String}
+  PPointDataComponents::Vector{Int}
+  PCellDataNames::Vector{String}
+  PCellDataType::Vector{String}
+  PCellDataComponents::Vector{Int}
+end
+
+"""
+    PVTKFile(filename)
+
+Read in and parse the PVTK XML file specified by its `filename`.
+"""
+function PVTKFile(filename)
+  # Read in file into memory as a string
+  raw_file_contents = read(filename, String)
+
+  # Check if file begins with string that indicates this is a VTK file but *not* in XML format
+  if startswith(raw_file_contents, "# pvtk DataFile Version")
+    error("bad PVTK file format (found legacy format; only PVTK XML files are currently supported)")
+  end
+  xml_file_contents = raw_file_contents;
+  
+  # Open file and ensure that it is a valid VTK file
+  xml_file = LightXML.parse_string(xml_file_contents)
+  root = LightXML.root(xml_file)
+  @assert LightXML.name(root) == "VTKFile"
+
+  # Extract attributes (use `required=true` to fail fast & hard in case of unexpected content)
+  file_type = attribute(root, "type", required=true)
+  version = VersionNumber(attribute(root, "version", required=true))
+
+  # Ensure matching file types
+  if !(file_type in ("PImageData", "PRectilinearGrid"))
+    error("Unsupported file type: ", file_type)
+  end
+
+  # Ensure correct version
+  @assert version == v"1.0"
+
+  # Extract names of files & load the data
+  pieces = root[file_type][1]["Piece"]
+  N      = length(pieces)
+  saved_files = Vector{String}(undef, N)  
+  vtk = Vector{VTKFile}(undef, N)  
+  
+  for i=1:N
+    saved_files[i] = attribute(pieces[i],  "Source", required=true)
+    vtk[i] = VTKFile(saved_files[i])
+  end
+
+  # Retrieve number of points 
+  dataset_element = root[file_type][1]
+  if file_type=="PImageData" || file_type=="PRectilinearGrid"
+    # Extent of full grid
+    we = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' ')) .+ 1;
+    whole_extent = (we[1]:we[2],  we[3]:we[4],  we[5]:we[6]);  
+    extents = Vector{NTuple{3,UnitRange{Int64}}}(undef,N)
+    for i=1:N
+      ex = parse.(Int,split(attribute(pieces[i],  "Extent", required=true))) .+ 1; 
+      extents[i] = ( ex[1]:ex[2],  ex[3]:ex[4],  ex[5]:ex[6]);          
+    end
+
+  else
+    whole_extent = [];
+    extents = [];
+  end
+
+  # Extract names, type & number of components of PointData and CellData
+  PPointData = root[file_type][1]["PPointData"]
+  if !isempty(PPointData)
+    PPointDataNames = split(attribute(PPointData[1]["PDataArray"][1],"Name"))
+    PPointDataTypes = split(attribute(PPointData[1]["PDataArray"][1],"type"))
+    PPointDataComponents = parse.(Int,split(attribute(PPointData[1]["PDataArray"][1],"NumberOfComponents")))
+  else
+    PPointDataNames=[];
+    PPointDataTypes=[];
+    PPointDataComponents=[]
+  end
+
+  PCellData = root[file_type][1]["PCellData"]
+  if !isempty(PCellData)
+    PCellDataNames = split(attribute(PPointData[1]["PDataArray"][1],"Name"))
+    PCellDataTypes = split(attribute(PPointData[1]["PDataArray"][1],"type"))
+    PCellDataComponents = parse.(Int,split(attribute(PPointData[1]["PDataArray"][1],"NumberOfComponents")))
+  else
+    PCellDataNames=[];
+    PCellDataTypes=[];
+    PCellDataComponents=[]
+  end
+
+  return PVTKFile{length(saved_files), length(PPointDataNames), length(PCellDataNames)}(filename, xml_file, file_type,
+                    version, whole_extent, extents, saved_files,vtk, 
+                    PPointDataNames, PPointDataTypes, PPointDataComponents, 
+                    PCellDataNames, PCellDataTypes, PCellDataComponents)
+end
+
+# Reduce noise:
+function Base.show(io::IO, vtk_file::PVTKFile{N,Npoints, Ncells}) where {N,Npoints, Ncells}
+  print(io, "PVTKFile{$N,$Npoints,$Ncells}()")
+end
+
+
+# Auxiliary methods 
+Base.keys(data::PVTKFile) = tuple(data.saved_files...)
+
+"""
     VTKData
 
 Convenience type to hold information about available data arrays for cells or points.
@@ -190,8 +327,25 @@ end
 # Reduce REPL noise by defining `show`
 Base.show(io::IO, data::VTKData) = print(io, "VTKData()")
 
+"""
+    PVTKData
+
+Convenience type to hold information about available data arrays for cells or points.
+
+Supports a collectible/dictionary-like syntax, e.g., `keys(pvtk_data)` to show available data arrays
+or `pvtk_data["varname"]` to retrieve the `VTKDataArray` for variable `varname`.
+"""
+struct PVTKData
+  data::Vector{VTKData}
+  parent_xml::XMLDocument
+end
+
+# Reduce REPL noise by defining `show`
+Base.show(io::IO, data::PVTKData) = print(io, "PVTKData()")
+
+
 # Retrieve a data section (should be `CellData` or `PointData`) from the VTK file
-function get_data_section(vtk_file, section)
+function get_data_section(vtk_file::VTKFile, section)
   names = String[]
   data_arrays = XMLElement[]
 
@@ -210,33 +364,66 @@ end
 
 
 """
-    get_cell_data(vtk_file)
+    get_cell_data(vtk_file::VTKFile)
 
 Retrieve a lightweight `VTKData` object with the cell data of the given VTK file.
 
 See also: [`VTKData`](@ref), [`get_point_data`](@ref)
 """
-get_cell_data(vtk_file) = get_data_section(vtk_file, "CellData")
+get_cell_data(vtk_file::VTKFile) = get_data_section(vtk_file, "CellData")
+
+"""
+    get_cell_data(pvtk_file::PVTKFile)
+
+Retrieve a lightweight `VTKData` object with the cell data of the given VTK file.
+
+See also: [`VTKData`](@ref), [`get_point_data`](@ref)
+"""
+get_cell_data(pvtk_file::PVTKFile) = get_data_section.(pvtk_file.vtk, "CellData")
 
 
 """
-    get_point_data(vtk_file)
+    get_point_data(vtk_file::VTKFile)
 
 Retrieve a lightweight `VTKData` object with the point data of the given VTK file.
 
 See also: [`VTKData`](@ref), [`get_cell_data`](@ref)
 """
-get_point_data(vtk_file) = get_data_section(vtk_file, "PointData")
+get_point_data(vtk_file::VTKFile) = get_data_section(vtk_file, "PointData")
 
 """
-    get_coordinate_data(vtk_file)
+    get_point_data(pvtk_file::PVTKFile)
+
+Retrieve a lightweight vector with `PVTKData` objects with the point data of the given PVTK files.
+
+See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
+"""
+function get_point_data(pvtk_file::PVTKFile{N}) where N 
+  pdata_v = Vector{VTKData}(undef,N)
+  for i=1:N
+    pdata_v[i] = get_point_data(pvtk_file.vtk[i])
+  end
+
+  return PVTKData(pdata_v, pvtk_file.xml_file)
+end
+
+"""
+    get_coordinate_data(vtk_file::VTKFile)
 
 Retrieve a lightweight `VTKData` object with the coordinate data of the given VTK file.
 
 See also: [`VTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
 """
-get_coordinate_data(vtk_file) = get_data_section(vtk_file, "Coordinates")
+get_coordinate_data(vtk_file::VTKFile) = get_data_section(vtk_file, "Coordinates")
 
+"""
+    get_coordinate_data(pvtk_file::PVTKFile)
+
+Retrieve a lightweight `{VTKData` object with the coordinate data of the given VTK file.
+
+See also: [`PVTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
+"""
+get_coordinate_data(pvtk_file::PVTKFile) = get_data_section.(pvtk_file.vtk, "Coordinates")
 
 # Auxiliary methods for conveniently using `VTKData` objects like a dictionary/collectible
 Base.firstindex(data::VTKData) = first(data.names)
@@ -244,6 +431,12 @@ Base.lastindex(data::VTKData) = last(data.names)
 Base.length(data::VTKData) = length(data.names)
 Base.size(data::VTKData) = (length(data),)
 Base.keys(data::VTKData) = tuple(data.names...)
+
+Base.firstindex(data::PVTKData) = first(data[1].names)
+Base.lastindex(data::PVTKData) = last(data[1].names)
+Base.length(data::PVTKData) = length(data[1].names)
+Base.size(data::PVTKData) = (length(data[1]),)
+Base.keys(data::PVTKData) = tuple(data[1].names...)
 
 function Base.iterate(data::VTKData, state=1)
   if state > length(data)
@@ -263,7 +456,24 @@ function Base.getindex(data::VTKData, name)
   return VTKDataArray(data.data_arrays[index], data.vtk_file)
 end
 
-Base.eltype(::VTKData) = Pair{String, VTKDataArray}
+
+function Base.getindex(data::PVTKData, name)
+  index = findfirst(isequal(name), data.data[1].names)
+
+  if isnothing(index)
+    throw(KeyError(name))
+  end
+
+  N = length(data.data)
+  data_array = Vector{VTKDataArray}(undef,N)
+  for i=1:N
+    data_array[i] = VTKDataArray(data.data[i].data_arrays[index], data.data[i].vtk_file)
+  end
+
+  return PVTKDataArray(data_array, data.parent_xml)
+end
+
+Base.eltype(::PVTKData) = Pair{String, PVTKDataArray}
 
 
 """
@@ -275,7 +485,7 @@ The data type is encoded as `T`, `N` represents the size of the second dimension
 multi-dimensonal arrays (or `1` for a vector), and `Format` encodes in which format the data is
 stored in the XML file.
 
-The actual data can be retrieved by calling `get_data` on the `VTKDataArray` object.
+The actual data can be retrieved by calling `get_data` on the `PVTKDataArray` object.
 
 See also: [`get_data`](@ref)
 """
@@ -284,6 +494,21 @@ struct VTKDataArray{T, N, Format}
   offset::Int
   data_array::XMLElement
   vtk_file::VTKFile
+end
+
+"""
+    PVTKDataArray{T, N, Format}
+
+Hold information about a parallel PVTK data array (cell data or point data).
+
+
+The actual data can be retrieved by calling `get_data` on the `VTKDataArray` object.
+
+See also: [`get_data`](@ref)
+"""
+struct PVTKDataArray
+  data::Vector{VTKDataArray}
+  parent_xml::XMLDocument
 end
 
 # Auxiliary types for type stability
@@ -329,7 +554,7 @@ retrieving the actual data. You can pass a `VTKDataArray` object to `get_data` t
 
 See also: [`get_data`](@ref)
 """
-function VTKDataArray(xml_element, vtk_file)
+function VTKDataArray(xml_element, vtk_file::VTKFile)
   # Ensure the correct type of the XML element
   @assert LightXML.name(xml_element) == "DataArray"
 
@@ -452,6 +677,7 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatAppended}) where {T,N}
 end
 
 
+
 """
     get_data_reshaped(data_array::VTKDataArray; cell_data=false)
 
@@ -505,7 +731,7 @@ three-dimensional, even for 1D or 2D files.
 
 See also: [`get_cells`](@ref)
 """
-function get_points(vtk_file)
+function get_points(vtk_file::VTKFile)
   # Retrieve `Points` section
   points = find_element(piece(vtk_file), "Points")
   @assert !isnothing(points)
@@ -521,7 +747,7 @@ function get_points(vtk_file)
 end
 
 """
-    get_coordinates(vtk_file; x_string="x", y_string="y", z_string="z")
+    get_coordinates(vtk_file::VTKFile; x_string="x", y_string="y", z_string="z")
 
 Retrieve VTK coordinate vectors in each direction as a tuple of 1D vectors for a RectilinearGrid file.
 
@@ -529,7 +755,7 @@ Note that in VTK, points are always stored three-dimensional, even for 1D or 2D 
 
 See also: [`get_cells`](@ref)
 """
-function get_coordinates(vtk_file; x_string="x", y_string="y", z_string="z")
+function get_coordinates(vtk_file::VTKFile; x_string="x", y_string="y", z_string="z")
   if vtk_file.file_type != "RectilinearGrid"
       error("The file type of the VTK file must be 'RectilinearGrid' (current: $(vtk_file.file_type)).")
   end
@@ -540,6 +766,30 @@ function get_coordinates(vtk_file; x_string="x", y_string="y", z_string="z")
   z = get_data(coordinates[z_string])
 
   return  x, y, z
+end
+
+
+"""
+  get_coordinates(pvtk_file::{VTKFile; x_string="x", y_string="y", z_string="z")
+
+Retrieve VTK coordinate vectors in each direction as a tuple of 1D vectors for a PRectilinearGrid file.
+
+Note that in VTK, points are always stored three-dimensional, even for 1D or 2D files, so you will always retrieve a tuple with three vectors.
+
+See also: [`get_cells`](@ref)
+"""
+function get_coordinates(pvtk_file::PVTKFile{N}; x_string="x", y_string="y", z_string="z") where N
+
+  coords =  get_coordinates.(pvtk_file.vtk,x_string=x_string, y_string=y_string, z_string=z_string);
+
+  x,y,z = coords[1][1][:],coords[1][2][:],coords[1][3][:]
+  for i=2:N
+    x=[x; coords[i][1][:]]
+    y=[y; coords[i][2][:]]
+    z=[z; coords[i][3][:]]
+  end
+  
+  return  unique(x), unique(y), unique(z)
 end
 
 
@@ -569,7 +819,7 @@ Retrieve VTK cell information as an object of type `VTKCells`.
 
 See also: [`VTKCells`](@ref)
 """
-function get_cells(vtk_file)
+function get_cells(vtk_file::VTKFile)
   # Retrieve `Cells` section
   cells = find_element(piece(vtk_file), "Cells")
   @assert !isnothing(cells)
@@ -627,7 +877,7 @@ Supported values of `primitive type` are : \"Verts\", \"Lines\", or \"Polys\".
 
 See also: [`VTKPrimitives`](@ref)
 """
-function get_primitives(vtk_file, primitive_type::AbstractString)
+function get_primitives(vtk_file::VTKFile, primitive_type::AbstractString)
   @assert vtk_file.file_type == "PolyData"
   if !(primitive_type in ("Verts", "Lines", "Polys"))
     error(
