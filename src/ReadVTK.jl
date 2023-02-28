@@ -174,8 +174,8 @@ end
 piece(vtk_file::VTKFile) = LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
 
 """
-  isstructured(type::String)
-Returns `true` is it is a struct
+  isstructured(xml_file::XMLDocument)
+Returns `true` is it is a structured grid
 """
 function isstructured(xml_file::XMLDocument)
   root = LightXML.root(xml_file)
