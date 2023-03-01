@@ -366,7 +366,7 @@ mkpath(TEST_EXAMPLES_DIR)
     include("rectilinear.jl")
   end
 
-  @testset "pvtk files" begin
+  @testset "Parallel VTK (PVTK) files" begin
     include("pvtk_files.jl")
   end
 
