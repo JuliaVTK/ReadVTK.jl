@@ -158,8 +158,6 @@ P_read = get_data(point_data["Pressure"])
 @test sum(all_data[1].points,dims=1)[:] == P_read[1]
 @test sum(all_data[2].points,dims=1)[:] == P_read[2]
 
-
-
+# d) PVD file
 pvd = PVDFile("full_simulation.pvd")
-
 @test pvd.timestep == Vector(times)
