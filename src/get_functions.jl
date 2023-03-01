@@ -27,7 +27,7 @@ end
 
 Retrieve the vector of coordinates of the origin of a uniform grid from the given [`PVTKFile`](@ref) file.
 
-See also: [`VTKFile`](@ref)
+See also: [`PVTKFile`](@ref)
 """
 get_origin(pvtk_file::PVTKFile) = get_origin(VTKFile(pvtk_file.saved_files[1]))
 
