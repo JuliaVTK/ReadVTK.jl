@@ -154,7 +154,8 @@ points = get_points(pvtk)
 @test all_data[2].points == points[2]
 
 point_data = get_point_data(pvtk)
-P_read = get_data(point_data["Pressure"])
+p_data     = point_data["Pressure"]
+P_read = get_data(p_data)
 @test sum(all_data[1].points,dims=1)[:] == P_read[1]
 @test sum(all_data[2].points,dims=1)[:] == P_read[2]
 
