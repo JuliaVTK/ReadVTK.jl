@@ -173,10 +173,11 @@ end
 piece(vtk_file::VTKFile) = LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
 
 """
-  isstructured(xml_file::XMLDocument)
-Returns `true` is it is a structured grid
+    isstructured(xml_file)
+    
+Returns `true` if it is a structured grid.
 """
-function isstructured(xml_file::XMLDocument)
+function isstructured(xml_file)
   root = LightXML.root(xml_file)
   type = attribute(root, "type", required=true)
   if type=="RectilinearGrid" || type=="ImageData" || 
