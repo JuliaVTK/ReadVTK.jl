@@ -727,8 +727,13 @@ end
 
 Retrieve actual data from a `PVTKDataArray` as a one- or two-dimensional array-like container.
 """
-get_data(data_array::PVTKDataArray) = get_data.(data_array.data)
-
+function get_data(data_array::PVTKDataArray) 
+  dat = []
+  for i=1:length(data_array.data)
+    push!(dat,get_data(data_array.data[i]))
+  end
+  return dat
+end
 
 """
     get_data_reshaped(data_array::VTKDataArray; cell_data=false)
