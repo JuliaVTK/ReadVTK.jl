@@ -113,7 +113,7 @@ end
 """
     get_imagedata_dataset(pvtk_file::PVTKFile)
 
-Retrieve ImageData datasets from the given [`PVTKFile`](@ref) file.
+Retrieve a vector of ImageData datasets from the given [`PVTKFile`](@ref) file.
 
 See also: [`PVTKFile`](@ref)
 """
