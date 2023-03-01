@@ -180,10 +180,9 @@ Returns `true` if it is a structured grid.
 function isstructured(xml_file)
   root = LightXML.root(xml_file)
   type = attribute(root, "type", required=true)
-  if type=="RectilinearGrid" || type=="ImageData" || 
-    type=="PRectilinearGrid" || type=="PImageData"
+  if (type == "RectilinearGrid" || type == "ImageData" ||
+      type == "PRectilinearGrid" || type == "PImageData")
     structured = true
-
   else
     structured = false
   end
