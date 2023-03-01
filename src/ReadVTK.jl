@@ -205,20 +205,20 @@ Hold all relevant information about a Parallel VTK XML file that has been read i
 - `vtk`: vector with `VTKFile` data that contains the info about each of the files
 """
 struct PVTKFile{N}
-  filename::String
+  filename::String      # filename
   xml_file::XMLDocument
   file_type::String
   version::VersionNumber
-  saved_files::Vector{String}                  # filenames
+  saved_files::Vector{String}                # filenames
   vtk::Vector{VTKFile}
 end
 
 """
-    PVTKFile(filename)
+    PVTKFile(filename; dir="")
 
-Read in and parse the PVTK XML file specified by its `filename`.
+Read in and parse the PVTK XML file specified by its `filename`. Optionally, an additional directory name `dir` can be specified.
 """
-function PVTKFile(filename)
+function PVTKFile(filename; dir="")
   # Read in file into memory as a string
   raw_file_contents = read(filename, String)
 
@@ -253,7 +253,7 @@ function PVTKFile(filename)
   
   for i=1:N
     saved_files[i] = attribute(pieces[i],  "Source", required=true)
-    vtk[i] = VTKFile(saved_files[i])
+    vtk[i] = VTKFile(joinpath(dir,saved_files[i]))
   end
 
   return PVTKFile{N}(filename, xml_file, file_type, version, saved_files, vtk)
@@ -279,6 +279,7 @@ struct PVDFile{N}
   filename::String
   file_type::String
   file::Vector{String}            # filenames
+  dir::Vector{String}             # directory names
   timestep::Vector{Float64}       # times
 end
 
@@ -315,14 +316,17 @@ function PVDFile(filename)
   pieces = root[file_type][1]["DataSet"]
   N        = length(pieces)
   file     = Vector{String}(undef, N)  
+  dir      = Vector{String}(undef, N)  
   timestep = Vector{Float64}(undef,N)
   
   for i=1:N
-    file[i] = attribute(pieces[i],  "file", required=true)
+    file_dir = attribute(pieces[i],  "file", required=true)
+    file[i] = file_dir;
+    dir[i] = dirname(file_dir);
     timestep[i] = parse(Float64,attribute(pieces[i],  "timestep", required=true))
   end
 
-  return PVDFile{N}(filename, file_type, file, timestep)
+  return PVDFile{N}(filename, file_type, file, dir, timestep)
 end
 
 # Reduce noise:
@@ -737,8 +741,8 @@ function get_data_reshaped(data_array::VTKDataArray{T,N}; cell_data=false) where
   data = get_data(data_array);
 
   # Retrieve size of grid
-  local_size = get_wholeextent(data_array.vtk_file.xml_file, cell_data)
-
+  local_size, _ = get_wholeextent(data_array.vtk_file.xml_file, cell_data)
+  
   # reshape 
   if N == 1
     data_reshaped = reshape(data, local_size...)
@@ -757,8 +761,9 @@ It also puts it in the correct location the the full grid
 """
 function get_data_reshaped(data_array::PVTKDataArray; cell_data=false)
   
-  extents = get_extents( data_array.parent_xml)         # local extents
-  wholeextent = get_wholeextent(data_array.parent_xml)  # global grid size
+  wholeextent, min_extent = get_wholeextent(data_array.parent_xml)  # global grid size
+  extents = get_extents( data_array.parent_xml, min_extent)         # local extents
+
   if cell_data
     wholeextent = wholeextent .- 1
   end
@@ -805,22 +810,25 @@ function get_wholeextent(xml_file, cell_data=false)
   dataset_element = root[file_type][1]
   whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
 
-  local_size = whole_extent[2:2:end] - whole_extent[1:2:end-1] .+ 1
+  min_ex = whole_extent[1:2:end-1]
+  max_ex = whole_extent[2:2:end]
+  
+  local_size = [length(min_ex[i]:max_ex[i]) for i=1:3]
 
   if cell_data
     local_size = local_size .- 1
     local_size[local_size .== 0] .= 1
   end
 
-  return local_size
+  return local_size, min_ex
 end
 
 """
-  get_extents(xml_file)
+  get_extents(xml_file, min_extent=[0;0;0])
 
 Retrieve the local size of pieces of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
 """
-function get_extents(xml_file)
+function get_extents(xml_file, min_extent=[0;0;0])
 
   if !isstructured(xml_file)
     error("Only works for structured grids ")
@@ -835,7 +843,13 @@ function get_extents(xml_file)
   # Retrieve number of points 
   extents = Vector{NTuple{3,UnitRange{Int64}}}(undef,N)
   for i=1:N
-    ex = parse.(Int,split(attribute(pieces[i],  "Extent", required=true))) .+ 1; # julia starts @ 1
+    ex = parse.(Int,split(attribute(pieces[i],  "Extent", required=true))); 
+
+    # julia starts @ 1; sometimes the minimum extent starts @ zero and sometimes @ a custom value
+    ex[1:2] = ex[1:2] .- min_extent[1] .+ 1;  
+    ex[3:4] = ex[3:4] .- min_extent[2] .+ 1;  
+    ex[5:6] = ex[5:6] .- min_extent[3] .+ 1;  
+    
     extents[i] = ( ex[1]:ex[2],  ex[3]:ex[4],  ex[5]:ex[6]);          
   end
 
