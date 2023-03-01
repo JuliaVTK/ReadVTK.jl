@@ -436,9 +436,9 @@ Retrieve a lightweight vector with `PVTKData` objects with the point data of the
 See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
 """
 function get_point_data(pvtk_file::PVTKFile{N}) where N 
-  pdata_v = Vector{VTKData}(undef,N)
+  pdata_v = VTKData[]
   for i=1:N
-    pdata_v[i] = get_point_data(pvtk_file.vtk[i])
+    push!(pdata_v, get_point_data(pvtk_file.vtk[i]))
   end
 
   return PVTKData(pdata_v, pvtk_file.xml_file)
