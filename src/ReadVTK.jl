@@ -9,7 +9,7 @@ using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_
                 child_elements, free, content, find_element
 
 export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,           # structs
-       PVTKFile, PVTKData, PVTKDataArray,
+       PVTKFile, PVTKData, PVTKDataArray, PVDFile,  
        get_point_data, get_cell_data, get_data, get_data_reshaped,        # get data functions
        get_points, get_cells, get_origin, get_spacing, get_primitives,    # get geometry functions
        get_coordinates, get_coordinate_data,                              # get geometry functions
@@ -263,6 +263,73 @@ end
 function Base.show(io::IO, vtk_file::PVTKFile{N}) where N
   print(io, "PVTKFile{$N}()")
 end
+
+"""
+    PVDFile
+
+Hold all relevant information about a PVD file that has been read in.
+
+# Fields
+- `filename`: original path to the PVTK file that has been read in
+- `file_type`:x currently only `"PRectilinearGrid"` or `"PImageData"` are supported
+- `file`: vector with strings that contain the filenames of each of the files
+- `timestep`: vector with `Float64` that contains the time of each of the files
+"""
+struct PVDFile{N}
+  filename::String
+  file_type::String
+  file::Vector{String}            # filenames
+  timestep::Vector{Float64}       # times
+end
+
+"""
+    PVDFile(filename)
+
+Read in and parse the PVD XML file specified by its `filename`.
+"""
+function PVDFile(filename)
+  # Read in file into memory as a string
+  raw_file_contents = read(filename, String)
+
+  # Check if file begins with string that indicates this is a VTK file but *not* in XML format
+  xml_file_contents = raw_file_contents;
+  
+  # Open file and ensure that it is a valid VTK file
+  xml_file = LightXML.parse_string(xml_file_contents)
+  root = LightXML.root(xml_file)
+  @assert LightXML.name(root) == "VTKFile"
+
+  # Extract attributes (use `required=true` to fail fast & hard in case of unexpected content)
+  file_type = attribute(root, "type", required=true)
+  version = VersionNumber(attribute(root, "version", required=true))
+
+  # Ensure matching file types
+  if !(file_type == "Collection")
+    error("Unsupported PVD file type: ", file_type)
+  end
+
+  # Ensure correct version
+  @assert version == v"1.0"
+
+  # Extract names of files & load the data
+  pieces = root[file_type][1]["DataSet"]
+  N        = length(pieces)
+  file     = Vector{String}(undef, N)  
+  timestep = Vector{Float64}(undef,N)
+  
+  for i=1:N
+    file[i] = attribute(pieces[i],  "file", required=true)
+    timestep[i] = parse(Float64,attribute(pieces[i],  "timestep", required=true))
+  end
+
+  return PVDFile{N}(filename, file_type, file, timestep)
+end
+
+# Reduce noise:
+function Base.show(io::IO, d::PVDFile{N}) where N
+  print(io, "PVDFile{$N}()")
+end
+
 
 include("get_functions.jl")
 

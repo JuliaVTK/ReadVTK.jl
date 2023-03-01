@@ -89,7 +89,18 @@ for part = 1:2
     end
 end
 
+# PVD file:
+x, y, z = 0:10, 1:6, 2:0.1:3
+times = range(0, 10; step = 0.5)
 
+saved_files = paraview_collection("full_simulation") do pvd
+    for (n, time) ∈ enumerate(times)
+        vtk_grid("timestep_$n", x, y, z) do vtk
+            vtk["Pressure"] = rand(length(x), length(y), length(z))
+            pvd[time] = vtk
+        end
+    end
+end
 
 
 # (2) Read back files
@@ -148,3 +159,7 @@ P_read = get_data(point_data["Pressure"])
 @test sum(all_data[2].points,dims=1)[:] == P_read[2]
 
 
+
+pvd = PVDFile("full_simulation.pvd")
+
+@test pvd.timestep == Vector(times)
