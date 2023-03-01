@@ -238,7 +238,7 @@ function PVTKFile(filename)
   version = VersionNumber(attribute(root, "version", required=true))
 
   # Ensure matching file types
-  if !(file_type in ("PImageData", "PRectilinearGrid"))
+  if !(file_type in ("PImageData", "PRectilinearGrid","PUnstructuredGrid"))
     error("Unsupported file type: ", file_type)
   end
 
@@ -651,6 +651,12 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatAppended}) where {T,N}
   end
 end
 
+"""
+    get_data(data_array::PVTKDataArray)
+
+Retrieve actual data from a `PVTKDataArray` as a one- or two-dimensional array-like container.
+"""
+get_data(data_array::PVTKDataArray) = get_data.(data_array.data)
 
 
 """
@@ -772,7 +778,7 @@ end
 
 
 """
-    get_points(vtk_file)
+    get_points(vtk_file::VTKFile)
 
 Retrieve VTK points as a two-dimensional array-like container.
 
@@ -795,6 +801,14 @@ function get_points(vtk_file::VTKFile)
 
   get_data(data_array)
 end
+
+"""
+  get_points(vtk_file::PVTKFile)
+
+Retrieve VTK points as a two-dimensional array-like container for a parallel file
+
+"""
+get_points(pvtk_file::PVTKFile) = get_points.(pvtk_file.vtk)
 
 """
     get_coordinates(vtk_file::VTKFile; x_string="x", y_string="y", z_string="z")
