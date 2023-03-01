@@ -64,7 +64,6 @@ header_type(::VTKFile) = UInt64
 # Return true if data is compressed (= XML attribute `compressor` is non-empty in VTK file)
 is_compressed(vtk_file::VTKFile) = !isempty(vtk_file.compressor)
 
-include("get_functions.jl")
 
 """
     VTKFile(filename)
@@ -265,6 +264,7 @@ function Base.show(io::IO, vtk_file::PVTKFile{N}) where N
   print(io, "PVTKFile{$N}()")
 end
 
+include("get_functions.jl")
 
 # Auxiliary methods 
 Base.keys(data::PVTKFile) = tuple(data.saved_files...)
@@ -441,7 +441,7 @@ function Base.getindex(data::PVTKData, name)
 end
 
 # Reduce noise:
-Base.eltype(::PVTKData) = Pair{PVTKDataArray, String}
+Base.eltype(::VTKData) = Pair{String, VTKDataArray}
 
 
 """
