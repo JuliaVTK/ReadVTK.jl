@@ -23,9 +23,10 @@ for part = 1:4
     is, js, ks = extents[part]  # local indices
     xs, ys, zs = xs_global[is], ys_global[js], zs_global[ks]  # local grid
     xs_c, ys_c, zs_c = xs[1:end-1], ys[1:end-1], zs[1:end-1]
-
+    path = joinpath(TEST_EXAMPLES_DIR, "fields")
+  
     saved_files[part] = pvtk_grid(
-            "fields", xs, ys, zs;
+            path, xs, ys, zs;
             part = part, extents = extents,
         ) do pvtk
         pvtk["Temperature"] = [x + 2y + 3z for x ∈ xs, y ∈ ys, z ∈ zs]
@@ -40,8 +41,9 @@ for part = 1:4
   is, js, ks = extents[part]  # local indices
   xs, ys, zs = xs_global[is], ys_global[js], zs_global[ks]  # local grid
   xs_c, ys_c, zs_c = xs[1:end-1], ys[1:end-1], zs[1:end-1]
+  path = joinpath(TEST_EXAMPLES_DIR, "fields")
   saved_files[part] = pvtk_grid(
-          "fields", Vector(xs), Vector(ys), Vector(zs);
+          path, Vector(xs), Vector(ys), Vector(zs);
           part = part, extents = extents,
       ) do pvtk
       pvtk["Temperature"] = [x + 2y + 3z for x ∈ xs, y ∈ ys, z ∈ zs]
@@ -81,8 +83,9 @@ saved_files = Vector{Vector{String}}(undef, 2)  # files saved by each "process"
 
 for part = 1:2
     data = all_data[part]
+    path = joinpath(TEST_EXAMPLES_DIR, "simulation")
     saved_files[part] = pvtk_grid(
-            "simulation", data.points, data.cells;
+            path, data.points, data.cells;
             part = part, nparts = 2,
         ) do pvtk
         pvtk["Pressure"] = sum(data.points; dims = 1)
@@ -93,95 +96,110 @@ end
 x, y, z = 0:10, 1:6, 2:0.1:3
 times = range(0, 10; step = 0.5)
 
-saved_files = paraview_collection("full_simulation") do pvd
+path_pvd = joinpath(TEST_EXAMPLES_DIR, "full_simulation")
+
+saved_files = paraview_collection(path_pvd) do pvd
     for (n, time) ∈ enumerate(times)
-        vtk_grid("timestep_$n", x, y, z) do vtk
+        path = joinpath(TEST_EXAMPLES_DIR, "timestep_$n")
+
+        vtk_grid(path, x, y, z) do vtk
             vtk["Pressure"] = rand(length(x), length(y), length(z))
             pvd[time] = vtk
         end
     end
 end
 
-
 # (2) Read back files
 
 # a) RectilinearGrid file
-pvtk = PVTKFile("fields.pvtr")
-@test isnothing(show(devnull, pvtk))
-@test length(get_coordinate_data(pvtk)) == 4
+@testset "pvtr" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "fields.pvtr")
+  pvtk = PVTKFile(path)
+  @test isnothing(show(devnull, pvtk))
+  @test length(get_coordinate_data(pvtk)) == 4
 
-# various tests for pvtk
-@test basename.(keys(pvtk)) == ("fields_1.vtr", "fields_2.vtr", "fields_3.vtr", "fields_4.vtr")
+  # various tests for pvtk
+  @test basename.(keys(pvtk)) == ("fields_1.vtr", "fields_2.vtr", "fields_3.vtr", "fields_4.vtr")
 
-coords_read = get_coordinates(pvtk)
-@test Vector(xs_global) == coords_read[1]
-@test Vector(ys_global) == coords_read[2]
-@test Vector(zs_global) == coords_read[3]
+  coords_read = get_coordinates(pvtk)
+  @test Vector(xs_global) == coords_read[1]
+  @test Vector(ys_global) == coords_read[2]
+  @test Vector(zs_global) == coords_read[3]
 
-# Extract data
-point_data = get_point_data(pvtk)
+  # Extract data
+  point_data = get_point_data(pvtk)
 
-@test firstindex(point_data) == "Temperature"
-@test lastindex(point_data) == "Velocity"
-@test length(point_data) == 2
-@test size(point_data) == (2,)
-@test keys(point_data) == ("Temperature", "Velocity")
+  @test firstindex(point_data) == "Temperature"
+  @test lastindex(point_data) == "Velocity"
+  @test length(point_data) == 2
+  @test size(point_data) == (2,)
+  @test keys(point_data) == ("Temperature", "Velocity")
 
-T_read = get_data_reshaped(point_data["Temperature"])
-V_read = get_data_reshaped(point_data["Velocity"])
-@test  T_global == T_read
-@test  V_global == V_read
+  T_read = get_data_reshaped(point_data["Temperature"])
+  V_read = get_data_reshaped(point_data["Velocity"])
+  @test  T_global == T_read
+  @test  V_global == V_read
 
-cell_data = get_cell_data(pvtk)
-P_read = get_data_reshaped(cell_data["Pressure"], cell_data=true)
-Phase_read = get_data_reshaped(cell_data["Phase"], cell_data=true)
-@test P_global == P_read
-@test Phase_global == Phase_read
+  cell_data = get_cell_data(pvtk)
+  P_read = get_data_reshaped(cell_data["Pressure"], cell_data=true)
+  Phase_read = get_data_reshaped(cell_data["Phase"], cell_data=true)
+  @test P_global == P_read
+  @test Phase_global == Phase_read
+end
 
 # ImageData file
-pvtk = PVTKFile("fields.pvti")
-whole_extent = ReadVTK.get_whole_extent(pvtk)
-@test whole_extent == [0;9;0;4;0;3]
+@testset "pvti" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "fields.pvti")
+  pvtk = PVTKFile(path)
+  whole_extent = ReadVTK.get_whole_extent(pvtk)
+  @test whole_extent == [0;9;0;4;0;3]
 
-@test length(ReadVTK.get_imagedata_dataset(pvtk))==4
+  @test length(ReadVTK.get_imagedata_dataset(pvtk))==4
 
-spacing = get_spacing(pvtk)
-@test spacing ≈ [ 0.14285714285714285; 0.18181818181818182; 0.3333333333333333]
+  spacing = get_spacing(pvtk)
+  @test spacing ≈ [ 0.14285714285714285; 0.18181818181818182; 0.3333333333333333]
 
-origin = get_origin(pvtk)
-@test origin[1] == xs_global[1]
-@test origin[2] == ys_global[1]
-@test origin[3] == zs_global[1]
+  origin = get_origin(pvtk)
+  @test origin[1] == xs_global[1]
+  @test origin[2] == ys_global[1]
+  @test origin[3] == zs_global[1]
 
-# Extract data
-point_data = get_point_data(pvtk)
-T_read = get_data_reshaped(point_data["Temperature"])
-V_read = get_data_reshaped(point_data["Velocity"])
-@test  T_global == T_read
-@test  V_global == V_read
+  # Extract data
+  point_data = get_point_data(pvtk)
+  T_read = get_data_reshaped(point_data["Temperature"])
+  V_read = get_data_reshaped(point_data["Velocity"])
+  @test  T_global == T_read
+  @test  V_global == V_read
 
-cell_data = get_cell_data(pvtk)
-P_read = get_data_reshaped(cell_data["Pressure"], cell_data=true)
-Phase_read = get_data_reshaped(cell_data["Phase"], cell_data=true)
-@test  P_global == P_read
-@test Phase_global == Phase_read
-
+  cell_data = get_cell_data(pvtk)
+  P_read = get_data_reshaped(cell_data["Pressure"], cell_data=true)
+  Phase_read = get_data_reshaped(cell_data["Phase"], cell_data=true)
+  @test  P_global == P_read
+  @test Phase_global == Phase_read
+end
 
 # c) PVTU files
-pvtk = PVTKFile("simulation.pvtu")
-points = get_points(pvtk)
-@test all_data[1].points == points[1]
-@test all_data[2].points == points[2]
+@testset "pvtu" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "simulation.pvtu")
+  pvtk = PVTKFile(path)
+  points = get_points(pvtk)
+  @test all_data[1].points == points[1]
+  @test all_data[2].points == points[2]
 
-point_data = get_point_data(pvtk)
-p_data     = point_data["Pressure"]
-P_read = get_data(p_data)
-@test isnothing(show(devnull, p_data))
+  point_data = get_point_data(pvtk)
+  p_data     = point_data["Pressure"]
+  P_read = get_data(p_data)
+  @test isnothing(show(devnull, p_data))
 
-@test sum(all_data[1].points,dims=1)[:] == P_read[1]
-@test sum(all_data[2].points,dims=1)[:] == P_read[2]
+  @test sum(all_data[1].points,dims=1)[:] == P_read[1]
+  @test sum(all_data[2].points,dims=1)[:] == P_read[2]
+end
 
 # d) PVD file
-pvd = PVDFile("full_simulation.pvd")
-@test pvd.timestep == Vector(times)
-@test isnothing(show(devnull, pvd))
+@testset "pvd" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "full_simulation.pvd")
+  pvd = PVDFile(path)
+  @test pvd.timestep == Vector(times)
+  @test isnothing(show(devnull, pvd))
+end
+
