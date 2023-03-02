@@ -117,4 +117,4 @@ Retrieve a vector of ImageData datasets from the given [`PVTKFile`](@ref) file.
 
 See also: [`PVTKFile`](@ref)
 """
-get_imagedata_dataset(pvtk_file::PVTKFile) = get_imagedata_dataset.(pvtk.vtk)
+get_imagedata_dataset(pvtk_file::PVTKFile) = get_imagedata_dataset.(pvtk_file.vtk)

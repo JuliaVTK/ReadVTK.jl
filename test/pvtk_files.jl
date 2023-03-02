@@ -108,6 +108,11 @@ end
 # a) RectilinearGrid file
 pvtk = PVTKFile("fields.pvtr")
 
+# various tests for pvtk
+@test keys(pvtk) == ("fields/fields_1.vtr", "fields/fields_2.vtr", "fields/fields_3.vtr", "fields/fields_4.vtr")
+
+
+
 coords_read = get_coordinates(pvtk)
 @test Vector(xs_global) == coords_read[1]
 @test Vector(ys_global) == coords_read[2]
@@ -115,6 +120,13 @@ coords_read = get_coordinates(pvtk)
 
 # Extract data
 point_data = get_point_data(pvtk)
+
+@test firstindex(point_data) == "Temperature"
+@test lastindex(point_data) == "Velocity"
+@test length(point_data) == 2
+@test size(point_data) == (2,)
+@test keys(point_data) == ("Temperature", "Velocity")
+
 T_read = get_data_reshaped(point_data["Temperature"])
 V_read = get_data_reshaped(point_data["Velocity"])
 @test  T_global == T_read
@@ -128,6 +140,12 @@ Phase_read = get_data_reshaped(cell_data["Phase"], cell_data=true)
 
 # ImageData file
 pvtk = PVTKFile("fields.pvti")
+whole_extent = ReadVTK.get_whole_extent(pvtk)
+@test whole_extent == [0;9;0;4;0;3]
+
+spacing = get_spacing(pvtk)
+@test spacing ≈ [ 0.14285714285714285; 0.18181818181818182; 0.3333333333333333]
+
 origin = get_origin(pvtk)
 @test origin[1] == xs_global[1]
 @test origin[2] == ys_global[1]
