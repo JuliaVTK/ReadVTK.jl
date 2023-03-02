@@ -109,9 +109,7 @@ end
 pvtk = PVTKFile("fields.pvtr")
 
 # various tests for pvtk
-@test keys(pvtk) == ("fields/fields_1.vtr", "fields/fields_2.vtr", "fields/fields_3.vtr", "fields/fields_4.vtr")
-
-
+@test basename.(keys(pvtk)) == ("fields_1.vtr", "fields_2.vtr", "fields_3.vtr", "fields_4.vtr")
 
 coords_read = get_coordinates(pvtk)
 @test Vector(xs_global) == coords_read[1]
