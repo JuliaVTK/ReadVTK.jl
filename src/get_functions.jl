@@ -63,7 +63,7 @@ get_spacing(pvtk_file::PVTKFile) = get_spacing(VTKFile(pvtk_file.saved_files[1])
 
 
 """
-    get_whole_extent(vtk_file)
+    get_whole_extent(vtk_file::VTKFile)
 
 Retrieve a vector with the `WholeExtent` 6-entry vector from the uniform grid [`VTKFile`](@ref) file.
 
