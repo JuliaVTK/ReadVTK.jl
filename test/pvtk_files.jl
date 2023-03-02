@@ -205,5 +205,3 @@ end
   @test pvd.timestep == Vector(times)
   @test isnothing(show(devnull, pvd))
 end
-
-@test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true) 
