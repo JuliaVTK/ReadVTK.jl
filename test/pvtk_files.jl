@@ -107,6 +107,8 @@ end
 
 # a) RectilinearGrid file
 pvtk = PVTKFile("fields.pvtr")
+@test isnothing(show(devnull, pvtk))
+@test length(get_coordinate_data(pvtk)) == 4
 
 # various tests for pvtk
 @test basename.(keys(pvtk)) == ("fields_1.vtr", "fields_2.vtr", "fields_3.vtr", "fields_4.vtr")
@@ -141,6 +143,8 @@ pvtk = PVTKFile("fields.pvti")
 whole_extent = ReadVTK.get_whole_extent(pvtk)
 @test whole_extent == [0;9;0;4;0;3]
 
+@test length(ReadVTK.get_imagedata_dataset(pvtk))==4
+
 spacing = get_spacing(pvtk)
 @test spacing ≈ [ 0.14285714285714285; 0.18181818181818182; 0.3333333333333333]
 
@@ -172,9 +176,12 @@ points = get_points(pvtk)
 point_data = get_point_data(pvtk)
 p_data     = point_data["Pressure"]
 P_read = get_data(p_data)
+@test isnothing(show(devnull, p_data))
+
 @test sum(all_data[1].points,dims=1)[:] == P_read[1]
 @test sum(all_data[2].points,dims=1)[:] == P_read[2]
 
 # d) PVD file
 pvd = PVDFile("full_simulation.pvd")
 @test pvd.timestep == Vector(times)
+@test isnothing(show(devnull, pvd))
