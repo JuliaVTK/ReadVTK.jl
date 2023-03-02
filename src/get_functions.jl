@@ -69,7 +69,7 @@ Retrieve a vector with the `WholeExtent` 6-entry vector from the uniform grid [`
 
 See also: [`VTKFile`](@ref)
 """
-function get_whole_extent(vtk_file)
+function get_whole_extent(vtk_file::VTKFile)
   # obtain dataset
   dataset_element = get_imagedata_dataset(vtk_file)
 
