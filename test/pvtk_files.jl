@@ -1,6 +1,9 @@
 # test parallel VTK files
 using WriteVTK, Test, ReadVTK
 
+isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true) 
+mkpath(TEST_EXAMPLES_DIR) 
+
 # (1) Generate parallel structured input files
 
 # Global grid
@@ -203,3 +206,4 @@ end
   @test isnothing(show(devnull, pvd))
 end
 
+@test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true) 
