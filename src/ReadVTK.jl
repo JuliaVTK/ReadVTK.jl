@@ -113,7 +113,7 @@ function VTKFile(filename)
   end
 
   # Ensure matching file types
-  if !(file_type in ("UnstructuredGrid", "ImageData", "PolyData", "RectilinearGrid"))
+  if !(file_type in ("UnstructuredGrid", "ImageData", "PolyData", "RectilinearGrid", "StructuredGrid"))
     error("Unsupported file type: ", file_type)
   end
 
@@ -136,7 +136,7 @@ function VTKFile(filename)
     piece = root[file_type][1]["Piece"][1]
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
     n_cells = parse(Int, attribute(piece, "NumberOfCells", required=true))
-  elseif file_type == "ImageData" || file_type == "RectilinearGrid"
+  elseif file_type == "ImageData" || file_type == "RectilinearGrid" || file_type == "StructuredGrid"
     dataset_element = root[file_type][1]
     whole_extent = parse.(Int, split(attribute(dataset_element, "WholeExtent", required=true), ' '))
     n_points_per_grid_dir = [whole_extent[2*i]+1 for i in (1:3)]
@@ -180,8 +180,8 @@ Returns `true` if it is a structured grid.
 function isstructured(xml_file)
   root = LightXML.root(xml_file)
   type = attribute(root, "type", required=true)
-  if (type == "RectilinearGrid" || type == "ImageData" ||
-      type == "PRectilinearGrid" || type == "PImageData")
+  if (type == "RectilinearGrid" || type == "ImageData" || type == "StructuredGrid" ||
+      type == "PRectilinearGrid" || type == "PImageData" || type == "PStructuredGrid")
     structured = true
   else
     structured = false
@@ -238,7 +238,7 @@ function PVTKFile(filename; dir="")
   version = VersionNumber(attribute(root, "version", required=true))
 
   # Ensure matching file types
-  if !(file_type in ("PImageData", "PRectilinearGrid","PUnstructuredGrid"))
+  if !(file_type in ("PImageData", "PRectilinearGrid", "PUnstructuredGrid", "PStructuredGrid"))
     error("Unsupported file type: ", file_type)
   end
 
@@ -456,7 +456,7 @@ get_coordinate_data(vtk_file::VTKFile) = get_data_section(vtk_file, "Coordinates
 """
     get_coordinate_data(pvtk_file::PVTKFile)
 
-Retrieve a lightweight `{VTKData` object with the coordinate data of the given VTK file.
+Retrieve a lightweight `PVTKData` object with the coordinate data of the given VTK file.
 
 See also: [`PVTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
 """
@@ -906,15 +906,27 @@ Note that in VTK, points are always stored three-dimensional, even for 1D or 2D 
 See also: [`get_cells`](@ref)
 """
 function get_coordinates(vtk_file::VTKFile; x_string="x", y_string="y", z_string="z")
-  if vtk_file.file_type != "RectilinearGrid"
+  if vtk_file.file_type != "RectilinearGrid" && 
+     vtk_file.file_type != "StructuredGrid"
       error("The file type of the VTK file must be 'RectilinearGrid' (current: $(vtk_file.file_type)).")
   end
 
-  coordinates = get_coordinate_data(vtk_file)
-  x = get_data(coordinates[x_string])
-  y = get_data(coordinates[y_string])
-  z = get_data(coordinates[z_string])
+  if  vtk_file.file_type == "RectilinearGrid"
+    coordinates = get_coordinate_data(vtk_file)
+    x = get_data(coordinates[x_string])
+    y = get_data(coordinates[y_string])
+    z = get_data(coordinates[z_string])
 
+  elseif vtk_file.file_type == "StructuredGrid"
+    points = get_points(vtk_file)
+    sz, _ = get_wholeextent(vtk_file.xml_file)
+    coordinates = reshape(points,3,sz...)
+
+    x = coordinates[1,:,:,:]
+    y = coordinates[2,:,:,:]
+    z = coordinates[3,:,:,:]
+  end
+  
   return  x, y, z
 end
 

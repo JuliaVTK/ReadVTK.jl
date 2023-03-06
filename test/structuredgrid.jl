@@ -10,18 +10,27 @@ for compress in [true, false]
     # Define grid.
     if dim == 2
       Ni, Nj, Nk = 20, 30, 1
+
+      x = zeros(FloatType, Ni,Nj)
+      y = zeros(FloatType, Ni,Nj)
+  
+      [x[i,j] = i*i/Ni/Ni for i = 1:Ni, j = 1:Nj]
+      [y[i,j] = sqrt(j/Nj) for i = 1:Ni, j = 1:Nj]
+
+      
     elseif dim == 3
       Ni, Nj, Nk = 20, 30, 40
+      x = zeros(FloatType, Ni,Nj,Nk)
+      y = zeros(FloatType, Ni,Nj,Nk)
+      z = zeros(FloatType, Ni,Nj,Nk)
+  
+      [x[i,j,k] = i*i/Ni/Ni for i = 1:Ni, j = 1:Nj,  k = 1:Nk]
+      [y[i,j,k] = sqrt(j/Nj) for i = 1:Ni, j = 1:Nj,  k = 1:Nk]
+      [z[i,j,k] = k/Nk for i = 1:Ni, j = 1:Nj,  k = 1:Nk]
+  
     end
 
-    x = zeros(FloatType, Ni)
-    y = zeros(FloatType, Nj)
-    z = zeros(FloatType, Nk)
-
-    [x[i] = i*i/Ni/Ni for i = 1:Ni]
-    [y[j] = sqrt(j/Nj) for j = 1:Nj]
-    [z[k] = k/Nk for k = 1:Nk]
-
+  
     # Create some scalar and vector data.
     p = zeros(FloatType, Ni, Nj, Nk)
     q = zeros(FloatType, Ni, Nj, Nk)
@@ -102,10 +111,10 @@ for compress in [true, false]
         # read coordinates
         x_read, y_read, z_read = get_coordinates(vtk_read)
         
-        @test x == x_read
-        @test y == y_read
+        @test sum(abs.(x-x_read)) == 0.0
+        @test sum(abs.(y-y_read)) == 0.0
         if dim==3
-          @test z == z_read
+          @test  sum(abs.(z-z_read)) == 0.0
         end
       end
 
