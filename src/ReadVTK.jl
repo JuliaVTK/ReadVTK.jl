@@ -834,7 +834,6 @@ end
 Retrieve the local size of pieces of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
 """
 function get_extents(xml_file, min_extent=[0;0;0])
-
   if !isstructured(xml_file)
     error("Only works for structured grids ")
   end
