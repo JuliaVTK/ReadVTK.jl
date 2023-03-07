@@ -1,7 +1,7 @@
 using StaticArrays: SVector, SMatrix
 
 const FloatType = Float32
-const vtk_filename_noext = joinpath(TEST_EXAMPLES_DIR, "structuredgrid")
+const vtk_filename_struct_noext = joinpath(TEST_EXAMPLES_DIR, "structuredgrid")
 
 outfiles = String[]
 
@@ -81,9 +81,9 @@ for compress in [true, false]
     # Initialise new vtr file (rectilinear grid).
     local vtk
     if dim == 2
-      vtk = vtk_grid(vtk_filename_noext*"_$(dim)D", x, y; extent=ext, compress = compress)
+      vtk = vtk_grid(vtk_filename_struct_noext*"_$(dim)D", x, y; extent=ext, compress = compress)
     elseif dim == 3
-      vtk = vtk_grid(vtk_filename_noext*"_$(dim)D", x, y, z; extent=ext, compress = compress)
+      vtk = vtk_grid(vtk_filename_struct_noext*"_$(dim)D", x, y, z; extent=ext, compress = compress)
     end
 
     # Add data.
