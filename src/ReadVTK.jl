@@ -511,7 +511,6 @@ function Base.getindex(data::PVTKData, name)
     data_array[i] = VTKDataArray(data.data[i].data_arrays[index], data.data[i].vtk_file)
   end
   
-
   return PVTKDataArray(data.parent_xml, data_array);
 end
 
