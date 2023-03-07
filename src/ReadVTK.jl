@@ -829,7 +829,7 @@ function get_wholeextent(xml_file, cell_data=false)
 end
 
 """
-  get_extents(xml_file, min_extent=[0;0;0])
+    get_extents(xml_file, min_extent=[0;0;0])
 
 Retrieve the local size of pieces of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
 """
