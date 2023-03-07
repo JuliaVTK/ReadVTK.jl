@@ -222,13 +222,12 @@ location of the underlying (serial) VTK files.
 """
 function PVTKFile(filename; dir="")
   # Read in file into memory as a string
-  raw_file_contents = read(filename, String)
+  xml_file_contents = read(filename, String)
 
   # Check if file begins with string that indicates this is a VTK file but *not* in XML format
-  if startswith(raw_file_contents, "# pvtk DataFile Version")
+  if startswith(xml_file_contents, "# pvtk DataFile Version")
     error("bad PVTK file format (found legacy format; only PVTK XML files are currently supported)")
   end
-  xml_file_contents = raw_file_contents;
   
   # Open file and ensure that it is a valid VTK file
   xml_file = LightXML.parse_string(xml_file_contents)
