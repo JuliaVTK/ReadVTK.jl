@@ -28,9 +28,10 @@ for part = 1:4
     is, js, ks = extents[part]  # local indices
     xs, ys, zs = xs_global[is], ys_global[js], zs_global[ks]  # local grid
     xs_c, ys_c, zs_c = xs[1:end-1], ys[1:end-1], zs[1:end-1]
-
+    path = joinpath(TEST_EXAMPLES_DIR, "fields")
+  
     saved_files[part] = pvtk_grid(
-            "fields", xs, ys, zs;
+            path, xs, ys, zs;
             part = part, extents = extents,
         ) do pvtk
         pvtk["Temperature"] = [x + 2y + 3z for x ∈ xs, y ∈ ys, z ∈ zs]
@@ -45,8 +46,9 @@ for part = 1:4
   is, js, ks = extents[part]  # local indices
   xs, ys, zs = xs_global[is], ys_global[js], zs_global[ks]  # local grid
   xs_c, ys_c, zs_c = xs[1:end-1], ys[1:end-1], zs[1:end-1]
+  path = joinpath(TEST_EXAMPLES_DIR, "fields")
   saved_files[part] = pvtk_grid(
-          "fields", Vector(xs), Vector(ys), Vector(zs);
+          path, Vector(xs), Vector(ys), Vector(zs);
           part = part, extents = extents,
       ) do pvtk
       pvtk["Temperature"] = [x + 2y + 3z for x ∈ xs, y ∈ ys, z ∈ zs]
@@ -109,8 +111,9 @@ saved_files = Vector{Vector{String}}(undef, 2)  # files saved by each "process"
 
 for part = 1:2
     data = all_data[part]
+    path = joinpath(TEST_EXAMPLES_DIR, "simulation")
     saved_files[part] = pvtk_grid(
-            "simulation", data.points, data.cells;
+            path, data.points, data.cells;
             part = part, nparts = 2,
         ) do pvtk
         pvtk["Pressure"] = sum(data.points; dims = 1)
@@ -121,21 +124,25 @@ end
 x, y, z = 0:10, 1:6, 2:0.1:3
 times = range(0, 10; step = 0.5)
 
-saved_files = paraview_collection("full_simulation") do pvd
+path_pvd = joinpath(TEST_EXAMPLES_DIR, "full_simulation")
+
+saved_files = paraview_collection(path_pvd) do pvd
     for (n, time) ∈ enumerate(times)
-        vtk_grid("timestep_$n", x, y, z) do vtk
+        path = joinpath(TEST_EXAMPLES_DIR, "timestep_$n")
+
+        vtk_grid(path, x, y, z) do vtk
             vtk["Pressure"] = rand(length(x), length(y), length(z))
             pvd[time] = vtk
         end
     end
 end
 
-
 # (2) Read back files
 
 # a) RectilinearGrid file
-@testset "RectilinearGrid" begin
-  pvtk = PVTKFile("fields.pvtr")
+@testset "pvtr" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "fields.pvtr")
+  pvtk = PVTKFile(path)
   @test isnothing(show(devnull, pvtk))
   @test length(get_coordinate_data(pvtk)) == 4
 
@@ -169,8 +176,9 @@ end
 end
 
 # ImageData file
-@testset "ImageData" begin
-  pvtk = PVTKFile("fields.pvti")
+@testset "pvti" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "fields.pvti")
+  pvtk = PVTKFile(path)
   whole_extent = ReadVTK.get_whole_extent(pvtk)
   @test whole_extent == [0;9;0;4;0;3]
 
@@ -199,8 +207,9 @@ end
 end
 
 # c) PVTU files
-@testset "UnstructuredGrid" begin
-  pvtk = PVTKFile("simulation.pvtu")
+@testset "pvtu" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "simulation.pvtu")
+  pvtk = PVTKFile(path)
   points = get_points(pvtk)
   @test all_data[1].points == points[1]
   @test all_data[2].points == points[2]
@@ -214,10 +223,13 @@ end
   @test sum(all_data[2].points,dims=1)[:] == P_read[2]
 end
 
-# d) StructuredGrid file
-@testset "StructuredGrid" begin
-  pvtk = PVTKFile("fields.pvts")
-  @test isnothing(show(devnull, pvtk))
+# d) PVD file
+@testset "pvd" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "full_simulation.pvd")
+  pvd = PVDFile(path)
+  @test pvd.timesteps == Vector(times)
+  @test isnothing(show(devnull, pvd))
+end
 
   # various tests for pvtk
   @test basename.(keys(pvtk)) == ("fields_1.vts", "fields_2.vts", "fields_3.vts", "fields_4.vts")

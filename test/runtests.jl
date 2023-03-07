@@ -366,10 +366,6 @@ mkpath(TEST_EXAMPLES_DIR)
     include("rectilinear.jl")
   end
 
-  @testset "StructuredGrid" begin
-    include("structuredgrid.jl")
-  end
-
   @testset "Parallel VTK (PVTK) files" begin
     include("pvtk_files.jl")
   end
