@@ -69,12 +69,13 @@ Further example VTK files can be found in the
 [`ReadVTK_examples` repository](https://github.com/trixi-framework/ReadVTK_examples).
 
 ### What works
-* Reading in VTK XML files of type `UnstructuredGrid`, `RectilinearGrid`,`ImageData`, `PUnstructuredGrid`, `PRectilinearGrid`,`PImageData`, or `PolyData`
+* Reading in VTK XML files of type `UnstructuredGrid`, `RectilinearGrid`,`ImageData`, `PUnstructuredGrid`,`PStructuredGrid` `PRectilinearGrid`,`PImageData`, or `PolyData`
 * Extracting cell or point data
 * Extracting point coordinates
 * Extracting information about cell types
 * Only for `ImageData`,`PImageData` files: get origin, spacing, and extent information
 * Only for `RectilinearGrid`,`PRectiLinearGrid` files: get 1D coordinate vectors 
+* Only for `StructuredGrid`,`PStructuredGrid` files: get coordinate arrays 
 * Reading `PolyData` files containing vortices, lines, and/or polygons
 * Reading `PVD` files
   

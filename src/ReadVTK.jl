@@ -181,7 +181,8 @@ function isstructured(xml_file)
   root = LightXML.root(xml_file)
   type = attribute(root, "type", required=true)
   if (type == "RectilinearGrid" || type == "ImageData" ||
-      type == "PRectilinearGrid" || type == "PImageData")
+      type == "PRectilinearGrid" || type == "PImageData" ||
+      type == "StructuredGrid" || type == "PStructuredGrid")
     structured = true
   else
     structured = false
@@ -239,7 +240,7 @@ function PVTKFile(filename; dir="")
   version = VersionNumber(attribute(root, "version", required=true))
 
   # Ensure matching file types
-  if !(file_type in ("PImageData", "PRectilinearGrid","PUnstructuredGrid"))
+  if !(file_type in ("PImageData", "PRectilinearGrid","PUnstructuredGrid", "PStructuredGrid"))
     error("Unsupported file type: ", file_type)
   end
 
@@ -915,14 +916,6 @@ function get_coordinates(vtk_file::VTKFile; x_string="x", y_string="y", z_string
     y = get_data(coordinates[y_string])
     z = get_data(coordinates[z_string])
 
-  elseif vtk_file.file_type == "StructuredGrid"
-    points = get_points(vtk_file)
-    sz, _ = get_wholeextent(vtk_file.xml_file)
-    coordinates = reshape(points,3,sz...)
-
-    x = coordinates[1,:,:,:]
-    y = coordinates[2,:,:,:]
-    z = coordinates[3,:,:,:]
   end
   
   return  x, y, z
@@ -939,16 +932,38 @@ Note that in VTK, points are always stored three-dimensional, even for 1D or 2D 
 See also: [`get_cells`](@ref)
 """
 function get_coordinates(pvtk_file::PVTKFile; x_string="x", y_string="y", z_string="z")
-  coords =  get_coordinates.(pvtk_file.vtk_files,x_string=x_string, y_string=y_string, z_string=z_string);
+  if pvtk_file.file_type== "PStructuredGrid"
+    points = get_points(pvtk_file)
 
-  x,y,z = coords[1][1][:],coords[1][2][:],coords[1][3][:]
-  for i=2:length(pvtk_file)
-    x=[x; coords[i][1][:]]
-    y=[y; coords[i][2][:]]
-    z=[z; coords[i][3][:]]
+    wholeextent, min_extent = get_wholeextent(pvtk_file.xml_file)  # global grid size
+    extents = get_extents( pvtk_file.xml_file, min_extent)         # local extents
+
+    type = typeof(points[1][1])
+    
+    # initialize full grid
+    data = zeros(type,3,wholeextent...) 
+ 
+    # collect parts 
+    for i=1:length(points)
+      ex = extents[i]
+      data[1:3, ex...] .= reshape(points[i],3,length.(extents[i])...);
+      x = data[1,:,:,:]
+      y = data[2,:,:,:]
+      z = data[3,:,:,:]
+    end
+    
+  elseif pvtk_file.file_type== "PRectilinearGrid"
+    coords =  get_coordinates.(pvtk_file.vtk_files,x_string=x_string, y_string=y_string, z_string=z_string);
+    x,y,z = coords[1][1][:],coords[1][2][:],coords[1][3][:]
+    for i=2:length(pvtk_file)
+      x=[x; coords[i][1][:]]
+      y=[y; coords[i][2][:]]
+      z=[z; coords[i][3][:]]
+    end
+    x,y,z = unique(x), unique(y), unique(z)
   end
-  
-  return  unique(x), unique(y), unique(z)
+
+  return x,y,z
 end
 
 

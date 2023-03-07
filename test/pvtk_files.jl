@@ -9,10 +9,9 @@ ys_global = range(-1, 1; length = 12)
 zs_global = range(0, 1; length = 4)
 v_global =  range(0,1,length=3)
 
-Ni, Nj, Nk = length(xs_global), length(ys_global), length(zs_global)
-Xs_global = [xs_global[i] for i=1:Ni, j=1:Nj, k=1:Nk ]
-Ys_global = [ys_global[j] for i=1:Ni, j=1:Nj, k=1:Nk ]
-Zs_global = [zs_global[k] for i=1:Ni, j=1:Nj, k=1:Nk ]
+Xs_global = [xs_global[i] for i=1:length(xs_global), j=1:length(ys_global), k=1:length(zs_global) ]
+Ys_global = [ys_global[j] for i=1:length(xs_global), j=1:length(ys_global), k=1:length(zs_global) ]
+Zs_global = [zs_global[k] for i=1:length(xs_global), j=1:length(ys_global), k=1:length(zs_global) ]
 
 extents = [
     ( 1:10,  1:5, 1:4),  # process 1
@@ -68,9 +67,10 @@ for part = 1:4
   Xs = [xs[i] for i = 1:Ni, j = 1:Nj, k = 1:Nk]
   Ys = [ys[j] for i = 1:Ni, j = 1:Nj, k = 1:Nk]
   Zs = [zs[k] for i = 1:Ni, j = 1:Nj, k = 1:Nk]
-  
+
+  path = joinpath(TEST_EXAMPLES_DIR, "fields")
   saved_files[part] = pvtk_grid(
-          "fields", Xs, Ys, Zs;
+          path, Xs, Ys, Zs;
           part = part, extents = extents,
       ) do pvtk
       pvtk["Temperature"] = [x + 2y + 3z for x ∈ xs, y ∈ ys, z ∈ zs]
@@ -231,14 +231,19 @@ end
   @test isnothing(show(devnull, pvd))
 end
 
+@testset "pvts" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "fields.pvts")
+  pvtk = PVTKFile(path)
+  @test isnothing(show(devnull, pvtk))
+
   # various tests for pvtk
   @test basename.(keys(pvtk)) == ("fields_1.vts", "fields_2.vts", "fields_3.vts", "fields_4.vts")
 
-  # to be fixed
+  # coordinates
   coords_read = get_coordinates(pvtk)
-  @test Vector(xs_global) == coords_read[1]
-  @test Vector(ys_global) == coords_read[2]
-  @test Vector(zs_global) == coords_read[3]
+  @test Xs_global == coords_read[1]
+  @test Ys_global == coords_read[2]
+  @test Zs_global == coords_read[3]
 
   # Extract data
   point_data = get_point_data(pvtk)
@@ -264,7 +269,7 @@ end
 
 # e) PVD file
 @testset "PVD" begin
-  pvd = PVDFile("full_simulation.pvd")
-  @test pvd.timestep == Vector(times)
+  pvd = PVDFile("examples/full_simulation.pvd")
+  @test pvd.timesteps == Vector(times)
   @test isnothing(show(devnull, pvd))
 end
