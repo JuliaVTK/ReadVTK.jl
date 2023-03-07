@@ -368,8 +368,8 @@ Supports a collectible/dictionary-like syntax, e.g., `keys(pvtk_data)` to show a
 or `pvtk_data["varname"]` to retrieve the `VTKDataArray` for variable `varname`.
 """
 struct PVTKData
-  data::Vector{VTKData}
   parent_xml::XMLDocument
+  data::Vector{VTKData}
 end
 
 # Reduce REPL noise by defining `show`
@@ -418,7 +418,7 @@ function get_cell_data(pvtk_file::PVTKFile)
     cdata_v[i] = get_cell_data(pvtk_file.vtk_files[i])
   end
 
-  return PVTKData(cdata_v, pvtk_file.xml_file)
+  return PVTKData(pvtk_file.xml_file, cdata_v)
 end
 
 
@@ -440,12 +440,12 @@ See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
 """
 function get_point_data(pvtk_file::PVTKFile)
   N = length(pvtk_file)
-  pdata_v = VTKData[]
-  for i=1:N
-    push!(pdata_v, get_point_data(pvtk_file.vtk_files[i]))
+  pdata_v = Vector{VTKData}(undef, N)
+  for i in 1:N
+    pdata_v[i] = get_point_data(pvtk_file.vtk_files[i])
   end
 
-  return PVTKData(pdata_v, pvtk_file.xml_file)
+  return PVTKData(pvtk_file.xml_file, pdata_v)
 end
 
 """
@@ -842,11 +842,11 @@ function get_extents(xml_file, min_extent=[0;0;0])
   root = LightXML.root(xml_file)
   file_type = attribute(root, "type", required=true)
   pieces = root[file_type][1]["Piece"]
-  N      = length(pieces)
+  n_pieces = length(pieces)
  
   # Retrieve number of points 
-  extents = Vector{NTuple{3,UnitRange{Int64}}}(undef,N)
-  for i=1:N
+  extents = Vector{NTuple{3,UnitRange{Int64}}}(undef, n_pieces)
+  for i=1:n_pieces
     ex = parse.(Int,split(attribute(pieces[i],  "Extent", required=true))); 
 
     # julia starts @ 1; sometimes the minimum extent starts @ zero and sometimes @ a custom value
