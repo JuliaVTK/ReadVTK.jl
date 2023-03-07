@@ -272,16 +272,16 @@ Hold all relevant information about a PVD file that has been read in.
 
 # Fields
 - `filename`: original path to the PVTK file that has been read in
-- `file_type`:x currently only `"PRectilinearGrid"` or `"PImageData"` are supported
-- `file`: vector with strings that contain the filenames of each of the files
+- `file_type`: currently only `"PRectilinearGrid"` or `"PImageData"` are supported
+- `vtk_filenames`: vector with strings that contain the filenames of each of the files
 - `timestep`: vector with `Float64` that contains the time of each of the files
 """
-struct PVDFile{N}
+struct PVDFile
   filename::String
   file_type::String
-  file::Vector{String}            # filenames
-  dir::Vector{String}             # directory names
-  timestep::Vector{Float64}       # times
+  vtk_filenames::Vector{String}
+  directories::Vector{String}
+  timesteps::Vector{Float64}
 end
 
 """
