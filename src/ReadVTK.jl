@@ -292,10 +292,7 @@ Read in and parse the PVD XML file specified by its `filename`.
 """
 function PVDFile(filename)
   # Read in file into memory as a string
-  raw_file_contents = read(filename, String)
-
-  # Check if file begins with string that indicates this is a VTK file but *not* in XML format
-  xml_file_contents = raw_file_contents;
+  xml_file_contents = read(filename, String)
   
   # Open file and ensure that it is a valid VTK file
   xml_file = LightXML.parse_string(xml_file_contents)
