@@ -928,7 +928,6 @@ Note that in VTK, points are always stored three-dimensional, even for 1D or 2D 
 See also: [`get_cells`](@ref)
 """
 function get_coordinates(pvtk_file::PVTKFile{N}; x_string="x", y_string="y", z_string="z") where N
-
   coords =  get_coordinates.(pvtk_file.vtk,x_string=x_string, y_string=y_string, z_string=z_string);
 
   x,y,z = coords[1][1][:],coords[1][2][:],coords[1][3][:]
