@@ -274,6 +274,7 @@ Hold all relevant information about a PVD file that has been read in.
 - `filename`: original path to the PVTK file that has been read in
 - `file_type`: currently only `"PRectilinearGrid"` or `"PImageData"` are supported
 - `vtk_filenames`: vector with strings that contain the filenames of each of the files
+- `directories`: vector with strings that contain the directories where each of the files are
 - `timestep`: vector with `Float64` that contains the time of each of the files
 """
 struct PVDFile
@@ -327,12 +328,12 @@ function PVDFile(filename)
     timestep[i] = parse(Float64,attribute(pieces[i],  "timestep", required=true))
   end
 
-  return PVDFile{N}(filename, file_type, file, dir, timestep)
+  return PVDFile(filename, file_type, file, dir, timestep)
 end
 
 # Reduce noise:
-function Base.show(io::IO, d::PVDFile{N}) where N
-  print(io, "PVDFile{$N}()")
+function Base.show(io::IO, d::PVDFile)
+  print(io, "PVDFile()")
 end
 
 
