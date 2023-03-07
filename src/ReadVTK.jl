@@ -919,7 +919,7 @@ end
 
 
 """
-  get_coordinates(pvtk_file::{VTKFile; x_string="x", y_string="y", z_string="z")
+    get_coordinates(pvtk_file::{VTKFile; x_string="x", y_string="y", z_string="z")
 
 Retrieve VTK coordinate vectors in each direction as a tuple of 1D vectors for a PRectilinearGrid file.
 
