@@ -63,17 +63,19 @@ Further example VTK files can be found in the
 [`ReadVTK_examples` repository](https://github.com/trixi-framework/ReadVTK_examples).
 
 ### What works
-* Reading in VTK XML files of type `UnstructuredGrid` or `ImageData`
+* Reading in VTK XML files of type `UnstructuredGrid`, `RectilinearGrid`,`ImageData`, `PUnstructuredGrid`, `PRectilinearGrid`,`PImageData`, or `PolyData`
 * Extracting cell or point data
 * Extracting point coordinates
 * Extracting information about cell types
-* Only for `ImageData` files: get origin, spacing, and extent information
+* Only for `ImageData`,`PImageData` files: get origin, spacing, and extent information
+* Only for `RectilinearGrid`,`PRectiLinearGrid` files: get 1D coordinate vectors 
 * Reading `PolyData` files containing vortices, lines, and/or polygons
+* Reading `PVD` files
 
 ### What does not work
 * Reading VTK files not stored in the VTK XML format
-* Reading VTK files of other type than `UnstructuredGrid`, `ImageData`, or `PolyData`
-* Multiblock files, PVD files
+* Reading VTK files of other type than what is listed under *What works* above
+* Multiblock files
 * Different byte orders in file and host system
 * Probably reading from VTK files that were *not* created by [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl) will fail, specifically since
   * compressed data is assumed to be stored as a single block
@@ -81,7 +83,6 @@ Further example VTK files can be found in the
   * `header_type` is hardcoded to `UInt64`
 * Extracting primitives from `PolyData` files other than vortices, lines, and/or polygons
 * Likely anything else that is not specifically mentioned under *What works*
-
 ## Development
 Helpful resources for working with (i.e., reading and writing) VTK XML files:
 * VTK file format documentation (incomplete!) as a [PDF](http://vtk.org/VTK/img/file-formats.pdf)
@@ -104,6 +105,8 @@ Further contributions to ReadVTK have been made by the following people:
 (Universidad de la República, Uruguay)
 * [Ondřej Kincl](https://www2.karlin.mff.cuni.cz/~kincl/)
 (Charles University, Czech Republic)
+* [Boris Kaus](https://www.geosciences.uni-mainz.de/geophysics-and-geodynamics/team/univ-prof-dr-boris-kaus/)
+  (Johannes-Gutenberg University Mainz, Germany)
 
 ## License and contributing
 ReadVTK is licensed under the MIT license (see [License](@ref)).

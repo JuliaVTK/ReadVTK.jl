@@ -1,11 +1,11 @@
 """
-    get_origin(vtk_file)
+    get_origin(vtk_file::VTKFile)
 
 Retrieve the vector of coordinates of the origin of a uniform grid from the given [`VTKFile`](@ref) file.
 
 See also: [`VTKFile`](@ref)
 """
-function get_origin(vtk_file)
+function get_origin(vtk_file::VTKFile)
   # obtain dataset
   dataset_element = get_imagedata_dataset(vtk_file)
 
@@ -23,13 +23,22 @@ end
 
 
 """
-    get_spacing(vtk_file)
+    get_origin(pvtk_file::PVTKFile)
+
+Retrieve the vector of coordinates of the origin of a uniform grid from the given [`PVTKFile`](@ref) file.
+
+See also: [`PVTKFile`](@ref)
+"""
+get_origin(pvtk_file::PVTKFile) = get_origin(VTKFile(pvtk_file.vtk_filenames[1]))
+
+"""
+    get_spacing(vtk_file::VTKFile)
 
 Retrieve a vector with the regular increments in each coordinate direction of the uniform grid from the given [`VTKFile`](@ref) file.
 
 See also: [`VTKFile`](@ref)
 """
-function get_spacing(vtk_file)
+function get_spacing(vtk_file::VTKFile)
   # obtain dataset
   dataset_element = get_imagedata_dataset(vtk_file)
 
@@ -43,15 +52,24 @@ function get_spacing(vtk_file)
   return spacing
 end
 
+"""
+    get_spacing(pvtk_file::PVTKFile)
+
+Retrieve a vector with the regular increments in each coordinate direction of the uniform grid from the given [`PVTKFile`](@ref) file.
+
+See also: [`PVTKFile`](@ref)
+"""
+get_spacing(pvtk_file::PVTKFile) = get_spacing(VTKFile(pvtk_file.vtk_filenames[1]))
+
 
 """
-    get_whole_extent(vtk_file)
+    get_whole_extent(vtk_file::VTKFile)
 
 Retrieve a vector with the `WholeExtent` 6-entry vector from the uniform grid [`VTKFile`](@ref) file.
 
 See also: [`VTKFile`](@ref)
 """
-function get_whole_extent(vtk_file)
+function get_whole_extent(vtk_file::VTKFile)
   # obtain dataset
   dataset_element = get_imagedata_dataset(vtk_file)
 
@@ -61,15 +79,24 @@ function get_whole_extent(vtk_file)
   return whole_extent
 end
 
+"""
+    get_whole_extent(pvtk_file::PVTKFile)
+
+Retrieve a vector with the `WholeExtent` 6-entry vector from the uniform grid [`PVTKFile`](@ref) file.
+
+See also: [`PVTKFile`](@ref)
+"""
+get_whole_extent(pvtk_file::PVTKFile) = get_whole_extent(VTKFile(pvtk_file.vtk_filenames[1]))
+
 
 """
-    get_imagedata_dataset(vtk_file)
+    get_imagedata_dataset(vtk_file::VTKFile)
 
 Retrieve ImageData dataset from the given [`VTKFile`](@ref) file.
 
 See also: [`VTKFile`](@ref)
 """
-function get_imagedata_dataset(vtk_file)
+function get_imagedata_dataset(vtk_file::VTKFile)
     # check imagedata
     if vtk_file.file_type != "ImageData"
       error("the file_type must be ImageData.")
@@ -81,3 +108,13 @@ function get_imagedata_dataset(vtk_file)
 
     return dataset_element
 end
+
+
+"""
+    get_imagedata_dataset(pvtk_file::PVTKFile)
+
+Retrieve a vector of ImageData datasets from the given [`PVTKFile`](@ref) file.
+
+See also: [`PVTKFile`](@ref)
+"""
+get_imagedata_dataset(pvtk_file::PVTKFile) = get_imagedata_dataset.(pvtk_file.vtk_files)
