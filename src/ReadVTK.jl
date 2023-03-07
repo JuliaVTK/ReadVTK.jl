@@ -306,7 +306,7 @@ function PVDFile(filename)
   version = VersionNumber(attribute(root, "version", required=true))
 
   # Ensure matching file types
-  if !(file_type == "Collection")
+  if file_type != "Collection"
     error("Unsupported PVD file type: ", file_type)
   end
 
