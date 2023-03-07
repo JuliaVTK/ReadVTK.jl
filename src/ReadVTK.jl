@@ -766,7 +766,6 @@ Retrieve actual data from a `PVTKDataArray` and reshapes it as 1D, 2D, or 3D arr
 It also puts it in the correct location the the full grid
 """
 function get_data_reshaped(data_array::PVTKDataArray; cell_data=false)
-  
   wholeextent, min_extent = get_wholeextent(data_array.parent_xml)  # global grid size
   extents = get_extents( data_array.parent_xml, min_extent)         # local extents
 
