@@ -545,7 +545,7 @@ datatype(d::VTKDataArray{T, N, Format}) where {T, N, Format} = T
 
 
 """
-    PVTKDataArray{T, N, Format}
+    PVTKDataArray
 
 Hold information about a parallel PVTK data array (cell data or point data).
 
