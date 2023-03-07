@@ -201,16 +201,16 @@ Hold all relevant information about a Parallel VTK XML file that has been read i
 - `xml_file`: xml info
 - `file_type`: currently only `"PRectilinearGrid"` or `"PImageData"` are supported
 - `version`: currently only v1.0 is supported
-- `saved_files`: vector with strings that contain the filenames of each of the parallel files
-- `vtk`: vector with `VTKFile` data that contains the info about each of the files
+- `vtk_filenames`: vector with strings that contain the filenames of each of the parallel files
+- `vtk_files`: vector with `VTKFile` data that contains the info about each of the files
 """
-struct PVTKFile{N}
-  filename::String      # filename
+struct PVTKFile
+  filename::String     
   xml_file::XMLDocument
   file_type::String
   version::VersionNumber
-  saved_files::Vector{String}                # filenames
-  vtk::Vector{VTKFile}
+  vtk_filenames::Vector{String} 
+  vtk_files::Vector{VTKFile}
 end
 
 """
@@ -249,20 +249,20 @@ function PVTKFile(filename; dir="")
   # Extract names of files & load the data
   pieces = root[file_type][1]["Piece"]
   N      = length(pieces)
-  saved_files = Vector{String}(undef, N)  
+  vtk_filenames = Vector{String}(undef, N)  
   vtk = Vector{VTKFile}(undef, N)  
   
   for i=1:N
-    saved_files[i] = attribute(pieces[i],  "Source", required=true)
-    vtk[i] = VTKFile(joinpath(dir,saved_files[i]))
+    vtk_filenames[i] = attribute(pieces[i],  "Source", required=true)
+    vtk[i] = VTKFile(joinpath(dir,vtk_filenames[i]))
   end
 
-  return PVTKFile{N}(filename, xml_file, file_type, version, saved_files, vtk)
+  return PVTKFile(filename, xml_file, file_type, version, vtk_filenames, vtk)
 end
 
 # Reduce noise:
-function Base.show(io::IO, vtk_file::PVTKFile{N}) where N
-  print(io, "PVTKFile{$N}()")
+function Base.show(io::IO, vtk_file::PVTKFile)
+  print(io, "PVTKFile()")
 end
 
 """
@@ -339,7 +339,8 @@ end
 include("get_functions.jl")
 
 # Auxiliary methods 
-Base.keys(data::PVTKFile) = tuple(data.saved_files...)
+Base.keys(data::PVTKFile) = tuple(data.vtk_filenames...)
+Base.length(pvtk_file::PVTKFile) = length(pvtk_file.vtk_filenames)
 
 """
     VTKData
@@ -410,10 +411,11 @@ Retrieve a lightweight vector with `PVTKData` objects with the cell data of the 
 
 See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
 """
-function get_cell_data(pvtk_file::PVTKFile{N}) where N 
+function get_cell_data(pvtk_file::PVTKFile)
+  N = length(pvtk_file)
   cdata_v = Vector{VTKData}(undef,N)
   for i=1:N
-    cdata_v[i] = get_cell_data(pvtk_file.vtk[i])
+    cdata_v[i] = get_cell_data(pvtk_file.vtk_files[i])
   end
 
   return PVTKData(cdata_v, pvtk_file.xml_file)
@@ -436,10 +438,11 @@ Retrieve a lightweight vector with `PVTKData` objects with the point data of the
 
 See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
 """
-function get_point_data(pvtk_file::PVTKFile{N}) where N 
+function get_point_data(pvtk_file::PVTKFile)
+  N = length(pvtk_file)
   pdata_v = VTKData[]
   for i=1:N
-    push!(pdata_v, get_point_data(pvtk_file.vtk[i]))
+    push!(pdata_v, get_point_data(pvtk_file.vtk_files[i]))
   end
 
   return PVTKData(pdata_v, pvtk_file.xml_file)
@@ -461,7 +464,7 @@ Retrieve a lightweight `{VTKData` object with the coordinate data of the given V
 
 See also: [`PVTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
 """
-get_coordinate_data(pvtk_file::PVTKFile) = get_data_section.(pvtk_file.vtk, "Coordinates")
+get_coordinate_data(pvtk_file::PVTKFile) = get_data_section.(pvtk_file.vtk_files, "Coordinates")
 
 # Auxiliary methods for conveniently using `VTKData` objects like a dictionary/collectible
 Base.firstindex(data::VTKData) = first(data.names)
@@ -893,7 +896,7 @@ end
 Retrieve VTK points as a two-dimensional array-like container for a parallel file
 
 """
-get_points(pvtk_file::PVTKFile) = get_points.(pvtk_file.vtk)
+get_points(pvtk_file::PVTKFile) = get_points.(pvtk_file.vtk_files)
 
 """
     get_coordinates(vtk_file::VTKFile; x_string="x", y_string="y", z_string="z")
@@ -927,8 +930,9 @@ Note that in VTK, points are always stored three-dimensional, even for 1D or 2D 
 
 See also: [`get_cells`](@ref)
 """
-function get_coordinates(pvtk_file::PVTKFile{N}; x_string="x", y_string="y", z_string="z") where N
-  coords =  get_coordinates.(pvtk_file.vtk,x_string=x_string, y_string=y_string, z_string=z_string);
+function get_coordinates(pvtk_file::PVTKFile; x_string="x", y_string="y", z_string="z")
+  N = length(pvtk_file)
+  coords =  get_coordinates.(pvtk_file.vtk_files,x_string=x_string, y_string=y_string, z_string=z_string);
 
   x,y,z = coords[1][1][:],coords[1][2][:],coords[1][3][:]
   for i=2:N

@@ -29,7 +29,7 @@ Retrieve the vector of coordinates of the origin of a uniform grid from the give
 
 See also: [`PVTKFile`](@ref)
 """
-get_origin(pvtk_file::PVTKFile) = get_origin(VTKFile(pvtk_file.saved_files[1]))
+get_origin(pvtk_file::PVTKFile) = get_origin(VTKFile(pvtk_file.vtk_filenames[1]))
 
 """
     get_spacing(vtk_file::VTKFile)
@@ -59,7 +59,7 @@ Retrieve a vector with the regular increments in each coordinate direction of th
 
 See also: [`PVTKFile`](@ref)
 """
-get_spacing(pvtk_file::PVTKFile) = get_spacing(VTKFile(pvtk_file.saved_files[1]))
+get_spacing(pvtk_file::PVTKFile) = get_spacing(VTKFile(pvtk_file.vtk_filenames[1]))
 
 
 """
@@ -86,7 +86,7 @@ Retrieve a vector with the `WholeExtent` 6-entry vector from the uniform grid [`
 
 See also: [`PVTKFile`](@ref)
 """
-get_whole_extent(pvtk_file::PVTKFile) = get_whole_extent(VTKFile(pvtk_file.saved_files[1]))
+get_whole_extent(pvtk_file::PVTKFile) = get_whole_extent(VTKFile(pvtk_file.vtk_filenames[1]))
 
 
 """
@@ -117,4 +117,4 @@ Retrieve a vector of ImageData datasets from the given [`PVTKFile`](@ref) file.
 
 See also: [`PVTKFile`](@ref)
 """
-get_imagedata_dataset(pvtk_file::PVTKFile) = get_imagedata_dataset.(pvtk_file.vtk)
+get_imagedata_dataset(pvtk_file::PVTKFile) = get_imagedata_dataset.(pvtk_file.vtk_files)

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VTKFile type="PRectilinearGrid" version="1.0" byte_order="LittleEndian">
+  <PRectilinearGrid GhostLevel="0" WholeExtent="0 14 0 11 0 3">
+    <Piece Source="fields/fields_1.vtr" Extent="0 9 0 4 0 3"/>
+    <Piece Source="fields/fields_2.vtr" Extent="9 14 0 4 0 3"/>
+    <Piece Source="fields/fields_3.vtr" Extent="0 9 4 11 0 3"/>
+    <Piece Source="fields/fields_4.vtr" Extent="9 14 4 11 0 3"/>
+    <PCoordinates>
+      <PDataArray type="Float64" Name="x" NumberOfComponents="1"/>
+      <PDataArray type="Float64" Name="y" NumberOfComponents="1"/>
+      <PDataArray type="Float64" Name="z" NumberOfComponents="1"/>
+    </PCoordinates>
+    <PPointData>
+      <PDataArray type="Float64" Name="Temperature" NumberOfComponents="1"/>
+      <PDataArray type="Float64" Name="Velocity" NumberOfComponents="3"/>
+    </PPointData>
+    <PCellData>
+      <PDataArray type="Float64" Name="Pressure" NumberOfComponents="1"/>
+      <PDataArray type="Int64" Name="Phase" NumberOfComponents="1"/>
+    </PCellData>
+  </PRectilinearGrid>
+</VTKFile>
