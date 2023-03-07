@@ -247,17 +247,17 @@ function PVTKFile(filename; dir="")
   @assert version == v"1.0"
 
   # Extract names of files & load the data
-  pieces = root[file_type][1]["Piece"]
-  N      = length(pieces)
-  vtk_filenames = Vector{String}(undef, N)  
-  vtk = Vector{VTKFile}(undef, N)  
+  pieces   = root[file_type][1]["Piece"]
+  n_pieces = length(pieces)
+  vtk_filenames = Vector{String}(undef, n_pieces)  
+  vtk_files = Vector{VTKFile}(undef, n_pieces)  
   
-  for i=1:N
-    vtk_filenames[i] = attribute(pieces[i],  "Source", required=true)
-    vtk[i] = VTKFile(joinpath(dir,vtk_filenames[i]))
+  for i in 1:n_pieces
+    vtk_filenames[i] = attribute(pieces[i], "Source", required=true)
+    vtk_files[i] = VTKFile(joinpath(dir, vtk_filenames[i]))
   end
 
-  return PVTKFile(filename, xml_file, file_type, version, vtk_filenames, vtk)
+  return PVTKFile(filename, xml_file, file_type, version, vtk_filenames, vtk_files)
 end
 
 # Reduce noise:
@@ -314,18 +314,18 @@ function PVDFile(filename)
   # Extract names of files & load the data
   pieces = root[file_type][1]["DataSet"]
   n_pieces = length(pieces)
-  file     = Vector{String}(undef, n_pieces)  
-  dir      = Vector{String}(undef, n_pieces)  
-  timestep = Vector{Float64}(undef,n_pieces)
+  vtk_filenames = Vector{String}(undef, n_pieces)  
+  directories = Vector{String}(undef, n_pieces)  
+  timesteps = Vector{Float64}(undef, n_pieces)
   
-  for i=1:n_pieces
-    file_dir = attribute(pieces[i],  "file", required=true)
-    file[i] = file_dir;
-    dir[i] = dirname(file_dir);
-    timestep[i] = parse(Float64,attribute(pieces[i],  "timestep", required=true))
+  for i in 1:n_pieces
+    file_dir = attribute(pieces[i], "file", required=true)
+    vtk_filenames[i] = file_dir
+    directories[i] = dirname(file_dir)
+    timesteps[i] = parse(Float64, attribute(pieces[i], "timestep", required=true))
   end
 
-  return PVDFile(filename, file_type, file, dir, timestep)
+  return PVDFile(filename, file_type, vtk_filenames, directories, timesteps)
 end
 
 # Reduce noise:
@@ -410,9 +410,9 @@ Retrieve a lightweight vector with `PVTKData` objects with the cell data of the 
 See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
 """
 function get_cell_data(pvtk_file::PVTKFile)
-  N = length(pvtk_file)
-  cdata_v = Vector{VTKData}(undef,N)
-  for i=1:N
+  n_files = length(pvtk_file)
+  cdata_v = Vector{VTKData}(undef, n_files)
+  for i in 1:n_files
     cdata_v[i] = get_cell_data(pvtk_file.vtk_files[i])
   end
 
@@ -437,9 +437,9 @@ Retrieve a lightweight vector with `PVTKData` objects with the point data of the
 See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
 """
 function get_point_data(pvtk_file::PVTKFile)
-  N = length(pvtk_file)
-  pdata_v = Vector{VTKData}(undef, N)
-  for i in 1:N
+  n_files = length(pvtk_file)
+  pdata_v = Vector{VTKData}(undef, n_files)
+  for i in 1:n_files
     pdata_v[i] = get_point_data(pvtk_file.vtk_files[i])
   end
 
@@ -503,9 +503,9 @@ function Base.getindex(data::PVTKData, name)
     throw(KeyError(name))
   end
 
-  N = length(data.data)
-  data_array = Vector{VTKDataArray}(undef,N)
-  for i=1:N
+  n_datasets = length(data.data)
+  data_array = Vector{VTKDataArray}(undef, n_datasets)
+  for i in 1:n_datasets
     data_array[i] = VTKDataArray(data.data[i].data_arrays[index], data.data[i].vtk_file)
   end
   
@@ -727,12 +727,12 @@ end
 Retrieve actual data from a `PVTKDataArray` as a one- or two-dimensional array-like container.
 """
 function get_data(data_array::PVTKDataArray) 
-
-  N = length(data_array.data)
-  dat = Vector{Array}(undef, N)  
-  for i in 1:N
+  n_datasets = length(data_array.data)
+  dat = Vector{Array}(undef, n_datasets)  
+  for i in 1:n_datasets
     dat[i] = get_data(data_array.data[i])
   end
+  
   return dat
 end
 
@@ -928,11 +928,10 @@ Note that in VTK, points are always stored three-dimensional, even for 1D or 2D 
 See also: [`get_cells`](@ref)
 """
 function get_coordinates(pvtk_file::PVTKFile; x_string="x", y_string="y", z_string="z")
-  N = length(pvtk_file)
   coords =  get_coordinates.(pvtk_file.vtk_files,x_string=x_string, y_string=y_string, z_string=z_string);
 
   x,y,z = coords[1][1][:],coords[1][2][:],coords[1][3][:]
-  for i=2:N
+  for i=2:length(pvtk_file)
     x=[x; coords[i][1][:]]
     y=[y; coords[i][2][:]]
     z=[z; coords[i][3][:]]
