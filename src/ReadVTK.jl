@@ -313,12 +313,12 @@ function PVDFile(filename)
 
   # Extract names of files & load the data
   pieces = root[file_type][1]["DataSet"]
-  N        = length(pieces)
-  file     = Vector{String}(undef, N)  
-  dir      = Vector{String}(undef, N)  
-  timestep = Vector{Float64}(undef,N)
+  n_pieces = length(pieces)
+  file     = Vector{String}(undef, n_pieces)  
+  dir      = Vector{String}(undef, n_pieces)  
+  timestep = Vector{Float64}(undef,n_pieces)
   
-  for i=1:N
+  for i=1:n_pieces
     file_dir = attribute(pieces[i],  "file", required=true)
     file[i] = file_dir;
     dir[i] = dirname(file_dir);
