@@ -729,9 +729,11 @@ end
 Retrieve actual data from a `PVTKDataArray` as a one- or two-dimensional array-like container.
 """
 function get_data(data_array::PVTKDataArray) 
-  dat = []
-  for i=1:length(data_array.data)
-    push!(dat,get_data(data_array.data[i]))
+
+  N = length(data_array.data)
+  dat = Vector{Array}(undef, N)  
+  for i in 1:N
+    dat[i] = get_data(data_array.data[i])
   end
   return dat
 end
