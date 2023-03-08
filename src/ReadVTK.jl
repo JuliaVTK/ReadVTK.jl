@@ -947,7 +947,7 @@ function get_coordinates(pvtk_file::PVTKFile; x_string="x", y_string="y", z_stri
       y = data[2,:,:,:]
       z = data[3,:,:,:]
     end
-  elseif pvtk_file.file_type== "PRectilinearGrid"
+  elseif pvtk_file.file_type == "PRectilinearGrid"
     coords =  get_coordinates.(pvtk_file.vtk_files,x_string=x_string, y_string=y_string, z_string=z_string);
     x,y,z = coords[1][1][:],coords[1][2][:],coords[1][3][:]
     for i=2:length(pvtk_file)
