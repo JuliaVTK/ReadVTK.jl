@@ -269,7 +269,7 @@ end
 
 # e) PVD file
 @testset "PVD" begin
-  pvd = PVDFile("examples/full_simulation.pvd")
+  pvd = PVDFile(joinpath(TEST_EXAMPLES_DIR, "full_simulation.pvd"))
   @test pvd.timesteps == Vector(times)
   @test isnothing(show(devnull, pvd))
 end
