@@ -222,7 +222,6 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     end
 
     @testset "get scalar cell data" begin
-      @show vtk.xml_file
       cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
       cell_data_reshaped = reshape(cell_data_raw, ((Nx-1), (Ny-1), (Nz-1)))
       cell_data_reshaped1 = get_data_reshaped(get_cell_data(vtk)[cell_data_name], cell_data=true)
