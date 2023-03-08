@@ -16,8 +16,6 @@ for compress in [true, false]
   
       [x[i,j] = i*i/Ni/Ni for i = 1:Ni, j = 1:Nj]
       [y[i,j] = sqrt(j/Nj) for i = 1:Ni, j = 1:Nj]
-
-      
     elseif dim == 3
       Ni, Nj, Nk = 20, 30, 40
       x = zeros(FloatType, Ni,Nj,Nk)
