@@ -142,5 +142,3 @@ for compress in [true, false]
   end
 end
   
-  
-  
