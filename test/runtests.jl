@@ -15,14 +15,20 @@ TEST_EXAMPLES_DIR = "examples"
 get_test_example_file(filename) = get_example_file(filename, head=TEST_EXAMPLES_COMMIT,
                                                    output_directory=TEST_EXAMPLES_DIR)
 
+function create_directory(TEST_EXAMPLES_DIR)
+  isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
+  mkpath(TEST_EXAMPLES_DIR)
+  return nothing
+end                                                   
+
+clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
+
 
 @time @testset "ReadVTK" begin
   @testset "basic tests" begin
-
     # Start with a clean environment: remove example file directory if it exists
-    isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
-    mkpath(TEST_EXAMPLES_DIR)
-
+    create_directory(TEST_EXAMPLES_DIR)
+    
     @testset "VTKFile" begin
       @test VTKFile(get_test_example_file("celldata_inline_binary_uncompressed.vtu")) isa VTKFile
 
@@ -165,16 +171,13 @@ get_test_example_file(filename) = get_example_file(filename, head=TEST_EXAMPLES_
     end
 
     # Clean up afterwards: delete example file directory
-    @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
+    clean_directory(TEST_EXAMPLES_DIR)
   end
 
   # Test for validation of uniform grid ("image data") read feature
   @testset "ImageData" begin
-
     # Start with a clean environment: remove example file directory if it exists
-    isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
-    mkpath(TEST_EXAMPLES_DIR)
-
+    create_directory(TEST_EXAMPLES_DIR)
 
     ## Generate grid file and write vti
     
@@ -274,14 +277,13 @@ get_test_example_file(filename) = get_example_file(filename, head=TEST_EXAMPLES_
     end
 
     # Clean up afterwards: delete example file directory
-    @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
+    clean_directory(TEST_EXAMPLES_DIR)
   end
 
   # Test set for PolyData
   @testset "PolyData" begin
     # Start with a clean environment: remove example file directory if it exists
-    isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
-    mkpath(TEST_EXAMPLES_DIR)
+    create_directory(TEST_EXAMPLES_DIR)
 
     # function to convert VTKPrimitives to a sequence of Int arrays
     function primitives_to_arrays(primitives::VTKPrimitives)::Vector
@@ -330,7 +332,7 @@ get_test_example_file(filename) = get_example_file(filename, head=TEST_EXAMPLES_
       @test_throws Exception get_primitives(vtk, "Verts")
     
       # Clean up afterwards: delete example file directory
-      @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
+      clean_directory(TEST_EXAMPLES_DIR)
     end
 
     @testset "mixed types" begin
@@ -380,41 +382,37 @@ get_test_example_file(filename) = get_example_file(filename, head=TEST_EXAMPLES_
     end
     
     # Clean up afterwards: delete example file directory
-    @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
+    clean_directory(TEST_EXAMPLES_DIR)
   end 
   
   @testset "RectilinearGrid" begin
-
     # Start with a clean environment: remove example file directory if it exists
-    isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
-    mkpath(TEST_EXAMPLES_DIR)
+    create_directory(TEST_EXAMPLES_DIR)
 
     include("rectilinear.jl")
 
     # Clean up afterwards: delete example file directory
-    @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
+    clean_directory(TEST_EXAMPLES_DIR)
   end
 
   @testset "Parallel VTK (PVTK) files" begin
     # Start with a clean environment: remove example file directory if it exists
-    isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
-    mkpath(TEST_EXAMPLES_DIR)
+    create_directory(TEST_EXAMPLES_DIR)
 
     include("pvtk_files.jl")
 
     # Clean up afterwards: delete example file directory
-    @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
+    clean_directory(TEST_EXAMPLES_DIR)
   end
   
   @testset "StructuredGrid" begin
     # Start with a clean environment: remove example file directory if it exists
-    isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
-    mkpath(TEST_EXAMPLES_DIR)
+    create_directory(TEST_EXAMPLES_DIR)
 
     include("structuredgrid.jl")
 
     # Clean up afterwards: delete example file directory
-    @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
+    clean_directory(TEST_EXAMPLES_DIR)
   end
 
 end
