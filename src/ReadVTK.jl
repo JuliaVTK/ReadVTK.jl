@@ -699,7 +699,6 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatAppended}) where {T,N}
 
     first = data_array.offset + 4 * sizeof(HeaderType) + 1
     last = first + n_bytes - 1
-    @show length(raw), first, last, n_bytes
     uncompressed = transcode(ZlibDecompressor, raw[first:last])
   else
     # If data is stored uncompressed, the first integer of type `header_type` is the header and
@@ -730,7 +729,6 @@ Retrieve actual data from a `PVTKDataArray` as a one- or two-dimensional array-l
 """
 function get_data(data_array::PVTKDataArray) 
   n_datasets = length(data_array.data)
-  @show n_datasets
   dat = Vector{Array}(undef, n_datasets)  
   for i in 1:n_datasets
     dat[i] = get_data(data_array.data[i])
