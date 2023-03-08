@@ -136,7 +136,6 @@ for compress in [true, false]
         myCellData = get_data_reshaped(cell_data["myCellData"], cell_data=true)  
         @test sum(abs.(cdata-myCellData)) == 0  
       end
-
     end
   end
 end
