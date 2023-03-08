@@ -928,7 +928,7 @@ Note that in VTK, points are always stored three-dimensional, even for 1D or 2D 
 See also: [`get_cells`](@ref)
 """
 function get_coordinates(pvtk_file::PVTKFile; x_string="x", y_string="y", z_string="z")
-  if pvtk_file.file_type== "PStructuredGrid"
+  if pvtk_file.file_type == "PStructuredGrid"
     points = get_points(pvtk_file)
 
     wholeextent, min_extent = get_wholeextent(pvtk_file.xml_file)  # global grid size
