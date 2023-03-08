@@ -919,7 +919,7 @@ function get_coordinates(vtk_file::VTKFile; x_string="x", y_string="y", z_string
     y = data[2,:,:,:]
     z = data[3,:,:,:]
   else
-    error("The file type of the VTK file must be 'RectilinearGrid' (current: $(vtk_file.file_type)).")
+    error("The file type of the VTK file must be 'RectilinearGrid' or 'StructuredGrid' (current: $(vtk_file.file_type)).")
   end
 
   return  x, y, z
