@@ -240,7 +240,7 @@ function PVTKFile(filename; dir="")
   version = VersionNumber(attribute(root, "version", required=true))
 
   # Ensure matching file types
-  if !(file_type in ("PImageData", "PRectilinearGrid","PUnstructuredGrid", "PStructuredGrid"))
+  if !(file_type in ("PImageData", "PRectilinearGrid", "PUnstructuredGrid", "PStructuredGrid"))
     error("Unsupported file type: ", file_type)
   end
 
