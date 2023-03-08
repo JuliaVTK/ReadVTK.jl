@@ -4,9 +4,11 @@ const FloatType = Float32
 const vtk_filename_struct_noext = joinpath(TEST_EXAMPLES_DIR, "structuredgrid")
 
 outfiles = String[]
-
 for compress in [true, false]
   for dim in 2:3
+    local x
+    local y
+    local z
     # Define grid.
     if dim == 2
       Ni, Nj, Nk = 20, 30, 1

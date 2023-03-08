@@ -906,14 +906,22 @@ Note that in VTK, points are always stored three-dimensional, even for 1D or 2D 
 See also: [`get_cells`](@ref)
 """
 function get_coordinates(vtk_file::VTKFile; x_string="x", y_string="y", z_string="z")
-  if vtk_file.file_type != "RectilinearGrid"
-      error("The file type of the VTK file must be 'RectilinearGrid' (current: $(vtk_file.file_type)).")
+  if vtk_file.file_type == "RectilinearGrid"
+    coordinates = get_coordinate_data(vtk_file)
+    x = get_data(coordinates[x_string])
+    y = get_data(coordinates[y_string])
+    z = get_data(coordinates[z_string])
+  elseif vtk_file.file_type == "StructuredGrid"
+    wholeextent, _ = get_wholeextent(vtk_file.xml_file)
+    points = get_points(vtk_file)
+    data = reshape(points,3, wholeextent...);
+    x = data[1,:,:,:]
+    y = data[2,:,:,:]
+    z = data[3,:,:,:]
+  else
+    error("The file type of the VTK file must be 'RectilinearGrid' (current: $(vtk_file.file_type)).")
   end
 
-  coordinates = get_coordinate_data(vtk_file)
-  x = get_data(coordinates[x_string])
-  y = get_data(coordinates[y_string])
-  z = get_data(coordinates[z_string])
   return  x, y, z
 end
 
