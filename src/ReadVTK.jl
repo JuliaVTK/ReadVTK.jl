@@ -910,14 +910,10 @@ function get_coordinates(vtk_file::VTKFile; x_string="x", y_string="y", z_string
       error("The file type of the VTK file must be 'RectilinearGrid' (current: $(vtk_file.file_type)).")
   end
 
-  if  vtk_file.file_type == "RectilinearGrid"
-    coordinates = get_coordinate_data(vtk_file)
-    x = get_data(coordinates[x_string])
-    y = get_data(coordinates[y_string])
-    z = get_data(coordinates[z_string])
-
-  end
-  
+  coordinates = get_coordinate_data(vtk_file)
+  x = get_data(coordinates[x_string])
+  y = get_data(coordinates[y_string])
+  z = get_data(coordinates[z_string])
   return  x, y, z
 end
 
