@@ -24,9 +24,11 @@ for compress in [true, false]
       y = zeros(FloatType, Ni,Nj,Nk)
       z = zeros(FloatType, Ni,Nj,Nk)
   
-      [x[i,j,k] = i*i/Ni/Ni for i = 1:Ni, j = 1:Nj,  k = 1:Nk]
-      [y[i,j,k] = sqrt(j/Nj) for i = 1:Ni, j = 1:Nj,  k = 1:Nk]
-      [z[i,j,k] = k/Nk for i = 1:Ni, j = 1:Nj,  k = 1:Nk]
+      for i = 1:Ni, j = 1:Nj, k = 1:Nk
+        x[i,j,k] = i*i/Ni/Ni
+        y[i,j,k] = sqrt(j/Nj)
+        z[i,j,k] = k/Nk
+      end
     end
 
   
