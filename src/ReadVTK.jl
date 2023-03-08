@@ -956,6 +956,9 @@ function get_coordinates(pvtk_file::PVTKFile; x_string="x", y_string="y", z_stri
       z=[z; coords[i][3][:]]
     end
     x,y,z = unique(x), unique(y), unique(z)
+
+  else
+    error("File should be of type PRectilinearGrid or PStructuredGrid. Current file type: $(pvtk_file.file_type)")
   end
 
   return x,y,z
