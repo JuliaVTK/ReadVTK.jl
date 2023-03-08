@@ -27,7 +27,6 @@ for compress in [true, false]
       [x[i,j,k] = i*i/Ni/Ni for i = 1:Ni, j = 1:Nj,  k = 1:Nk]
       [y[i,j,k] = sqrt(j/Nj) for i = 1:Ni, j = 1:Nj,  k = 1:Nk]
       [z[i,j,k] = k/Nk for i = 1:Ni, j = 1:Nj,  k = 1:Nk]
-  
     end
 
   
