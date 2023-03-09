@@ -661,6 +661,8 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatBinary}) where {T,N}
     # must be discarded
     first = 1 + 4 * sizeof(header_type(data_array.vtk_file))
     last = length(raw)
+
+    # Pass data through ZLib decompressor
     uncompressed = transcode(ZlibDecompressor, raw[first:last])
   else
     # If data is stored uncompressed, the first integer of type `header_type` is the header and must
@@ -699,7 +701,7 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatAppended}) where {T,N}
     last = first + n_bytes - 1
 
     # Pass data through ZLib decompressor
-    if last>length(raw)
+    if last > length(raw)
       @show data_array data_array.vtk_file.xml_file
       @show first, last, size(raw)
       error("mistake in get_data")
