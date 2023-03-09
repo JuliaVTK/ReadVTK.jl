@@ -9,6 +9,10 @@ ys_global = range(-1, 1; length = 12)
 zs_global = range(0, 1; length = 4)
 v_global =  range(0,1,length=3)
 
+Xs_global = [xs_global[i] for i=1:length(xs_global), j=1:length(ys_global), k=1:length(zs_global) ]
+Ys_global = [ys_global[j] for i=1:length(xs_global), j=1:length(ys_global), k=1:length(zs_global) ]
+Zs_global = [zs_global[k] for i=1:length(xs_global), j=1:length(ys_global), k=1:length(zs_global) ]
+
 extents = [
     ( 1:10,  1:5, 1:4),  # process 1
     (10:15,  1:5, 1:4),  # process 2
@@ -52,6 +56,30 @@ for part = 1:4
       pvtk["Phase"] = [trunc(Int64, x*15) for x ∈ xs_c, y ∈ ys_c, z ∈ zs_c]
   end
 end
+
+# write *.pvts file
+for part = 1:4
+  is, js, ks = extents[part]  # local indices
+  xs, ys, zs = xs_global[is], ys_global[js], zs_global[ks]  # local grid
+  xs_c, ys_c, zs_c = xs[1:end-1], ys[1:end-1], zs[1:end-1]
+
+  Ni, Nj, Nk = length(is), length(js), length(ks) 
+  Xs = [xs[i] for i = 1:Ni, j = 1:Nj, k = 1:Nk]
+  Ys = [ys[j] for i = 1:Ni, j = 1:Nj, k = 1:Nk]
+  Zs = [zs[k] for i = 1:Ni, j = 1:Nj, k = 1:Nk]
+
+  path = joinpath(TEST_EXAMPLES_DIR, "fields")
+  saved_files[part] = pvtk_grid(
+          path, Xs, Ys, Zs;
+          part = part, extents = extents,
+      ) do pvtk
+      pvtk["Temperature"] = [x + 2y + 3z for x ∈ xs, y ∈ ys, z ∈ zs]
+      pvtk["Velocity"] = [x + 2y + 3z + v for v ∈ v_global, x ∈ xs, y ∈ ys, z ∈ zs]
+      pvtk["Pressure"] = [x + 2y + 3z for x ∈ xs_c, y ∈ ys_c, z ∈ zs_c]
+      pvtk["Phase"] = [trunc(Int64, x*15) for x ∈ xs_c, y ∈ ys_c, z ∈ zs_c]
+  end
+end
+
 
 T_global = [x + 2y + 3z for x ∈ xs_global, y ∈ ys_global, z ∈ zs_global]
 V_global = [x + 2y + 3z + v for v ∈ v_global, x ∈ xs_global, y ∈ ys_global, z ∈ zs_global]
@@ -199,6 +227,49 @@ end
 @testset "pvd" begin
   path = joinpath(TEST_EXAMPLES_DIR, "full_simulation.pvd")
   pvd = PVDFile(path)
+  @test pvd.timesteps == Vector(times)
+  @test isnothing(show(devnull, pvd))
+end
+
+@testset "pvts" begin
+  path = joinpath(TEST_EXAMPLES_DIR, "fields.pvts")
+  pvtk = PVTKFile(path)
+  @test isnothing(show(devnull, pvtk))
+
+  # various tests for pvtk
+  @test basename.(keys(pvtk)) == ("fields_1.vts", "fields_2.vts", "fields_3.vts", "fields_4.vts")
+
+  # coordinates
+  coords_read = get_coordinates(pvtk)
+  @test Xs_global == coords_read[1]
+  @test Ys_global == coords_read[2]
+  @test Zs_global == coords_read[3]
+
+  # Extract data
+  point_data = get_point_data(pvtk)
+
+  @test firstindex(point_data) == "Temperature"
+  @test lastindex(point_data) == "Velocity"
+  @test length(point_data) == 2
+  @test size(point_data) == (2,)
+  @test keys(point_data) == ("Temperature", "Velocity")
+
+  T_read = get_data_reshaped(point_data["Temperature"])
+  V_read = get_data_reshaped(point_data["Velocity"])
+  @test  T_global == T_read
+  @test  V_global == V_read
+
+  cell_data = get_cell_data(pvtk)
+  P_read = get_data_reshaped(cell_data["Pressure"], cell_data=true)
+  Phase_read = get_data_reshaped(cell_data["Phase"], cell_data=true)
+  @test P_global == P_read
+  @test Phase_global == Phase_read
+end
+
+
+# e) PVD file
+@testset "PVD" begin
+  pvd = PVDFile(joinpath(TEST_EXAMPLES_DIR, "full_simulation.pvd"))
   @test pvd.timesteps == Vector(times)
   @test isnothing(show(devnull, pvd))
 end

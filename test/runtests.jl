@@ -15,14 +15,20 @@ TEST_EXAMPLES_DIR = "examples"
 get_test_example_file(filename) = get_example_file(filename, head=TEST_EXAMPLES_COMMIT,
                                                    output_directory=TEST_EXAMPLES_DIR)
 
+function create_directory(TEST_EXAMPLES_DIR)
+  isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
+  mkpath(TEST_EXAMPLES_DIR)
+  return nothing
+end                                                   
 
-# Start with a clean environment: remove example file directory if it exists
-isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
-mkpath(TEST_EXAMPLES_DIR)
+clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
 
 
 @time @testset "ReadVTK" begin
   @testset "basic tests" begin
+    # Start with a clean environment: remove example file directory if it exists
+    create_directory(TEST_EXAMPLES_DIR)
+    
     @testset "VTKFile" begin
       @test VTKFile(get_test_example_file("celldata_inline_binary_uncompressed.vtu")) isa VTKFile
 
@@ -163,10 +169,16 @@ mkpath(TEST_EXAMPLES_DIR)
       @test last(data) ≈ 0.8004962389182811
       @test sum(data) ≈ 192.1204941112099
     end
+
+    # Clean up afterwards: delete example file directory
+    clean_directory(TEST_EXAMPLES_DIR)
   end
 
   # Test for validation of uniform grid ("image data") read feature
   @testset "ImageData" begin
+    # Start with a clean environment: remove example file directory if it exists
+    create_directory(TEST_EXAMPLES_DIR)
+
     ## Generate grid file and write vti
     
     # grid geometry parameters
@@ -264,10 +276,14 @@ mkpath(TEST_EXAMPLES_DIR)
       @test point_data_reshaped == point_scalar_field
     end
 
+    # Clean up afterwards: delete example file directory
+    clean_directory(TEST_EXAMPLES_DIR)
   end
 
   # Test set for PolyData
   @testset "PolyData" begin
+    # Start with a clean environment: remove example file directory if it exists
+    create_directory(TEST_EXAMPLES_DIR)
 
     # function to convert VTKPrimitives to a sequence of Int arrays
     function primitives_to_arrays(primitives::VTKPrimitives)::Vector
@@ -314,11 +330,9 @@ mkpath(TEST_EXAMPLES_DIR)
       @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
       @test_throws Exception get_primitives(vtk, "Foo")
       @test_throws Exception get_primitives(vtk, "Verts")
-    
     end
 
     @testset "mixed types" begin
-
       # define points of a regular tetrahedron
       isqrt2 = 1 / sqrt(2)
       points = permutedims(Float32[
@@ -359,19 +373,39 @@ mkpath(TEST_EXAMPLES_DIR)
       @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
     
     end
-
+    
+    # Clean up afterwards: delete example file directory
+    clean_directory(TEST_EXAMPLES_DIR)
   end 
   
   @testset "RectilinearGrid" begin
+    # Start with a clean environment: remove example file directory if it exists
+    create_directory(TEST_EXAMPLES_DIR)
+
     include("rectilinear.jl")
+
+    # Clean up afterwards: delete example file directory
+    clean_directory(TEST_EXAMPLES_DIR)
   end
 
   @testset "Parallel VTK (PVTK) files" begin
+    # Start with a clean environment: remove example file directory if it exists
+    create_directory(TEST_EXAMPLES_DIR)
+
     include("pvtk_files.jl")
+
+    # Clean up afterwards: delete example file directory
+    clean_directory(TEST_EXAMPLES_DIR)
+  end
+  
+  @testset "StructuredGrid" begin
+    # Start with a clean environment: remove example file directory if it exists
+    create_directory(TEST_EXAMPLES_DIR)
+
+    include("structuredgrid.jl")
+
+    # Clean up afterwards: delete example file directory
+    clean_directory(TEST_EXAMPLES_DIR)
   end
 
 end
-
-
-# Clean up afterwards: delete example file directory
-@test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
