@@ -330,9 +330,6 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
       @test_throws Exception get_primitives(vtk, "Foo")
       @test_throws Exception get_primitives(vtk, "Verts")
-    
-      # Clean up afterwards: delete example file directory
-      clean_directory(TEST_EXAMPLES_DIR)
     end
 
     @testset "mixed types" begin
