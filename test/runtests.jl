@@ -333,10 +333,6 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     end
 
     @testset "mixed types" begin
-      # Start with a clean environment: remove example file directory if it exists
-      isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
-      mkpath(TEST_EXAMPLES_DIR)
-
       # define points of a regular tetrahedron
       isqrt2 = 1 / sqrt(2)
       points = permutedims(Float32[
