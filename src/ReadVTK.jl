@@ -700,6 +700,7 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatAppended}) where {T,N}
 
     # Pass data through ZLib decompressor
     if last>length(raw)
+      @show data_array data_array.vtk_file.xml_file
       @show first, last, size(raw)
       error("mistake in get_data")
     end
