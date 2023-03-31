@@ -102,9 +102,9 @@ Its principal developers are
 
 Further contributions to ReadVTK have been made by the following people:
 * [Jorge Pérez Zerpa](https://www.fing.edu.uy/~jorgepz/)
-(Universidad de la República, Uruguay)
+  (Universidad de la República, Uruguay)
 * [Ondřej Kincl](https://www2.karlin.mff.cuni.cz/~kincl/)
-(Charles University, Czech Republic)
+  (Charles University, Czech Republic)
 * [Boris Kaus](https://www.geosciences.uni-mainz.de/geophysics-and-geodynamics/team/univ-prof-dr-boris-kaus/)
   (Johannes-Gutenberg University Mainz, Germany)
 
