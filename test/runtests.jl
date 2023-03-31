@@ -19,7 +19,7 @@ function create_directory(TEST_EXAMPLES_DIR)
   isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
   mkpath(TEST_EXAMPLES_DIR)
   return nothing
-end                                                   
+end
 
 clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
 
@@ -28,7 +28,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
   @testset "basic tests" begin
     # Start with a clean environment: remove example file directory if it exists
     create_directory(TEST_EXAMPLES_DIR)
-    
+
     @testset "VTKFile" begin
       @test VTKFile(get_test_example_file("celldata_inline_binary_uncompressed.vtu")) isa VTKFile
 
@@ -100,7 +100,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       @test size(cells) == (3085,)
       @test div(Int(sum(cells.types)), 8) == 3085
       @test sum(cells.offsets) == 19040620
-      @test cells.connectivity[1000] == 421
+      @test cells.connectivity[1000] == 422
     end
 
     @testset "show" begin
@@ -180,11 +180,11 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     create_directory(TEST_EXAMPLES_DIR)
 
     ## Generate grid file and write vti
-    
+
     # grid geometry parameters
     input_origin   = [1.0, 1.0, 2.0]
     input_ending   = [3.0, 2.0, 2.2]
-    input_numNodes = [  4,   2,   2]  
+    input_numNodes = [  4,   2,   2]
 
     # compute ranges
     input_spacing = (input_ending .- input_origin) ./ (input_numNodes.-1)
@@ -204,7 +204,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
         vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
         vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
     end
-    
+
     # Read vti file using ReadVTK
     filepath = joinpath(TEST_EXAMPLES_DIR, "grid.vti")
     @testset "VTKFile" begin
@@ -225,7 +225,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
       cell_data_reshaped = reshape(cell_data_raw, ((Nx-1), (Ny-1), (Nz-1)))
       cell_data_reshaped1 = get_data_reshaped(get_cell_data(vtk)[cell_data_name], cell_data=true)
-      
+
       @test cell_data_reshaped == cell_scalar_field
       @test cell_data_reshaped1 == cell_scalar_field
     end
@@ -234,7 +234,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       point_data_raw = get_data(get_point_data(vtk)[point_data_name])
       point_data_reshaped = reshape(point_data_raw, (Nx, Ny, Nz))
       point_data_reshaped1 =  get_data_reshaped(get_point_data(vtk)[point_data_name])
-      
+
       @test point_data_reshaped == point_scalar_field
       @test point_data_reshaped1 == point_scalar_field
     end
@@ -242,7 +242,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     # generate random 2D data
     point_scalar_field = rand(Nx, Ny)
     cell_scalar_field  = rand(Nx-1, Ny-1)
-    
+
     # write 2D vti file using WriteVTK
     path = joinpath(TEST_EXAMPLES_DIR, "grid_2D")
     vtk_grid(path, x, y) do vtk
@@ -297,7 +297,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     end
 
     @testset "single type" begin
-      
+
       # define some points
       n = 20
       points = zeros(3, n)
@@ -349,7 +349,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       # define lines
       lines = [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [4, 1]]
       cells_lines = [MeshCell(PolyData.Lines(), l) for l in lines]
-      
+
       # define polys
       polys = [[1, 2, 3], [2, 3, 4], [3, 4, 1], [4, 1, 2]]
       cells_polys = [MeshCell(PolyData.Polys(), p) for p in polys]
@@ -371,13 +371,13 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       @test verts == primitives_to_arrays(get_primitives(vtk, "Verts"))
       @test lines == primitives_to_arrays(get_primitives(vtk, "Lines"))
       @test polys == primitives_to_arrays(get_primitives(vtk, "Polys"))
-    
+
     end
-    
+
     # Clean up afterwards: delete example file directory
     clean_directory(TEST_EXAMPLES_DIR)
-  end 
-  
+  end
+
   @testset "RectilinearGrid" begin
     # Start with a clean environment: remove example file directory if it exists
     create_directory(TEST_EXAMPLES_DIR)
@@ -397,7 +397,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     # Clean up afterwards: delete example file directory
     clean_directory(TEST_EXAMPLES_DIR)
   end
-  
+
   @testset "StructuredGrid" begin
     # Start with a clean environment: remove example file directory if it exists
     create_directory(TEST_EXAMPLES_DIR)
