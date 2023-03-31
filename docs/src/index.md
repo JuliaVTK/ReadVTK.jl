@@ -94,7 +94,7 @@ Helpful resources for working with (i.e., reading and writing) VTK XML files:
 
 ## Authors
 ReadVTK is maintained by the
-[Trixi authors](https://github.com/JuliaVTK/Trixi.jl/blob/main/AUTHORS.md).
+[Trixi authors](https://github.com/trixi-framework/Trixi.jl/blob/main/AUTHORS.md).
 Its principal developers are
 [Michael Schlottke-Lakemper](https://www.hlrs.de/people/michael-schlottke-lakemper)
 (University of Stuttgart, Germany) and [Hendrik Ranocha](https://ranocha.de)
