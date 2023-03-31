@@ -1,18 +1,18 @@
 # ReadVTK.jl
 
-[![Docs-stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://trixi-framework.github.io/ReadVTK.jl/stable)
-[![Docs-dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://trixi-framework.github.io/ReadVTK.jl/dev)
-[![Build Status](https://github.com/trixi-framework/ReadVTK.jl/workflows/CI/badge.svg)](https://github.com/trixi-framework/ReadVTK.jl/actions?query=workflow%3ACI)
-[![Coveralls](https://coveralls.io/repos/github/trixi-framework/ReadVTK.jl/badge.svg?branch=main)](https://coveralls.io/github/trixi-framework/ReadVTK.jl?branch=main)
+[![Docs-stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliavtk.github.io/ReadVTK.jl/stable)
+[![Docs-dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliavtk.github.io/ReadVTK.jl/dev)
+[![Build Status](https://github.com/JuliaVTK/ReadVTK.jl/workflows/CI/badge.svg)](https://github.com/JuliaVTK/ReadVTK.jl/actions?query=workflow%3ACI)
+[![Coveralls](https://coveralls.io/repos/github/JuliaVTK/ReadVTK.jl/badge.svg?branch=main)](https://coveralls.io/github/JuliaVTK/ReadVTK.jl?branch=main)
 [![License: MIT](https://img.shields.io/badge/License-MIT-success.svg)](https://opensource.org/licenses/MIT)
 <!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5221552.svg)](https://doi.org/10.5281/zenodo.5221552) -->
 
 With **ReadVTK.jl** you can read in data from VTK XML files in Julia. It aims to complement
-the excellent package [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl).
-ReadVTK is part of the [Trixi Framework](https://trixi-framework.github.io).
+the excellent package [WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl).
+ReadVTK is part of the [Trixi Framework](https://JuliaVTK.github.io).
 
 *Note: ReadVTK was mainly motivated by wanting to write proper tests for
-[Trixi2Vtk.jl](https://github.com/trixi-framework/Trixi2Vtk.jl).
+[Trixi2Vtk.jl](https://github.com/JuliaVTK/Trixi2Vtk.jl).
 A lot of useful features are still missing (see [below](#what-does-not-work)),
 and community contributions to improve this package are welcome!*
 
@@ -66,7 +66,7 @@ julia> data = get_data(element_ids)
 ```
 
 Further example VTK files can be found in the
-[`ReadVTK_examples` repository](https://github.com/trixi-framework/ReadVTK_examples).
+[`ReadVTK_examples` repository](https://github.com/JuliaVTK/ReadVTK_examples).
 
 ### What works
 * Reading in VTK XML files of type `UnstructuredGrid`, `StructuredGrid`, `RectilinearGrid`,`ImageData`, `PUnstructuredGrid`,`PStructuredGrid` `PRectilinearGrid`,`PImageData`, or `PolyData`
@@ -84,7 +84,7 @@ Further example VTK files can be found in the
 * Reading VTK files of other type than what is listed under *What works* above
 * Multiblock files
 * Different byte orders in file and host system
-* Probably reading from VTK files that were *not* created by [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl) will fail, specifically since
+* Probably reading from VTK files that were *not* created by [WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl) will fail, specifically since
   * compressed data is assumed to be stored as a single block
   * appended data is assumed to be stored as `raw`
   * `header_type` is hardcoded to `UInt64`
@@ -102,7 +102,7 @@ Helpful resources for working with (i.e., reading and writing) VTK XML files:
 
 ## Authors
 ReadVTK is maintained by the
-[Trixi authors](https://github.com/trixi-framework/Trixi.jl/blob/main/AUTHORS.md).
+[Trixi authors](https://github.com/JuliaVTK/Trixi.jl/blob/main/AUTHORS.md).
 Its principal developers are
 [Michael Schlottke-Lakemper](https://lakemper.eu)
 (RWTH Aachen University, Germany) and [Hendrik Ranocha](https://ranocha.de)
@@ -121,11 +121,11 @@ ReadVTK is licensed under the MIT license (see [LICENSE.md](LICENSE.md)).
 Since ReadVTK is an open-source project, we are very happy to accept contributions
 from the community. Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for more details. To get in
 touch with the developers, join us on Trixi's
-[Slack workspace](https://join.slack.com/t/trixi-framework/shared_invite/zt-sgkc6ppw-6OXJqZAD5SPjBYqLd8MU~g)
+[Slack workspace](https://join.slack.com/t/JuliaVTK/shared_invite/zt-sgkc6ppw-6OXJqZAD5SPjBYqLd8MU~g)
 or
-[create an issue](https://github.com/trixi-framework/ReadVTK.jl/issues/new).
+[create an issue](https://github.com/JuliaVTK/ReadVTK.jl/issues/new).
 
 ## Acknowledgments
 This package would not exist without the nice work of 
 [Juan Ignacio Polanco](https://github.com/jipolanco) and his cleanly written and well-documented package
-[WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl). 
+[WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl). 

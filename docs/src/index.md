@@ -1,12 +1,11 @@
 # ReadVTK.jl
 
-With [ReadVTK.jl](https://github.com/trixi-framework/ReadVTK.jl) you can
+With [ReadVTK.jl](https://github.com/JuliaVTK/ReadVTK.jl) you can
 read in data from VTK XML files in Julia. It aims to complement
-the excellent package [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl).
-ReadVTK is part of the [Trixi Framework](https://trixi-framework.github.io).
+the excellent package [WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl).
 
 *Note: ReadVTK was mainly motivated by wanting to write proper tests for
-[Trixi2Vtk.jl](https://github.com/trixi-framework/Trixi2Vtk.jl).
+[Trixi2Vtk.jl](https://github.com/JuliaVTK/Trixi2Vtk.jl).
 A lot of useful features are still missing (see [What does not work](@ref)),
 and community contributions to improve this package are welcome!*
 
@@ -60,7 +59,7 @@ julia> data = get_data(element_ids)
 ```
 
 Further example VTK files can be found in the
-[`ReadVTK_examples` repository](https://github.com/trixi-framework/ReadVTK_examples).
+[`ReadVTK_examples` repository](https://github.com/JuliaVTK/ReadVTK_examples).
 
 ### What works
 * Reading in VTK XML files of type `UnstructuredGrid`, `StructuredGrid`, `RectilinearGrid`,`ImageData`, `PUnstructuredGrid`, `PStructuredGrid`, `PRectilinearGrid`,`PImageData`, or `PolyData`
@@ -78,7 +77,7 @@ Further example VTK files can be found in the
 * Reading VTK files of other type than what is listed under *What works* above
 * Multiblock files
 * Different byte orders in file and host system
-* Probably reading from VTK files that were *not* created by [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl) will fail, specifically since
+* Probably reading from VTK files that were *not* created by [WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl) will fail, specifically since
   * compressed data is assumed to be stored as a single block
   * appended data is assumed to be stored as `raw`
   * `header_type` is hardcoded to `UInt64`
@@ -95,7 +94,7 @@ Helpful resources for working with (i.e., reading and writing) VTK XML files:
 
 ## Authors
 ReadVTK is maintained by the
-[Trixi authors](https://github.com/trixi-framework/Trixi.jl/blob/main/AUTHORS.md).
+[Trixi authors](https://github.com/JuliaVTK/Trixi.jl/blob/main/AUTHORS.md).
 Its principal developers are
 [Michael Schlottke-Lakemper](https://www.hlrs.de/people/michael-schlottke-lakemper)
 (University of Stuttgart, Germany) and [Hendrik Ranocha](https://ranocha.de)
@@ -116,9 +115,9 @@ from the community. Please refer to [Contributing](@ref) for more details. To ge
 touch with the developers, join us on Trixi's
 [Slack workspace](https://join.slack.com/t/trixi-framework/shared_invite/zt-sgkc6ppw-6OXJqZAD5SPjBYqLd8MU~g)
 or
-[create an issue](https://github.com/trixi-framework/ReadVTK.jl/issues/new).
+[create an issue](https://github.com/JuliaVTK/ReadVTK.jl/issues/new).
 
 ## Acknowledgments
 This package would not exist without the nice work of 
 [Juan Ignacio Polanco](https://github.com/jipolanco) and his cleanly written and well-documented package
-[WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl). 
+[WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl). 

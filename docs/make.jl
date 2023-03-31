@@ -18,7 +18,7 @@ makedocs(
         # Explicitly add favicon as asset
         # assets = ["assets/favicon.ico"],
         # Set canonical URL to GitHub pages URL
-        canonical = "https://trixi-framework.github.io/ReadVTK.jl/stable"
+        canonical = "https://juliavtk.github.io/ReadVTK.jl/stable"
     ),
     # Explicitly specify documentation structure
     pages = [
@@ -31,7 +31,7 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/trixi-framework/ReadVTK.jl",
+    repo = "github.com/JuliaVTK/ReadVTK.jl",
     devbranch = "main",
     push_preview = true
 )

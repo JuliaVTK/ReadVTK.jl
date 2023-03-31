@@ -146,7 +146,7 @@ function VTKFile(filename)
     piece = root[file_type][1]["Piece"][1]
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
     # TODO: decide how to handle the number of cells correctly, see
-    #       https://github.com/trixi-framework/ReadVTK.jl/pull/11
+    #       https://github.com/JuliaVTK/ReadVTK.jl/pull/11
     n_cells = typemin(Int)
   end
 
@@ -1111,7 +1111,7 @@ Base.size(primitives::VTKPrimitives) = (length(primitives),)
     get_example_file(filename; head="main", output_directory=".", force=false)
 
 Retrieve an example file from the
-[`ReadVTK_examples` repository](https://github.com/trixi-framework/ReadVTK_examples)
+[`ReadVTK_examples` repository](https://github.com/JuliaVTK/ReadVTK_examples)
 at commit/branch `head` and store it in the `output_directory`. If the file already
 exists locally, do not download the file again unless `force` is true. Return the local path to the
 downloaded file.
@@ -1119,7 +1119,7 @@ downloaded file.
 function get_example_file(filename; head="main", output_directory=".", force=false)
   filepath = joinpath(output_directory, filename)
   if !isfile(filepath) || force
-    url = ("https://github.com/trixi-framework/ReadVTK_examples/raw/"
+    url = ("https://github.com/JuliaVTK/ReadVTK_examples/raw/"
            * head
            * "/examples/"
            * filename)
