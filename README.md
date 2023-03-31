@@ -9,7 +9,7 @@
 
 With **ReadVTK.jl** you can read in data from VTK XML files in Julia. It aims to complement
 the excellent package [WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl).
-ReadVTK is part of the [Trixi Framework](https://JuliaVTK.github.io).
+ReadVTK is part of the [JuliaVTK Framework](https://github.com/JuliaVTK).
 
 *Note: ReadVTK was mainly motivated by wanting to write proper tests for
 [Trixi2Vtk.jl](https://github.com/trixi-framework/Trixi2Vtk.jl).
