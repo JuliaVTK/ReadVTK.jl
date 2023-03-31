@@ -12,7 +12,7 @@ the excellent package [WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl).
 ReadVTK is part of the [Trixi Framework](https://JuliaVTK.github.io).
 
 *Note: ReadVTK was mainly motivated by wanting to write proper tests for
-[Trixi2Vtk.jl](https://github.com/JuliaVTK/Trixi2Vtk.jl).
+[Trixi2Vtk.jl](https://github.com/trixi-framework/Trixi2Vtk.jl).
 A lot of useful features are still missing (see [below](#what-does-not-work)),
 and community contributions to improve this package are welcome!*
 
