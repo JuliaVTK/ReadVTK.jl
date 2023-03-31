@@ -1032,7 +1032,7 @@ function get_cells(vtk_file::VTKFile)
   @assert !isnothing(offsets)
   @assert !isnothing(types)
 
-  # Create VTKCells container, note that connectivity must be offset by one to match WriteVTK data
+  # Create VTKCells container and convert VTK's zero-based indices to Julia's one-based indices 
   VTKCells(
     get_data(connectivity) + oneunit.(get_data(connectivity)),
     get_data(offsets),
