@@ -4,7 +4,7 @@ ReadVTK is an open-source project and we are very happy to accept contributions
 from the community. Please feel free to open issues or submit patches (preferably
 as pull requests) any time. For planned larger contributions, it is often
 beneficial to get in contact with us first (e.g., by
-[creating an issue](https://github.com/trixi-framework/ReadVTK.jl/issues/new)).
+[creating an issue](https://github.com/JuliaVTK/ReadVTK.jl/issues/new)).
 
 ReadVTK and its contributions are licensed under the MIT license (see
 [LICENSE.md](LICENSE.md)). As a contributor, you certify that all your
