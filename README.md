@@ -121,7 +121,7 @@ ReadVTK is licensed under the MIT license (see [LICENSE.md](LICENSE.md)).
 Since ReadVTK is an open-source project, we are very happy to accept contributions
 from the community. Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for more details. To get in
 touch with the developers, join us on Trixi's
-[Slack workspace](https://join.slack.com/t/JuliaVTK/shared_invite/zt-sgkc6ppw-6OXJqZAD5SPjBYqLd8MU~g)
+[Slack workspace](https://join.slack.com/t/trixi-framework/shared_invite/zt-sgkc6ppw-6OXJqZAD5SPjBYqLd8MU~g)
 or
 [create an issue](https://github.com/JuliaVTK/ReadVTK.jl/issues/new).
 
