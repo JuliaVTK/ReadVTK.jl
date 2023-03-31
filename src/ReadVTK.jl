@@ -9,7 +9,7 @@ using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_
                 child_elements, free, content, find_element
 
 export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,           # structs
-       PVTKFile, PVTKData, PVTKDataArray, PVDFile,  
+       PVTKFile, PVTKData, PVTKDataArray, PVDFile,
        get_point_data, get_cell_data, get_data, get_data_reshaped,        # get data functions
        get_points, get_cells, get_origin, get_spacing, get_primitives,    # get geometry functions
        get_coordinates, get_coordinate_data,                              # get geometry functions
@@ -145,7 +145,7 @@ function VTKFile(filename)
   elseif file_type == "PolyData"
     piece = root[file_type][1]["Piece"][1]
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required=true))
-    # TODO: decide how to handle the number of cells correctly, see  
+    # TODO: decide how to handle the number of cells correctly, see
     #       https://github.com/trixi-framework/ReadVTK.jl/pull/11
     n_cells = typemin(Int)
   end
@@ -174,7 +174,7 @@ piece(vtk_file::VTKFile) = LightXML.root(vtk_file.xml_file)[vtk_file.file_type][
 
 """
     isstructured(xml_file)
-    
+
 Returns `true` if it is a structured grid.
 """
 function isstructured(xml_file)
@@ -206,11 +206,11 @@ Hold all relevant information about a Parallel VTK XML file that has been read i
 - `vtk_files`: vector with `VTKFile` data that contains the info about each of the files
 """
 struct PVTKFile
-  filename::String     
+  filename::String
   xml_file::XMLDocument
   file_type::String
   version::VersionNumber
-  vtk_filenames::Vector{String} 
+  vtk_filenames::Vector{String}
   vtk_files::Vector{VTKFile}
 end
 
@@ -229,7 +229,7 @@ function PVTKFile(filename; dir="")
   if startswith(xml_file_contents, "# pvtk DataFile Version")
     error("bad PVTK file format (found legacy format; only PVTK XML files are currently supported)")
   end
-  
+
   # Open file and ensure that it is a valid VTK file
   xml_file = LightXML.parse_string(xml_file_contents)
   root = LightXML.root(xml_file)
@@ -250,9 +250,9 @@ function PVTKFile(filename; dir="")
   # Extract names of files & load the data
   pieces   = root[file_type][1]["Piece"]
   n_pieces = length(pieces)
-  vtk_filenames = Vector{String}(undef, n_pieces)  
-  vtk_files = Vector{VTKFile}(undef, n_pieces)  
-  
+  vtk_filenames = Vector{String}(undef, n_pieces)
+  vtk_files = Vector{VTKFile}(undef, n_pieces)
+
   for i in 1:n_pieces
     vtk_filenames[i] = attribute(pieces[i], "Source", required=true)
     vtk_files[i] = VTKFile(joinpath(dir, vtk_filenames[i]))
@@ -294,7 +294,7 @@ Read in and parse the PVD XML file specified by its `filename`.
 function PVDFile(filename)
   # Read in file into memory as a string
   xml_file_contents = read(filename, String)
-  
+
   # Open file and ensure that it is a valid VTK file
   xml_file = LightXML.parse_string(xml_file_contents)
   root = LightXML.root(xml_file)
@@ -315,10 +315,10 @@ function PVDFile(filename)
   # Extract names of files & load the data
   pieces = root[file_type][1]["DataSet"]
   n_pieces = length(pieces)
-  vtk_filenames = Vector{String}(undef, n_pieces)  
-  directories = Vector{String}(undef, n_pieces)  
+  vtk_filenames = Vector{String}(undef, n_pieces)
+  directories = Vector{String}(undef, n_pieces)
   timesteps = Vector{Float64}(undef, n_pieces)
-  
+
   for i in 1:n_pieces
     file_dir = attribute(pieces[i], "file", required=true)
     vtk_filenames[i] = file_dir
@@ -337,7 +337,7 @@ end
 
 include("get_functions.jl")
 
-# Auxiliary methods 
+# Auxiliary methods
 Base.keys(data::PVTKFile) = tuple(data.vtk_filenames...)
 Base.length(pvtk_file::PVTKFile) = length(pvtk_file.vtk_filenames)
 
@@ -509,7 +509,7 @@ function Base.getindex(data::PVTKData, name)
   for i in 1:n_datasets
     data_array[i] = VTKDataArray(data.data[i].data_arrays[index], data.data[i].vtk_file)
   end
-  
+
   return PVTKDataArray(data.parent_xml, data_array);
 end
 
@@ -538,7 +538,7 @@ struct VTKDataArray{T, N, Format}
 end
 
 # convencience functions
-number_of_components(d::VTKDataArray{T, N, Format}) where {T, N, Format} = N 
+number_of_components(d::VTKDataArray{T, N, Format}) where {T, N, Format} = N
 datatype(d::VTKDataArray{T, N, Format}) where {T, N, Format} = T
 
 
@@ -678,7 +678,7 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatBinary}) where {T,N}
   if N == 1
     # If it is a one dimensional array, just return it as is
     return v
-  else 
+  else
     # Otherwise, reshape into two-dimensional array
     return reshape(v, N, :)
   end
@@ -724,7 +724,7 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatAppended}) where {T,N}
   if N == 1
     # If it is a one dimensional array, just return it as is
     return v
-  else 
+  else
     # Otherwise, reshape into two-dimensional array
     return reshape(v, N, :)
   end
@@ -735,13 +735,13 @@ end
 
 Retrieve actual data from a `PVTKDataArray` as a one- or two-dimensional array-like container.
 """
-function get_data(data_array::PVTKDataArray) 
+function get_data(data_array::PVTKDataArray)
   n_datasets = length(data_array.data)
-  dat = Vector{Array}(undef, n_datasets)  
+  dat = Vector{Array}(undef, n_datasets)
   for i in 1:n_datasets
     dat[i] = get_data(data_array.data[i])
   end
-  
+
   return dat
 end
 
@@ -749,7 +749,7 @@ end
     get_data_reshaped(data_array::VTKDataArray; cell_data=false)
 
 Retrieve actual data from a `VTKDataArray` and reshape it as 1D, 2D, or 3D arrays, in case we deal with structured grids.
-Note that vectors or tensors will have their components stored in the first dimension of the array. 
+Note that vectors or tensors will have their components stored in the first dimension of the array.
 As there is no way to automatically tell from the VTK file format whether it is a tensor, the user has to reshape this manually.
 """
 function get_data_reshaped(data_array::VTKDataArray{T,N}; cell_data=false) where {T,N}
@@ -757,8 +757,8 @@ function get_data_reshaped(data_array::VTKDataArray{T,N}; cell_data=false) where
 
   # Retrieve size of grid
   local_size, _ = get_wholeextent(data_array.vtk_file.xml_file, cell_data)
-  
-  # reshape 
+
+  # reshape
   if N == 1
     data_reshaped = reshape(data, local_size...)
   else
@@ -783,19 +783,19 @@ function get_data_reshaped(data_array::PVTKDataArray; cell_data=false)
   end
   N = number_of_components(data_array.data[1])
   type = datatype(data_array.data[1])
-  
+
   # initialize full grid
   if N==1
-    data = zeros(type,wholeextent...)    
+    data = zeros(type,wholeextent...)
   else
-    data = zeros(type,N, wholeextent...) 
+    data = zeros(type,N, wholeextent...)
   end
 
-  # collect parts 
+  # collect parts
   for i=1:length(data_array.data)
     ex = extents[i]
     if cell_data
-      ex =  (ex[1][1:end-1], ex[2][1:end-1], ex[3][1:end-1]) 
+      ex =  (ex[1][1:end-1], ex[2][1:end-1], ex[3][1:end-1])
     end
     if N==1
       data[ex...] .= get_data_reshaped(data_array.data[i], cell_data=cell_data)
@@ -811,7 +811,7 @@ end
 """
   get_wholeextent(xml_file, cell_data=false)
 
-Retrieve the size of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
+Retrieve the size of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D.
 """
 function get_wholeextent(xml_file, cell_data=false)
 
@@ -826,7 +826,7 @@ function get_wholeextent(xml_file, cell_data=false)
 
   min_ex = whole_extent[1:2:end-1]
   max_ex = whole_extent[2:2:end]
-  
+
   local_size = [length(min_ex[i]:max_ex[i]) for i=1:3]
 
   if cell_data
@@ -840,7 +840,7 @@ end
 """
     get_extents(xml_file, min_extent=[0;0;0])
 
-Retrieve the local size of pieces of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D. 
+Retrieve the local size of pieces of a structured grid (ImageData, RectilinearGrid). Note that this always returns three dimensions, even if the data is 1D or 2D.
 """
 function get_extents(xml_file, min_extent=[0;0;0])
   if !isstructured(xml_file)
@@ -852,18 +852,18 @@ function get_extents(xml_file, min_extent=[0;0;0])
   file_type = attribute(root, "type", required=true)
   pieces = root[file_type][1]["Piece"]
   n_pieces = length(pieces)
- 
-  # Retrieve number of points 
+
+  # Retrieve number of points
   extents = Vector{NTuple{3,UnitRange{Int64}}}(undef, n_pieces)
   for i=1:n_pieces
-    ex = parse.(Int,split(attribute(pieces[i],  "Extent", required=true))); 
+    ex = parse.(Int,split(attribute(pieces[i],  "Extent", required=true)));
 
     # julia starts @ 1; sometimes the minimum extent starts @ zero and sometimes @ a custom value
-    ex[1:2] = ex[1:2] .- min_extent[1] .+ 1;  
-    ex[3:4] = ex[3:4] .- min_extent[2] .+ 1;  
-    ex[5:6] = ex[5:6] .- min_extent[3] .+ 1;  
-    
-    extents[i] = ( ex[1]:ex[2],  ex[3]:ex[4],  ex[5]:ex[6]);          
+    ex[1:2] = ex[1:2] .- min_extent[1] .+ 1;
+    ex[3:4] = ex[3:4] .- min_extent[2] .+ 1;
+    ex[5:6] = ex[5:6] .- min_extent[3] .+ 1;
+
+    extents[i] = ( ex[1]:ex[2],  ex[3]:ex[4],  ex[5]:ex[6]);
   end
 
   return extents
@@ -951,11 +951,11 @@ function get_coordinates(pvtk_file::PVTKFile; x_string="x", y_string="y", z_stri
     extents = get_extents( pvtk_file.xml_file, min_extent)         # local extents
 
     type = typeof(points[1][1])
-    
+
     # initialize full grid
-    data = zeros(type,3,wholeextent...) 
- 
-    # collect parts 
+    data = zeros(type,3,wholeextent...)
+
+    # collect parts
     for i=1:length(points)
       ex = extents[i]
       data[1:3, ex...] .= reshape(points[i],3,length.(extents[i])...);
@@ -1032,8 +1032,14 @@ function get_cells(vtk_file::VTKFile)
   @assert !isnothing(offsets)
   @assert !isnothing(types)
 
-  # Create VTKCells container
-  VTKCells(get_data(connectivity), get_data(offsets), get_data(types))
+  # Create VTKCells container and convert VTK's zero-based indices to Julia's one-based indices
+  # Note: the offsets do not need to be updated since they point *past* the last entry
+  # in VTK files (C-style), while in Julia it is custom to point *at* the last entry.
+  VTKCells(
+    get_data(connectivity) + oneunit.(get_data(connectivity)),
+    get_data(offsets),
+    get_data(types)
+  )
 end
 
 # Convenience functions for working with `VTKCells` container
@@ -1074,7 +1080,7 @@ function get_primitives(vtk_file::VTKFile, primitive_type::AbstractString)
   end
 
   xml = find_element(piece(vtk_file), primitive_type)
-  @assert !isnothing(xml) string("This PolyData file has no primitives of type \"", primitive_type, "\".") 
+  @assert !isnothing(xml) string("This PolyData file has no primitives of type \"", primitive_type, "\".")
 
   # Iterate over available XML data arrays and store corresponding data in `VTKDataArray`s
   connectivity = nothing
