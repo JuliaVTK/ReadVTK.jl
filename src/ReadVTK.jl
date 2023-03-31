@@ -1032,7 +1032,9 @@ function get_cells(vtk_file::VTKFile)
   @assert !isnothing(offsets)
   @assert !isnothing(types)
 
-  # Create VTKCells container and convert VTK's zero-based indices to Julia's one-based indices 
+  # Create VTKCells container and convert VTK's zero-based indices to Julia's one-based indices
+  # Note: the offsets do not need to be updated since they point *past* the last entry
+  # in VTK files (C-style), while in Julia it is custom to point *at* the last entry.
   VTKCells(
     get_data(connectivity) + oneunit.(get_data(connectivity)),
     get_data(offsets),
