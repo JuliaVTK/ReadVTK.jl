@@ -1,14 +1,28 @@
 using Documenter
 import Pkg
+using VTKBase
 using ReadVTK
 
 # Define module-wide setups such that the respective modules are available in doctests
+DocMeta.setdocmeta!(VTKBase, :DocTestSetup, :(using VTKBase); recursive = true)
 DocMeta.setdocmeta!(ReadVTK, :DocTestSetup, :(using ReadVTK); recursive=true)
+
+# Path to markdown file containing docs for VTKBase.jl
+# We copy the file to src/external/
+vtkbase_docs_src = joinpath(
+    dirname(dirname(pathof(VTKBase))),  # VTKBase directory
+    "docs",
+    "src",
+    "VTKBase.md",
+)
+isfile(vtkbase_docs_src) || error("file not found: $vtkbase_docs_src")
+vtkbase_docs = joinpath("external", "VTKBase.md")
+cp(vtkbase_docs_src, joinpath(@__DIR__, "src", vtkbase_docs); force = true)
 
 # Make documentation
 makedocs(
     # Specify modules for which docstrings should be shown
-    modules = [ReadVTK],
+    modules = [VTKBase, ReadVTK],
     # Set sitename to ReadVTK
     sitename="ReadVTK.jl",
     # Provide additional formatting options
@@ -24,6 +38,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Reference" => "reference.md",
+        "VTKBase.jl" => vtkbase_docs,
         "Contributing" => "contributing.md",
         "License" => "license.md"
     ],
