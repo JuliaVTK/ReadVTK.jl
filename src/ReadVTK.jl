@@ -8,6 +8,8 @@ using CodecZlib: ZlibDecompressor
 using LightXML: LightXML, XMLDocument, XMLElement, parse_string, attribute, has_attribute,
                 child_elements, free, content, find_element
 
+using VTKBase: VTKBase
+
 export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,           # structs
        PVTKFile, PVTKData, PVTKDataArray, PVDFile,
        get_point_data, get_cell_data, get_data, get_data_reshaped,        # get data functions
