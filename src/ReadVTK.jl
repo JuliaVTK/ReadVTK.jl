@@ -16,7 +16,8 @@ export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,           # stru
        get_point_data, get_cell_data, get_data, get_data_reshaped,        # get data functions
        get_points, get_cells, get_origin, get_spacing, get_primitives,    # get geometry functions
        get_coordinates, get_coordinate_data,                              # get geometry functions
-       get_example_file                                                   # other functions
+       get_example_file,                                                  # other functions
+       convert_VTKCells_to_MeshCells                                      # conversion utility
 
 """
     VTKFile
@@ -1137,6 +1138,29 @@ function get_example_file(filename; head="main", output_directory=".", force=fal
   end
 
   return filepath
+end
+
+"""
+    convert_VTKCells_to_MeshCells(cells::VTKCells)
+
+Converts the `VTKCells` type, which holds data on N number of cells, to
+a vector of N number of `MeshCell` types. Allows for the reading and then
+subsequent writing with `WriteVTK`.
+
+See also: [`VTKCells`](@ref), [`MeshCell`](@ref)
+"""
+function convert_VTKCells_to_MeshCells(cells::VTKCells)
+
+  start_offsets = [0; cells.offsets[1:end-1]] .+ 1
+  end_offsets = cells.offsets
+
+  offset_ranges = range.(start_offsets, end_offsets)
+
+  connectivity = getindex.([cells.connectivity], offset_ranges)
+  cell_types = VTKBase.VTKCellType.(cells.types)
+
+  return VTKBase.MeshCell.(cell_types, connectivity)
+
 end
 
 end # module
