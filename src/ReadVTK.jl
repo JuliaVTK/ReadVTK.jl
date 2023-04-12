@@ -649,7 +649,7 @@ Retrieve actual data from a `VTKDataArray` as a one- or two-dimensional array-li
 
 Note: This function is not type stable but could be - help wanted!
 """
-function get_data(data_array::VTKDataArray) end
+function get_data end
 
 # Retrieve actual data for XML data array (version for storage format "binary")
 function get_data(data_array::VTKDataArray{T,N,<:FormatBinary}) where {T,N}
