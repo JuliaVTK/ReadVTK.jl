@@ -1143,9 +1143,8 @@ end
 """
     convert_VTKCells_to_MeshCells(cells::VTKCells)
 
-Converts the `VTKCells` type, which holds data on N number of cells, to
-a vector of N number of `MeshCell` types. Allows for the reading and then
-subsequent writing with `WriteVTK`.
+Convert a `VTKCells` object, which holds raw point and connectivity data for a number of cells, to
+a vector of `MeshCell` objects. The latter can, e.g., be passed to the WriteVTK.jl package for writing new VTK files.
 
 See also: [`VTKCells`](@ref), [`MeshCell`](@ref)
 """
