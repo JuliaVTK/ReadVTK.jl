@@ -103,6 +103,10 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       @test cells.connectivity[1000] == 422
     end
 
+    @testset "validate cell object conversion" begin
+      @test isa.(to_meshcells(get_cells(vtk_file)), WriteVTK.MeshCell) |> all
+    end
+
     @testset "show" begin
       @test isnothing(show(devnull, vtk_file))
       @test isnothing(show(devnull, cell_data))
