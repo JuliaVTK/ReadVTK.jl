@@ -611,8 +611,14 @@ function VTKDataArray(xml_element, vtk_file::VTKFile)
   # Extract information about the underlying data
   data_type = string_to_data_type(attribute(xml_element, "type", required=true))
   name = attribute(xml_element, "Name", required=true)
-  n_components = parse(Int, attribute(xml_element, "NumberOfComponents", required=true))
   format_string = attribute(xml_element, "format", required=true)
+
+  # ParaView doesn't include NumberOfComponents tag if field is a scalar
+  if has_attribute(xml_element, "NumberOfComponents")
+    n_components = parse(Int, attribute(xml_element, "NumberOfComponents", required=true))
+  else
+    n_components = 1
+  end
 
   # An offset is only used when the format is `appended`
   if has_attribute(xml_element, "offset")
@@ -658,7 +664,8 @@ function get_data(data_array::VTKDataArray{T,N,<:FormatBinary}) where {T,N}
   # * first get the content of the corresponding XML data array
   # * then remove leading/trailing whitespace
   # * finally decode from Base64 to binary representation
-  raw = base64decode(strip(content(data_array.data_array)))
+  # * split with "\n" added to read ParaView output files
+  raw = base64decode(split(strip(content(data_array.data_array)), "\n")[1])
 
   if is_compressed(data_array)
     # If data is stored compressed, the first four integers of type `header_type` are the header and
