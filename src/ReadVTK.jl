@@ -1145,7 +1145,9 @@ function to_meshcells(cells::VTKCells)
   start_offsets = [0; cells.offsets[1:end-1]] .+ 1
   end_offsets = cells.offsets
 
-  offset_ranges = range.(start_offsets, end_offsets)
+  # range doesn't work as is in Julia <=1.6, possibly update this on new LTS
+  #offset_ranges = range.(start_offsets, end_offsets)
+  offset_ranges = (:).(start_offsets, end_offsets)
 
   connectivity = getindex.([cells.connectivity], offset_ranges)
   cell_types = VTKBase.VTKCellType.(cells.types)
