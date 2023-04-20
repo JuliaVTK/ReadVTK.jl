@@ -323,7 +323,8 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       path = joinpath(TEST_EXAMPLES_DIR, "spiral")
       vtk_grid(path, points, cells) do vtk
         vtk["theta", VTKPointData()] = point_values # scalar field attached to points
-        return vtk["h", VTKCellData()] = cell_values       # scalar field attached to cells
+        vtk["h", VTKCellData()] = cell_values       # scalar field attached to cells
+        return nothing
       end
 
       # read data from the vtp file
