@@ -115,6 +115,7 @@ Further contributions to ReadVTK have been made by the following people:
 (Charles University, Czech Republic)
 * [Boris Kaus](https://www.geosciences.uni-mainz.de/geophysics-and-geodynamics/team/univ-prof-dr-boris-kaus/)
   (Johannes-Gutenberg University Mainz, Germany)
+* [Matthew Whisenant](https://volweb2.utk.edu/~mwhisena/)
 
 ## License and contributing
 ReadVTK is licensed under the MIT license (see [LICENSE.md](LICENSE.md)).
