@@ -252,7 +252,8 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     path = joinpath(TEST_EXAMPLES_DIR, "grid_2D")
     vtk_grid(path, x, y) do vtk
       vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
-      return vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
+      vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
+      return nothing
     end
 
     filepath = joinpath(TEST_EXAMPLES_DIR, "grid_2D.vti")
