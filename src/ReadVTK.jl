@@ -96,8 +96,8 @@ function VTKFile(filename)
     offset_begin = first(findnext("_", raw_file_contents, last(marker))) + 1
     offset_end = first(findnext("</AppendedData>", raw_file_contents, offset_begin)) - 1
     appended_data = Vector{UInt8}(rstrip(raw_file_contents[offset_begin:offset_end]))
-    xml_file_contents = raw_file_contents[1:(offset_begin - 1)] *
-                        "\n  </AppendedData>\n</VTKFile>"
+    xml_file_contents = (raw_file_contents[1:(offset_begin - 1)] *
+                         "\n  </AppendedData>\n</VTKFile>")
   end
 
   # Open file and ensure that it is a valid VTK file
@@ -141,8 +141,8 @@ function VTKFile(filename)
     piece = root[file_type][1]["Piece"][1]
     n_points = parse(Int, attribute(piece, "NumberOfPoints", required = true))
     n_cells = parse(Int, attribute(piece, "NumberOfCells", required = true))
-  elseif file_type == "ImageData" || file_type == "RectilinearGrid" ||
-         file_type == "StructuredGrid"
+  elseif (file_type == "ImageData" || file_type == "RectilinearGrid" ||
+          file_type == "StructuredGrid")
     dataset_element = root[file_type][1]
     whole_extent = parse.(Int,
                           split(attribute(dataset_element, "WholeExtent", required = true),
