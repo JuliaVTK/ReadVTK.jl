@@ -136,7 +136,8 @@ saved_files = paraview_collection(path_pvd) do pvd
 
     vtk_grid(path, x, y, z) do vtk
       vtk["Pressure"] = rand(length(x), length(y), length(z))
-      return pvd[time] = vtk
+      pvd[time] = vtk
+      return nothing
     end
   end
 end
