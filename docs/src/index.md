@@ -58,6 +58,22 @@ julia> data = get_data(element_ids)
  3085
 ```
 
+After modifications to the read VTK data, one can write back using
+[WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl) but must first
+convert cell objects using [`to_meshcells`](@ref). 
+Continuing from the REPL code above:
+```julia
+julia> using WriteVTK
+
+julia> points = get_points(vtk); cells = to_meshcells(get_cells(vtk));
+
+julia> vtk_grid("celldata_appended_binary_compressed_new.vtu", points, cells) do vtk
+         vtk["element_ids"] = data
+       end
+1-element Vector{String}:
+ "celldata_appended_binary_compressed_new.vtu"
+```
+
 Further example VTK files can be found in the
 [`ReadVTK_examples` repository](https://github.com/JuliaVTK/ReadVTK_examples).
 
@@ -114,6 +130,8 @@ Further contributions to ReadVTK have been made by the following people:
   (Charles University, Czech Republic)
 * [Boris Kaus](https://www.geosciences.uni-mainz.de/geophysics-and-geodynamics/team/univ-prof-dr-boris-kaus/)
   (Johannes-Gutenberg University Mainz, Germany)
+* [Matthew Whisenant](https://volweb2.utk.edu/~mwhisena/)
+  (University of Tennessee, Knoxville)
 
 ## License and contributing
 ReadVTK is licensed under the MIT license (see [License](@ref)).

@@ -16,7 +16,8 @@ export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,           # stru
        get_point_data, get_cell_data, get_data, get_data_reshaped,        # get data functions
        get_points, get_cells, get_origin, get_spacing, get_primitives,    # get geometry functions
        get_coordinates, get_coordinate_data,                              # get geometry functions
-       get_example_file                                                   # other functions
+       get_example_file,                                                  # other functions
+       to_meshcells                                                       # conversion utility
 
 """
     VTKFile
@@ -1144,6 +1145,27 @@ function get_example_file(filename; head = "main", output_directory = ".", force
   end
 
   return filepath
+end
+
+"""
+    to_meshcells(cells::VTKCells)
+
+Convert a `VTKCells` object, which holds raw point and connectivity data for a number of cells, to
+a vector of `MeshCell` objects. The latter can, e.g., be passed to the WriteVTK.jl package for writing new VTK files.
+See also: [`VTKCells`](@ref), [`VTKBase.MeshCell`](@ref)
+"""
+function to_meshcells(cells::VTKCells)
+  start_offsets = [0; cells.offsets[1:(end - 1)]] .+ 1
+  end_offsets = cells.offsets
+
+  # range doesn't work as is in Julia <=1.6, possibly update this on new LTS
+  #offset_ranges = range.(start_offsets, end_offsets)
+  offset_ranges = (:).(start_offsets, end_offsets)
+
+  connectivity = getindex.([cells.connectivity], offset_ranges)
+  cell_types = VTKBase.VTKCellType.(cells.types)
+
+  return VTKBase.MeshCell.(cell_types, connectivity)
 end
 
 end # module

@@ -8,3 +8,4 @@ coverage_report/
 /*.vtu
 /*.vti
 test/examples
+/.vscode
