@@ -58,7 +58,9 @@ julia> data = get_data(element_ids)
  3085
 ```
 
-After modifications to the read VTK data, one can write back using [WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl) but must first convert cell objects using `to_meshcells`. 
+After modifications to the read VTK data, one can write back using
+[WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl) but must first
+convert cell objects using [`to_meshcells`](@ref). 
 Continuing from the REPL code above:
 ```julia
 julia> using WriteVTK
@@ -81,8 +83,8 @@ Further example VTK files can be found in the
 * Extracting point coordinates
 * Extracting information about cell types
 * Only for `ImageData`,`PImageData` files: get origin, spacing, and extent information
-* Only for `RectilinearGrid`,`PRectiLinearGrid` files: get 1D coordinate vectors 
-* Only for `StructuredGrid`,`PStructuredGrid` files: get coordinate arrays 
+* Only for `RectilinearGrid`,`PRectiLinearGrid` files: get 1D coordinate vectors
+* Only for `StructuredGrid`,`PStructuredGrid` files: get coordinate arrays
 * Reading `PolyData` files containing vortices, lines, and/or polygons
 * Reading `PVD` files
 * Reading ParaView VTK files that are **in-line binary** (experimental, only `UnstructuredGrid` type tested)
@@ -106,6 +108,13 @@ Helpful resources for working with (i.e., reading and writing) VTK XML files:
   on encoding binary data
 * Mailing list [message](https://public.kitware.com/pipermail/paraview/2005-April/001391.html)
   on encoding binary data
+
+We use [JuliaFormatter.jl](https://github.com/domluna/JuliaFormatter.jl) to keep
+a consistent code formatting. If you have installed JuliaFormatter.jl, just run
+```julia
+using JuliaFormatter; format(".")
+```
+in the top-level directory of ReadVTK.jl to update the formatting.
 
 ## Authors
 ReadVTK is maintained by the
@@ -135,6 +144,6 @@ or
 [create an issue](https://github.com/JuliaVTK/ReadVTK.jl/issues/new).
 
 ## Acknowledgments
-This package would not exist without the nice work of 
+This package would not exist without the nice work of
 [Juan Ignacio Polanco](https://github.com/jipolanco) and his cleanly written and well-documented package
-[WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl). 
+[WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl).
