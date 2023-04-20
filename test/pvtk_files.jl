@@ -147,8 +147,8 @@ end
   @test length(get_coordinate_data(pvtk)) == 4
 
   # various tests for pvtk
-  @test basename.(keys(pvtk)) ==
-        ("fields_1.vtr", "fields_2.vtr", "fields_3.vtr", "fields_4.vtr")
+  @test (basename.(keys(pvtk)) ==
+         ("fields_1.vtr", "fields_2.vtr", "fields_3.vtr", "fields_4.vtr"))
 
   coords_read = get_coordinates(pvtk)
   @test Vector(xs_global) == coords_read[1]
@@ -238,8 +238,8 @@ end
   @test isnothing(show(devnull, pvtk))
 
   # various tests for pvtk
-  @test basename.(keys(pvtk)) ==
-        ("fields_1.vts", "fields_2.vts", "fields_3.vts", "fields_4.vts")
+  @test (basename.(keys(pvtk)) ==
+         ("fields_1.vts", "fields_2.vts", "fields_3.vts", "fields_4.vts"))
 
   # coordinates
   coords_read = get_coordinates(pvtk)

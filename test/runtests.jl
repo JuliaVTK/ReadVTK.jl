@@ -32,8 +32,8 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     create_directory(TEST_EXAMPLES_DIR)
 
     @testset "VTKFile" begin
-      @test VTKFile(get_test_example_file("celldata_inline_binary_uncompressed.vtu")) isa
-            VTKFile
+      @test (VTKFile(get_test_example_file("celldata_inline_binary_uncompressed.vtu")) isa
+             VTKFile)
 
       mktemp() do path, io
         write(io, "# vtk DataFile Version")
