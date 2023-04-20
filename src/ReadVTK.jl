@@ -1155,7 +1155,7 @@ a vector of `MeshCell` objects. The latter can, e.g., be passed to the WriteVTK.
 See also: [`VTKCells`](@ref), [`VTKBase.MeshCell`](@ref)
 """
 function to_meshcells(cells::VTKCells)
-  start_offsets = [0; cells.offsets[1:end-1]] .+ 1
+  start_offsets = [0; cells.offsets[1:(end - 1)]] .+ 1
   end_offsets = cells.offsets
 
   # range doesn't work as is in Julia <=1.6, possibly update this on new LTS
