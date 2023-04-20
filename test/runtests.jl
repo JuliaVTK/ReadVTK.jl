@@ -365,7 +365,8 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       # save using WriteVTK
       path = joinpath(TEST_EXAMPLES_DIR, "tetrahedron")
       vtk_grid(path, points, cells_verts, cells_lines, cells_polys) do vtk
-        return vtk["id", VTKCellData()] = cell_values
+        vtk["id", VTKCellData()] = cell_values
+        return nothing
       end
 
       # read data from the vtp file
