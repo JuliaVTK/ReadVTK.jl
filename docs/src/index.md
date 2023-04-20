@@ -58,7 +58,9 @@ julia> data = get_data(element_ids)
  3085
 ```
 
-After modifications to the read VTK data, one can write back using [WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl) but must first convert cell objects using `to_meshcells`. 
+After modifications to the read VTK data, one can write back using
+[WriteVTK.jl](https://github.com/JuliaVTK/WriteVTK.jl) but must first
+convert cell objects using [`to_meshcells`](@ref). 
 Continuing from the REPL code above:
 ```julia
 julia> using WriteVTK
