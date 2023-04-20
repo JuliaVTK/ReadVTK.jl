@@ -160,8 +160,7 @@ function VTKFile(filename)
 
   # Create and return VTKFile
   return VTKFile(filename, xml_file, file_type, version, byte_order, compressor,
-                 appended_data, n_points,
-                 n_cells)
+                 appended_data, n_points, n_cells)
 end
 
 # Show basic information on REPL
@@ -791,7 +790,7 @@ Retrieve actual data from a `PVTKDataArray` and reshapes it as 1D, 2D, or 3D arr
 It also puts it in the correct location the the full grid
 """
 function get_data_reshaped(data_array::PVTKDataArray; cell_data = false)
-  wholeextent, min_extent = get_wholeextent(data_array.parent_xml)  # global grid size
+  wholeextent, min_extent = get_wholeextent(data_array.parent_xml) # global grid size
   extents = get_extents(data_array.parent_xml, min_extent)         # local extents
 
   if cell_data
