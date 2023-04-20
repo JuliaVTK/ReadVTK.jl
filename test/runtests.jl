@@ -12,16 +12,18 @@ TEST_EXAMPLES_COMMIT = "92b44ef4666cae5aa5ffe1c5c35b5823c0073c31"
 TEST_EXAMPLES_DIR = "examples"
 
 
-get_test_example_file(filename) = get_example_file(filename, head=TEST_EXAMPLES_COMMIT,
-                                                   output_directory=TEST_EXAMPLES_DIR)
+function get_test_example_file(filename)
+  return get_example_file(filename, head = TEST_EXAMPLES_COMMIT,
+                          output_directory = TEST_EXAMPLES_DIR)
+end
 
 function create_directory(TEST_EXAMPLES_DIR)
-  isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive=true)
+  isdir(TEST_EXAMPLES_DIR) && rm(TEST_EXAMPLES_DIR, recursive = true)
   mkpath(TEST_EXAMPLES_DIR)
   return nothing
 end
 
-clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursive=true)
+clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursive = true)
 
 
 @time @testset "ReadVTK" begin
@@ -30,7 +32,8 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     create_directory(TEST_EXAMPLES_DIR)
 
     @testset "VTKFile" begin
-      @test VTKFile(get_test_example_file("celldata_inline_binary_uncompressed.vtu")) isa VTKFile
+      @test VTKFile(get_test_example_file("celldata_inline_binary_uncompressed.vtu")) isa
+            VTKFile
 
       mktemp() do path, io
         write(io, "# vtk DataFile Version")
@@ -54,7 +57,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       @test length(cell_data) == 5
       @test size(cell_data) == (5,)
       @test keys(cell_data) == ("cell_ids", "element_ids", "levels",
-                                "indicator_amr", "indicator_shock_capturing")
+             "indicator_amr", "indicator_shock_capturing")
       @test iterate(cell_data) == ("cell_ids" => cell_data["cell_ids"], 2)
       @test_throws KeyError cell_data["does_not_exist"]
       @test eltype(cell_data) == Pair{String, ReadVTK.VTKDataArray}
@@ -182,27 +185,27 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     ## Generate grid file and write vti
 
     # grid geometry parameters
-    input_origin   = [1.0, 1.0, 2.0]
-    input_ending   = [3.0, 2.0, 2.2]
-    input_numNodes = [  4,   2,   2]
+    input_origin = [1.0, 1.0, 2.0]
+    input_ending = [3.0, 2.0, 2.2]
+    input_numNodes = [4, 2, 2]
 
     # compute ranges
-    input_spacing = (input_ending .- input_origin) ./ (input_numNodes.-1)
+    input_spacing = (input_ending .- input_origin) ./ (input_numNodes .- 1)
     x, y, z = [(input_origin[i]:input_spacing[i]:input_ending[i]) for i in (1:3)]
     Nx, Ny, Nz = length(x), length(y), length(z)
 
     # generate random data
     point_scalar_field = rand(Nx, Ny, Nz)
-    point_data_name    = "Point scalar data"
+    point_data_name = "Point scalar data"
 
-    cell_scalar_field  = rand(Nx-1, Ny-1, Nz-1)
-    cell_data_name     = "Cell scalar data"
+    cell_scalar_field = rand(Nx - 1, Ny - 1, Nz - 1)
+    cell_data_name = "Cell scalar data"
 
     # write vti file using WriteVTK
     path = joinpath(TEST_EXAMPLES_DIR, "grid")
     vtk_grid(path, x, y, z) do vtk
-        vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
-        vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
+      vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
+      return vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
     end
 
     # Read vti file using ReadVTK
@@ -223,8 +226,9 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
 
     @testset "get scalar cell data" begin
       cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
-      cell_data_reshaped = reshape(cell_data_raw, ((Nx-1), (Ny-1), (Nz-1)))
-      cell_data_reshaped1 = get_data_reshaped(get_cell_data(vtk)[cell_data_name], cell_data=true)
+      cell_data_reshaped = reshape(cell_data_raw, ((Nx - 1), (Ny - 1), (Nz - 1)))
+      cell_data_reshaped1 = get_data_reshaped(get_cell_data(vtk)[cell_data_name],
+                                              cell_data = true)
 
       @test cell_data_reshaped == cell_scalar_field
       @test cell_data_reshaped1 == cell_scalar_field
@@ -233,7 +237,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     @testset "get scalar point data" begin
       point_data_raw = get_data(get_point_data(vtk)[point_data_name])
       point_data_reshaped = reshape(point_data_raw, (Nx, Ny, Nz))
-      point_data_reshaped1 =  get_data_reshaped(get_point_data(vtk)[point_data_name])
+      point_data_reshaped1 = get_data_reshaped(get_point_data(vtk)[point_data_name])
 
       @test point_data_reshaped == point_scalar_field
       @test point_data_reshaped1 == point_scalar_field
@@ -241,13 +245,13 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
 
     # generate random 2D data
     point_scalar_field = rand(Nx, Ny)
-    cell_scalar_field  = rand(Nx-1, Ny-1)
+    cell_scalar_field = rand(Nx - 1, Ny - 1)
 
     # write 2D vti file using WriteVTK
     path = joinpath(TEST_EXAMPLES_DIR, "grid_2D")
     vtk_grid(path, x, y) do vtk
       vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
-      vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
+      return vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
     end
 
     filepath = joinpath(TEST_EXAMPLES_DIR, "grid_2D.vti")
@@ -266,7 +270,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
 
     @testset "get 2D scalar cell data" begin
       cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
-      cell_data_reshaped = reshape(cell_data_raw, ((Nx-1), (Ny-1)))
+      cell_data_reshaped = reshape(cell_data_raw, ((Nx - 1), (Ny - 1)))
       @test cell_data_reshaped == cell_scalar_field
     end
 
@@ -303,10 +307,10 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       points = zeros(3, n)
       points[1, :] .= [cos(4 * pi * i / n) for i in 0:(n - 1)]
       points[2, :] .= [sin(4 * pi * i / n) for i in 0:(n - 1)]
-      points[3, :] .= [0.2 * i for i in 0:n-1]
+      points[3, :] .= [0.2 * i for i in 0:(n - 1)]
 
       # define polygons
-      polys = [i:(i + 3) for i = 1:(n - 3)]
+      polys = [i:(i + 3) for i in 1:(n - 3)]
       cells = [MeshCell(PolyData.Polys(), p) for p in polys]
 
       # define values
@@ -317,7 +321,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       path = joinpath(TEST_EXAMPLES_DIR, "spiral")
       vtk_grid(path, points, cells) do vtk
         vtk["theta", VTKPointData()] = point_values # scalar field attached to points
-        vtk["h", VTKCellData()] = cell_values       # scalar field attached to cells
+        return vtk["h", VTKCellData()] = cell_values       # scalar field attached to cells
       end
 
       # read data from the vtp file
@@ -335,12 +339,10 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     @testset "mixed types" begin
       # define points of a regular tetrahedron
       isqrt2 = 1 / sqrt(2)
-      points = permutedims(Float32[
-          1  0 -isqrt2 #1
-         -1  0 -isqrt2 #2
-          0 -1  isqrt2 #3
-          0  1  isqrt2 #4
-      ])
+      points = permutedims(Float32[1 0 -isqrt2 #1
+                                   -1 0 -isqrt2 #2
+                                   0 -1 isqrt2 #3
+                                   0 1 isqrt2])
 
       # define verts
       verts = [[1], [2], [3], [4]]
@@ -360,11 +362,11 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       # save using WriteVTK
       path = joinpath(TEST_EXAMPLES_DIR, "tetrahedron")
       vtk_grid(path, points, cells_verts, cells_lines, cells_polys) do vtk
-        vtk["id", VTKCellData()] = cell_values
+        return vtk["id", VTKCellData()] = cell_values
       end
 
       # read data from the vtp file
-      vtk = VTKFile(path*".vtp")
+      vtk = VTKFile(path * ".vtp")
 
       # test correctness
       @test cell_values == get_data(get_cell_data(vtk)["id"])
