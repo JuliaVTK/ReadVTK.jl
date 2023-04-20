@@ -90,6 +90,7 @@ Further example VTK files can be found in the
   * `header_type` is hardcoded to `UInt64`
 * Extracting primitives from `PolyData` files other than vortices, lines, and/or polygons
 * Likely anything else that is not specifically mentioned under *What works*
+* Reading ParaView VTK files that are **in-line binary** (experimental, only `UnstructuredGrid` type tested)
 
 ## Development
 Helpful resources for working with (i.e., reading and writing) VTK XML files:
