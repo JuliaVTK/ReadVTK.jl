@@ -119,7 +119,8 @@ for part in 1:2
   path = joinpath(TEST_EXAMPLES_DIR, "simulation")
   saved_files[part] = pvtk_grid(path, data.points, data.cells;
                                 part = part, nparts = 2) do pvtk
-    return pvtk["Pressure"] = sum(data.points; dims = 1)
+    pvtk["Pressure"] = sum(data.points; dims = 1)
+    return nothing
   end
 end
 
