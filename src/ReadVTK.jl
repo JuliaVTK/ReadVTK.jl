@@ -47,11 +47,11 @@ mutable struct VTKFile
   n_cells::Int
 
   # Create inner constructor to add finalizer (this requires VTKFile to be a *mutable* struct)
-  function VTKFile(filename, xml_file, file_type, version, byte_order, compressor, appended_data,
-                   n_points, n_cells)
+  function VTKFile(filename, xml_file, file_type, version, byte_order, compressor,
+                   appended_data, n_points, n_cells)
     # Create new object
-    vtk_file = new(filename, xml_file, file_type, version, byte_order, compressor, appended_data,
-                   n_points, n_cells)
+    vtk_file = new(filename, xml_file, file_type, version, byte_order, compressor,
+                   appended_data, n_points, n_cells)
 
     # Create finalizer that releases memory for VTK file
     f(vtk_file) = free(vtk_file.xml_file)
