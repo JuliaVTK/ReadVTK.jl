@@ -619,13 +619,13 @@ function VTKDataArray(xml_element, vtk_file::VTKFile)
   @assert LightXML.name(xml_element) == "DataArray"
 
   # Extract information about the underlying data
-  data_type = string_to_data_type(attribute(xml_element, "type", required=true))
-  name = attribute(xml_element, "Name", required=true)
-  format_string = attribute(xml_element, "format", required=true)
+  data_type = string_to_data_type(attribute(xml_element, "type", required = true))
+  name = attribute(xml_element, "Name", required = true)
+  format_string = attribute(xml_element, "format", required = true)
 
   # ParaView doesn't include NumberOfComponents tag if field is a scalar
   if has_attribute(xml_element, "NumberOfComponents")
-    n_components = parse(Int, attribute(xml_element, "NumberOfComponents", required=true))
+    n_components = parse(Int, attribute(xml_element, "NumberOfComponents", required = true))
   else
     n_components = 1
   end
