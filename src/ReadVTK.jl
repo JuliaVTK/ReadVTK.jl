@@ -675,8 +675,8 @@ function get_data(data_array::VTKDataArray{T, N, <:FormatBinary}) where {T, N}
   # To retrieve the raw data,
   # * first get the content of the corresponding XML data array
   # * then remove leading/trailing whitespace
-  # * finally decode from Base64 to binary representation
   # * split with "\n" added to read ParaView output files
+  # * finally decode from Base64 to binary representation
   raw = base64decode(split(strip(content(data_array.data_array)), "\n")[1])
 
   if is_compressed(data_array)
