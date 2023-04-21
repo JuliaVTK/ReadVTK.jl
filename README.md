@@ -78,6 +78,7 @@ Further example VTK files can be found in the
 * Only for `StructuredGrid`,`PStructuredGrid` files: get coordinate arrays
 * Reading `PolyData` files containing vortices, lines, and/or polygons
 * Reading `PVD` files
+* Reading ParaView VTK files that are **in-line binary** (experimental, only `UnstructuredGrid` type tested)
 
 ### What does not work
 * Reading VTK files not stored in the VTK XML format
@@ -90,7 +91,6 @@ Further example VTK files can be found in the
   * `header_type` is hardcoded to `UInt64`
 * Extracting primitives from `PolyData` files other than vortices, lines, and/or polygons
 * Likely anything else that is not specifically mentioned under *What works*
-* Reading ParaView VTK files that are **in-line binary** (experimental, only `UnstructuredGrid` type tested)
 
 ## Development
 Helpful resources for working with (i.e., reading and writing) VTK XML files:
