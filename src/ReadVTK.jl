@@ -676,6 +676,12 @@ function get_data(data_array::VTKDataArray{T, N, <:FormatBinary}) where {T, N}
   # * first get the content of the corresponding XML data array
   # * then remove leading/trailing whitespace
   # * split with "\n" added to read ParaView output files
+  #   Rationale: In "binary" format, ParaView sometimes adds additional XML tags with
+  #              further information after the data itself. It seems like these additional
+  #              tags are always separated by a newline, thus we `split` the input on newlines
+  #              and only consider the content before the first newline.
+  #              Example: https://github.com/JuliaVTK/ReadVTK_examples/blob/1178cafb12bfac2a6d249f3ef0da9423f6c7202e/examples/celldata_inline_binary_uncompressed_ParaView.vtu#L26-L43
+  #              Details: https://github.com/JuliaVTK/ReadVTK.jl/pull/31/files#r1174125579
   # * finally decode from Base64 to binary representation
   raw = base64decode(split(strip(content(data_array.data_array)), "\n")[1])
 
