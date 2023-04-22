@@ -6,7 +6,7 @@ using ReadVTK, WriteVTK
 # Note: The purpose of using a specific commit hash (instead of `main`) is to be able to tie a given
 #       version of ReadVTK to a specific version of the test file repository. This way, also tests
 #       for older ReadVTK releases should continue to work.
-TEST_EXAMPLES_COMMIT = "92b44ef4666cae5aa5ffe1c5c35b5823c0073c31"
+TEST_EXAMPLES_COMMIT = "1178cafb12bfac2a6d249f3ef0da9423f6c7202e"
 
 # Local folder to store downloaded example files. If you change this, also adapt `../.gitignore`!
 TEST_EXAMPLES_DIR = "examples"
@@ -413,6 +413,16 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     create_directory(TEST_EXAMPLES_DIR)
 
     include("structuredgrid.jl")
+
+    # Clean up afterwards: delete example file directory
+    clean_directory(TEST_EXAMPLES_DIR)
+  end
+
+  @testset "ParaView format read and write" begin
+    # Start with a clean environment: remove example file directory if it exists
+    create_directory(TEST_EXAMPLES_DIR)
+
+    include("paraview_tests.jl")
 
     # Clean up afterwards: delete example file directory
     clean_directory(TEST_EXAMPLES_DIR)
