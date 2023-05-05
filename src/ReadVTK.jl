@@ -96,7 +96,13 @@ function VTKFile(filename)
     # library
     offset_begin = first(findnext("_", raw_file_contents, last(marker))) + 1
     offset_end = first(findnext("</AppendedData>", raw_file_contents, offset_begin)) - 1
-    appended_data = Vector{UInt8}(rstrip(raw_file_contents[offset_begin:offset_end]))
+  
+    #appended_data = Vector{UInt8}(rstrip(raw_file_contents[offset_begin:offset_end]))
+    # rstrip was used earlier, but removes a space at the end of the line, which can cause havoc 
+    # in case raw_file_contents ends with a space, such as 
+    # "... (f\x12 \n\t", which will be turned into "... (f\x12" 
+    appended_data = Vector{UInt8}(raw_file_contents[offset_begin:offset_end][1:end-2])
+    
     xml_file_contents = (raw_file_contents[1:(offset_begin - 1)] *
                          "\n  </AppendedData>\n</VTKFile>")
   end
