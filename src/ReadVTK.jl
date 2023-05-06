@@ -96,7 +96,8 @@ function VTKFile(filename)
     # library
     offset_begin = first(findnext("_", raw_file_contents, last(marker))) + 1
     offset_end = first(findnext("</AppendedData>", raw_file_contents, offset_begin)) - 1
-    appended_data = Vector{UInt8}(rstrip(raw_file_contents[offset_begin:offset_end]))
+    appended_data = Vector{UInt8}(raw_file_contents[offset_begin:offset_end])
+
     xml_file_contents = (raw_file_contents[1:(offset_begin - 1)] *
                          "\n  </AppendedData>\n</VTKFile>")
   end

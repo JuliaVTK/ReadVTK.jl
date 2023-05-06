@@ -133,3 +133,11 @@ for compress in [true, false]
 
   end
 end
+
+@testset "trailing whitespace in appended data" begin
+  # Testfile with trailing whitespace 
+  vtr_file = VTKFile(get_test_example_file("pointdata_appended_binary_with_trailing_whitespace.vtr"))
+  point_data = get_point_data(vtr_file)
+  data = get_data_reshaped(point_data[point_data.names[9]])
+  @test size(data) == (129, 2, 65)
+end

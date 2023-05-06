@@ -6,7 +6,7 @@ using ReadVTK, WriteVTK
 # Note: The purpose of using a specific commit hash (instead of `main`) is to be able to tie a given
 #       version of ReadVTK to a specific version of the test file repository. This way, also tests
 #       for older ReadVTK releases should continue to work.
-TEST_EXAMPLES_COMMIT = "1178cafb12bfac2a6d249f3ef0da9423f6c7202e"
+TEST_EXAMPLES_COMMIT = "1f961a7ad38e76a8d552b8392d8cd661ab9f79b4"
 
 # Local folder to store downloaded example files. If you change this, also adapt `../.gitignore`!
 TEST_EXAMPLES_DIR = "examples"
