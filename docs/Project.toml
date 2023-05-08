@@ -5,4 +5,5 @@ VTKBase = "4004b06d-e244-455f-a6ce-a5f9919cc534"
 
 [compat]
 Documenter = "0.27"
+ReadVTK = "0.1"
 VTKBase = "1.0.1"
