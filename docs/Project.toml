@@ -1,6 +1,5 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-ReadVTK = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 VTKBase = "4004b06d-e244-455f-a6ce-a5f9919cc534"
 
 [compat]
