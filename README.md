@@ -114,7 +114,7 @@ ReadVTK is maintained by the
 Its principal developers are
 [Michael Schlottke-Lakemper](https://lakemper.eu)
 (RWTH Aachen University, Germany) and [Hendrik Ranocha](https://ranocha.de)
-(University of Hamburg, Germany).
+(Johannes Gutenberg University Mainz, Germany).
 
 Further contributions to ReadVTK have been made by the following people:
 * [Jorge Pérez Zerpa](https://www.fing.edu.uy/~jorgepz/)
