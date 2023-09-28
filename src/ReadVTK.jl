@@ -184,6 +184,11 @@ function piece(vtk_file::VTKFile)
   return LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
 end
 
+# Return `FieldData` XML element that contains all VTK field data
+function field_data(vtk_file::VTKFile)
+  return LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["FieldData"][1]
+end
+
 """
     isstructured(xml_file)
 
@@ -406,6 +411,23 @@ function get_data_section(vtk_file::VTKFile, section)
   return VTKData(names, data_arrays, vtk_file)
 end
 
+# Retrieve FieldData section from the VTK file
+function get_field(vtk_file::VTKFile)
+  names = String[]
+  data_arrays = XMLElement[]
+
+  # Iterate over XML elemens in the section
+  for xml_element in child_elements(field_data(vtk_file))
+    # We do not know how to handle anything other than `DataArray`s
+    @assert LightXML.name(xml_element) == "DataArray"
+
+    # Store the name and the XML element for each found data array
+    push!(names, attribute(xml_element, "Name", required = true))
+    push!(data_arrays, xml_element)
+  end
+
+  return VTKData(names, data_arrays, vtk_file)
+end
 
 """
     get_cell_data(vtk_file::VTKFile)
