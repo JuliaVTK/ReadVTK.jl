@@ -411,8 +411,14 @@ function get_data_section(vtk_file::VTKFile, section)
   return VTKData(names, data_arrays, vtk_file)
 end
 
-# Retrieve FieldData section from the VTK file
-function get_field(vtk_file::VTKFile)
+"""
+  get_field_data(vtk_file::VTKFile)
+
+Retrieve a lightweight `VTKData` object with the field data of the given VTK file.
+
+See also: [`VTKData`](@ref), [`get_point_data`](@ref), [`get_cell_data`](@ref)
+"""
+function get_field_data(vtk_file::VTKFile)
   names = String[]
   data_arrays = XMLElement[]
 
