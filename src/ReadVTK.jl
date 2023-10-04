@@ -412,7 +412,7 @@ function get_data_section(vtk_file::VTKFile, section)
 end
 
 """
-  get_field_data(vtk_file::VTKFile)
+    get_field_data(vtk_file::VTKFile)
 
 Retrieve a lightweight `VTKData` object with the field data of the given VTK file.
 
