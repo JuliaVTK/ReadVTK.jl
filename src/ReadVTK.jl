@@ -28,7 +28,7 @@ Hold all relevant information about a VTK XML file that has been read in.
 - `filename`: original path to the VTK file that has been read in
 - `xml_file`: object that represents the XML file
 - `file_type`: currently only `"UnstructuredGrid"` or `"ImageData"` are supported
-- `version`: currently only v1.0 is supported
+- `version`: currently only v1.0 and beyond are supported
 - `byte_order`: can be `LittleEndian` or `BigEndian` and must currently be the same as the system's
 - `compressor`: can be empty (no compression) or `vtkZLibDataCompressor`
 - `appended_data`: in case of appended data (see XML documentation), the data is stored here for
@@ -125,7 +125,7 @@ function VTKFile(filename)
   end
 
   # Ensure correct version
-  @assert version == v"1.0"
+  @assert version ≥ v"1.0"
 
   # Ensure matching byte order
   is_little_endian = ENDIAN_BOM == 0x04030201
@@ -213,7 +213,7 @@ Hold all relevant information about a Parallel VTK XML file that has been read i
 - `filename`: original path to the PVTK file that has been read in
 - `xml_file`: xml info
 - `file_type`: currently only `"PRectilinearGrid"` or `"PImageData"` are supported
-- `version`: currently only v1.0 is supported
+- `version`: currently only v1.0 and beyond are supported
 - `vtk_filenames`: vector with strings that contain the filenames of each of the parallel files
 - `vtk_files`: vector with `VTKFile` data that contains the info about each of the files
 """
@@ -258,7 +258,7 @@ function PVTKFile(filename; dir = "")
   end
 
   # Ensure correct version
-  @assert version == v"1.0"
+  @assert version ≥ v"1.0"
 
   # Extract names of files & load the data
   pieces = root[file_type][1]["Piece"]
@@ -323,7 +323,7 @@ function PVDFile(filename)
   end
 
   # Ensure correct version
-  @assert version == v"1.0"
+  @assert version ≥ v"1.0"
 
   # Extract names of files & load the data
   pieces = root[file_type][1]["DataSet"]
