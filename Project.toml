@@ -12,7 +12,9 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 VTKBase = "4004b06d-e244-455f-a6ce-a5f9919cc534"
 
 [compat]
+Base64 = "1"
 CodecZlib = "0.7"
+Downloads = "1"
 LightXML = "0.9"
 Reexport = "1"
 VTKBase = "1"
