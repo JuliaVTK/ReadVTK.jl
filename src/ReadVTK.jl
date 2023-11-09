@@ -1069,7 +1069,8 @@ function get_cells(vtk_file::VTKFile)
   # Create VTKCells container and convert VTK's zero-based indices to Julia's one-based indices
   # Note: the offsets do not need to be updated since they point *past* the last entry
   # in VTK files (C-style), while in Julia it is custom to point *at* the last entry.
-  return VTKCells(get_data(connectivity) + oneunit.(get_data(connectivity)),
+  connectivity_data = get_data(connectivity)
+  return VTKCells(connectivity_data .+ oneunit(eltype(connectivity_data)),
                   get_data(offsets),
                   get_data(types))
 end
@@ -1130,8 +1131,10 @@ function get_primitives(vtk_file::VTKFile, primitive_type::AbstractString)
   @assert !isnothing(connectivity)
   @assert !isnothing(offsets)
 
-  # Create VTKPrimitives container
-  return VTKPrimitives(get_data(connectivity), get_data(offsets))
+  # Create VTKPrimitives container and convert VTK's zero-based indices to Julia's one-based indices
+  connectivity_data = get_data(connectivity)
+  return VTKPrimitives(connectivity_data .+ oneunit(eltype(connectivity_data)),
+                       get_data(offsets))
 end
 
 # Convenience functions for working with `VTKPrimitives` container

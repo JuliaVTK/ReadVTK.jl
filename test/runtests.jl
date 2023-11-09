@@ -300,7 +300,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
       out = []
       first = 1
       for last in primitives.offsets
-        push!(out, primitives.connectivity[first:last] .+ 1)
+        push!(out, primitives.connectivity[first:last])
         first = last + 1
       end
       return out
