@@ -1,7 +1,7 @@
 name = "ReadVTK"
 uuid = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 authors = ["Michael Schlottke-Lakemper <michael@sloede.com>"]
-version = "0.1.10-pre"
+version = "0.2.1-dev"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -12,6 +12,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 VTKBase = "4004b06d-e244-455f-a6ce-a5f9919cc534"
 
 [compat]
+Base64 = "1"
 CodecZlib = "0.7"
 Downloads = "1"
 LightXML = "0.9"
