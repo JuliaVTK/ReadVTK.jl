@@ -167,16 +167,21 @@ end
 
 # Show basic information on REPL
 function Base.show(io::IO, vtk_file::VTKFile)
-  return print(io, "VTKFile(",
-               "\"", vtk_file.filename, "\", ",
-               "<XMLDocument>", ", ",
-               "\"", vtk_file.file_type, "\", ",
-               "\"", vtk_file.version, "\", ",
-               "\"", vtk_file.byte_order, "\", ",
-               "\"", vtk_file.compressor, "\", ",
-               "<appended_data>", ", ",
-               vtk_file.n_points, ", ",
-               vtk_file.n_cells, ")")
+  return print(
+    io, 
+    repr(typeof(vtk_file)),
+    "(",
+      repr(vtk_file.filename), ", ",
+      "<XMLDocument>, ",
+      repr(vtk_file.file_type), ", ",
+      repr(vtk_file.version), ", ",
+      repr(vtk_file.byte_order), ", ",
+      repr(vtk_file.compressor), ", ",
+      "<appended_data>, ",
+      repr(vtk_file.n_points), ", ",
+      repr(vtk_file.n_cells), 
+    ")"
+  )
 end
 
 # Return `Piece` XML element that contains all VTK data
@@ -274,9 +279,20 @@ function PVTKFile(filename; dir = "")
   return PVTKFile(filename, xml_file, file_type, version, vtk_filenames, vtk_files)
 end
 
-# Reduce noise:
-function Base.show(io::IO, vtk_file::PVTKFile)
-  return print(io, "PVTKFile()")
+# Show basic information on REPL
+function Base.show(io::IO, pvtk_file::PVTKFile)
+  return print(
+    io, 
+    repr(typeof(pvtk_file)),
+    "(",
+      repr(pvtk_file.filename), ", ",
+      "<XMLDocument>, ",
+      repr(pvtk_file.file_type), ", ",
+      repr(pvtk_file.version), ", ",
+      repr(pvtk_file.vtk_filenames), ", ",
+      "<vtk_files>", 
+    ")"
+  )
 end
 
 """
@@ -342,9 +358,19 @@ function PVDFile(filename)
   return PVDFile(filename, file_type, vtk_filenames, directories, timesteps)
 end
 
-# Reduce noise:
-function Base.show(io::IO, d::PVDFile)
-  return print(io, "PVDFile()")
+# Show basic information on REPL
+function Base.show(io::IO, pvd_file::PVDFile)
+  return print(
+    io, 
+    repr(typeof(pvd_file)),
+    "(",
+      repr(pvd_file.filename), ", ",
+      repr(pvd_file.file_type), ", ",
+      "<vtk_filenames>, ",
+      "<directories>, ",
+      "<timesteps>",
+    ")"
+  )
 end
 
 
@@ -368,8 +394,18 @@ struct VTKData
   vtk_file::VTKFile
 end
 
-# Reduce REPL noise by defining `show`
-Base.show(io::IO, data::VTKData) = print(io, "VTKData()")
+# Show basic information on REPL
+function Base.show(io::IO, vtk_data::VTKData)
+  return print(
+    io, 
+    repr(typeof(vtk_data)),
+    "(",
+      repr(vtk_data.names), ", ",
+      "<data_arrays>, ",
+      "<VTKFile>",
+    ")"
+  )
+end
 
 """
     PVTKData
@@ -384,8 +420,17 @@ struct PVTKData
   data::Vector{VTKData}
 end
 
-# Reduce REPL noise by defining `show`
-Base.show(io::IO, data::PVTKData) = print(io, "PVTKData()")
+# Show basic information on REPL
+function Base.show(io::IO, pvtk_data::PVTKData)
+  return print(
+    io, 
+    repr(typeof(pvtk_data)),
+    "(",
+      "<parent_xml>, ",
+      "<$(summary(pvtk_data.data))>",
+    ")"
+  )
+end
 
 
 # Retrieve a data section (should be `CellData` or `PointData`) from the VTK file
@@ -570,7 +615,17 @@ struct PVTKDataArray
   data::Vector{VTKDataArray}
 end
 
-Base.show(io::IO, vtk_file::PVTKDataArray) = print(io, "PVTKDataArray()")
+# Show basic information on REPL
+function Base.show(io::IO, pvtk_data_array::PVTKDataArray)
+  return print(
+    io, 
+    string(typeof(pvtk_data_array)),
+    "(",
+      "<parent_xml>, ",
+      "<$(summary(pvtk_data_array.data))>",
+    ")"
+  )
+end
 
 # Auxiliary types for type stability
 struct FormatBinary end
@@ -653,9 +708,18 @@ function VTKDataArray(xml_element, vtk_file::VTKFile)
   return VTKDataArray{data_type, n_components, format}(name, offset, xml_element, vtk_file)
 end
 
-# Reduce REPL noise by defining `show`
-function Base.show(io::IO, data_array::VTKDataArray)
-  return print(io, "VTKDataArray(\"", data_array.name, "\")")
+# Show basic information on REPL
+function Base.show(io::IO, vtk_data_array::VTKDataArray)
+  return print(
+    io,
+    repr(typeof(vtk_data_array)),
+    "(",
+      repr(vtk_data_array.name), ", ",
+      repr(vtk_data_array.offset), ", ",
+      repr(vtk_data_array.data_array), ", ",
+      "<VTKFile>",
+    ")"
+  )
 end
 
 # Return true if data is compressed (= XML attribute `compressor` is non-empty in VTK file)
