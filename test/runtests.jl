@@ -9,7 +9,7 @@ using ReadVTK, WriteVTK
 TEST_EXAMPLES_COMMIT = "1f961a7ad38e76a8d552b8392d8cd661ab9f79b4"
 
 # Local folder to store downloaded example files. If you change this, also adapt `../.gitignore`!
-TEST_EXAMPLES_DIR = "examples"
+TEST_EXAMPLES_DIR = abspath("examples")
 
 
 function get_test_example_file(filename)
