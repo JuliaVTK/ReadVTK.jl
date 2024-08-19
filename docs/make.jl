@@ -37,7 +37,7 @@ makedocs(
            "Reference" => "reference.md",
            "VTKBase.jl" => vtkbase_docs,
            "Contributing" => "contributing.md",
-           "License" => "license.md"
+           "License" => "license.md",
          ])
 
 deploydocs(repo = "github.com/JuliaVTK/ReadVTK.jl",
