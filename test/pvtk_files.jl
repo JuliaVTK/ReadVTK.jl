@@ -23,7 +23,7 @@ extents = [
   (1:10, 1:5, 1:4),   # process 1
   (10:15, 1:5, 1:4),  # process 2
   (1:10, 5:12, 1:4),  # process 3
-  (10:15, 5:12, 1:4), # process 4
+  (10:15, 5:12, 1:4) # process 4
 ]
 
 saved_files = Vector{Vector{String}}(undef, 4)  # files saved by each "process"
@@ -102,14 +102,14 @@ all_data = [
   (points = rand(3, 5),  # 5 points on process 1
    cells = [             # 2 cells  on process 1
      MeshCell(VTKCellTypes.VTK_TRIANGLE, [1, 4, 2]),
-     MeshCell(VTKCellTypes.VTK_QUAD, [2, 4, 3, 5]),
+     MeshCell(VTKCellTypes.VTK_QUAD, [2, 4, 3, 5])
    ]),
 
   # Process 2
   (points = rand(3, 4),  # 4 points on process 2
    cells = [             # 1 cell   on process 2
-     MeshCell(VTKCellTypes.VTK_QUAD, [1, 2, 3, 4]),
-   ]),
+     MeshCell(VTKCellTypes.VTK_QUAD, [1, 2, 3, 4])
+   ])
 ]
 
 saved_files = Vector{Vector{String}}(undef, 2)  # files saved by each "process"
