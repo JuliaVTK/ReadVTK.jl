@@ -28,7 +28,7 @@ Hold all relevant information about a VTK XML file that has been read in.
 - `filename`: original path to the VTK file that has been read in
 - `xml_file`: object that represents the XML file
 - `file_type`: currently only `"UnstructuredGrid"` or `"ImageData"` are supported
-- `version`: VTK XML file format version (v1.0 or later)
+- `version`: VTK XML file format version
 - `byte_order`: can be `LittleEndian` or `BigEndian` and must currently be the same as the system's
 - `compressor`: can be empty (no compression) or `vtkZLibDataCompressor`
 - `appended_data`: in case of appended data (see XML documentation), the data is stored here for
@@ -62,7 +62,7 @@ mutable struct VTKFile
   end
 end
 
-# Header type is hardcoded and corresponds to VTK XML version 1.0
+# Header type is hardcoded
 header_type(::VTKFile) = UInt64
 
 # Return true if data is compressed (= XML attribute `compressor` is non-empty in VTK file)
@@ -123,9 +123,6 @@ function VTKFile(filename)
                      "StructuredGrid"))
     error("Unsupported file type: ", file_type)
   end
-
-  # Ensure correct version
-  @assert version >= v"1.0"
 
   # Ensure matching byte order
   is_little_endian = ENDIAN_BOM == 0x04030201
@@ -218,7 +215,7 @@ Hold all relevant information about a Parallel VTK XML file that has been read i
 - `filename`: original path to the PVTK file that has been read in
 - `xml_file`: xml info
 - `file_type`: currently only `"PRectilinearGrid"` or `"PImageData"` are supported
-- `version`: VTK XML file format version (v1.0 or later)
+- `version`: VTK XML file format version
 - `vtk_filenames`: vector with strings that contain the filenames of each of the parallel files
 - `vtk_files`: vector with `VTKFile` data that contains the info about each of the files
 """
@@ -261,9 +258,6 @@ function PVTKFile(filename; dir = "")
                      "PStructuredGrid"))
     error("Unsupported file type: ", file_type)
   end
-
-  # Ensure correct version
-  @assert version >= v"1.0"
 
   # Extract names of files & load the data
   pieces = root[file_type][1]["Piece"]
@@ -337,9 +331,6 @@ function PVDFile(filename)
   if file_type != "Collection"
     error("Unsupported PVD file type: ", file_type)
   end
-
-  # Ensure correct version
-  @assert version >= v"1.0"
 
   # Extract names of files & load the data
   pieces = root[file_type][1]["DataSet"]
