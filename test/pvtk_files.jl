@@ -143,6 +143,13 @@ saved_files = paraview_collection(path_pvd) do pvd
 end
 
 # (2) Read back files
+# Since WriteVTK uses relative paths, we need to change to the directory where
+# the files were saved. We remember the current directory and change back to it
+# at the end of the test.
+# See https://github.com/JuliaVTK/WriteVTK.jl/pull/141 and
+# https://github.com/JuliaVTK/ReadVTK.jl/pull/62
+current_directory = pwd()
+cd(TEST_EXAMPLES_DIR)
 
 # a) RectilinearGrid file
 @testset "pvtr" begin
@@ -280,3 +287,6 @@ end
   @test pvd.timesteps == Vector(times)
   @test isnothing(show(devnull, pvd))
 end
+
+# Change back to the original directory
+cd(current_directory)
