@@ -164,21 +164,19 @@ end
 
 # Show basic information on REPL
 function Base.show(io::IO, vtk_file::VTKFile)
-  return print(
-    io, 
-    repr(typeof(vtk_file)),
-    "(",
-      repr(vtk_file.filename), ", ",
-      "<XMLDocument>, ",
-      repr(vtk_file.file_type), ", ",
-      repr(vtk_file.version), ", ",
-      repr(vtk_file.byte_order), ", ",
-      repr(vtk_file.compressor), ", ",
-      "<appended_data>, ",
-      repr(vtk_file.n_points), ", ",
-      repr(vtk_file.n_cells), 
-    ")"
-  )
+  return print(io,
+               repr(typeof(vtk_file)),
+               "(",
+               repr(vtk_file.filename), ", ",
+               "<XMLDocument>, ",
+               repr(vtk_file.file_type), ", ",
+               repr(vtk_file.version), ", ",
+               repr(vtk_file.byte_order), ", ",
+               repr(vtk_file.compressor), ", ",
+               "<appended_data>, ",
+               repr(vtk_file.n_points), ", ",
+               repr(vtk_file.n_cells),
+               ")")
 end
 
 # Return `Piece` XML element that contains all VTK data
@@ -275,18 +273,16 @@ end
 
 # Show basic information on REPL
 function Base.show(io::IO, pvtk_file::PVTKFile)
-  return print(
-    io, 
-    repr(typeof(pvtk_file)),
-    "(",
-      repr(pvtk_file.filename), ", ",
-      "<XMLDocument>, ",
-      repr(pvtk_file.file_type), ", ",
-      repr(pvtk_file.version), ", ",
-      repr(pvtk_file.vtk_filenames), ", ",
-      "<vtk_files>", 
-    ")"
-  )
+  return print(io,
+               repr(typeof(pvtk_file)),
+               "(",
+               repr(pvtk_file.filename), ", ",
+               "<XMLDocument>, ",
+               repr(pvtk_file.file_type), ", ",
+               repr(pvtk_file.version), ", ",
+               repr(pvtk_file.vtk_filenames), ", ",
+               "<vtk_files>",
+               ")")
 end
 
 """
@@ -351,17 +347,15 @@ end
 
 # Show basic information on REPL
 function Base.show(io::IO, pvd_file::PVDFile)
-  return print(
-    io, 
-    repr(typeof(pvd_file)),
-    "(",
-      repr(pvd_file.filename), ", ",
-      repr(pvd_file.file_type), ", ",
-      "<vtk_filenames>, ",
-      "<directories>, ",
-      "<timesteps>",
-    ")"
-  )
+  return print(io,
+               repr(typeof(pvd_file)),
+               "(",
+               repr(pvd_file.filename), ", ",
+               repr(pvd_file.file_type), ", ",
+               "<vtk_filenames>, ",
+               "<directories>, ",
+               "<timesteps>",
+               ")")
 end
 
 
@@ -387,15 +381,13 @@ end
 
 # Show basic information on REPL
 function Base.show(io::IO, vtk_data::VTKData)
-  return print(
-    io, 
-    repr(typeof(vtk_data)),
-    "(",
-      repr(vtk_data.names), ", ",
-      "<data_arrays>, ",
-      "<VTKFile>",
-    ")"
-  )
+  return print(io,
+               repr(typeof(vtk_data)),
+               "(",
+               repr(vtk_data.names), ", ",
+               "<data_arrays>, ",
+               "<VTKFile>",
+               ")")
 end
 
 """
@@ -413,14 +405,12 @@ end
 
 # Show basic information on REPL
 function Base.show(io::IO, pvtk_data::PVTKData)
-  return print(
-    io, 
-    repr(typeof(pvtk_data)),
-    "(",
-      "<parent_xml>, ",
-      "<$(summary(pvtk_data.data))>",
-    ")"
-  )
+  return print(io,
+               repr(typeof(pvtk_data)),
+               "(",
+               "<parent_xml>, ",
+               "<$(summary(pvtk_data.data))>",
+               ")")
 end
 
 
@@ -608,14 +598,12 @@ end
 
 # Show basic information on REPL
 function Base.show(io::IO, pvtk_data_array::PVTKDataArray)
-  return print(
-    io, 
-    string(typeof(pvtk_data_array)),
-    "(",
-      "<parent_xml>, ",
-      "<$(summary(pvtk_data_array.data))>",
-    ")"
-  )
+  return print(io,
+               string(typeof(pvtk_data_array)),
+               "(",
+               "<parent_xml>, ",
+               "<$(summary(pvtk_data_array.data))>",
+               ")")
 end
 
 # Auxiliary types for type stability
@@ -701,16 +689,14 @@ end
 
 # Show basic information on REPL
 function Base.show(io::IO, vtk_data_array::VTKDataArray)
-  return print(
-    io,
-    repr(typeof(vtk_data_array)),
-    "(",
-      repr(vtk_data_array.name), ", ",
-      repr(vtk_data_array.offset), ", ",
-      repr(vtk_data_array.data_array), ", ",
-      "<VTKFile>",
-    ")"
-  )
+  return print(io,
+               repr(typeof(vtk_data_array)),
+               "(",
+               repr(vtk_data_array.name), ", ",
+               repr(vtk_data_array.offset), ", ",
+               repr(vtk_data_array.data_array), ", ",
+               "<VTKFile>",
+               ")")
 end
 
 # Return true if data is compressed (= XML attribute `compressor` is non-empty in VTK file)
