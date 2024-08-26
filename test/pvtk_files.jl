@@ -170,6 +170,7 @@ cd(TEST_EXAMPLES_DIR)
   # Extract data
   point_data = get_point_data(pvtk)
 
+  @test isnothing(show(devnull, point_data))
   @test firstindex(point_data) == "Temperature"
   @test lastindex(point_data) == "Velocity"
   @test length(point_data) == 2
