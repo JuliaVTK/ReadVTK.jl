@@ -415,6 +415,7 @@ end
 
 
 # Retrieve a data section (should be `CellData` or `PointData`) from the VTK file
+
 function get_data_section(vtk_file::VTKFile, section)
   names = String[]
   data_arrays = XMLElement[]
@@ -422,7 +423,7 @@ function get_data_section(vtk_file::VTKFile, section)
   # Iterate over XML elemens in the section
   for xml_element in child_elements(piece(vtk_file)[section][1])
     # We do not know how to handle anything other than `DataArray`s
-    @assert LightXML.name(xml_element) == "DataArray"
+    LightXML.name(xml_element) != "DataArray" && continue
 
     # Store the name and the XML element for each found data array
     push!(names, attribute(xml_element, "Name", required = true))
@@ -437,6 +438,7 @@ end
     get_cell_data(vtk_file::VTKFile)
 
 Retrieve a lightweight `VTKData` object with the cell data of the given VTK file.
+Only numeric data (i.e., `DataArray`) elements will be read.
 
 See also: [`VTKData`](@ref), [`get_point_data`](@ref)
 """
@@ -446,6 +448,7 @@ get_cell_data(vtk_file::VTKFile) = get_data_section(vtk_file, "CellData")
     get_cell_data(pvtk_file::PVTKFile)
 
 Retrieve a lightweight vector with `PVTKData` objects with the cell data of the given PVTK files.
+Only numeric data (i.e., `DataArray`) elements will be read.
 
 See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
 """
@@ -464,6 +467,7 @@ end
     get_point_data(vtk_file::VTKFile)
 
 Retrieve a lightweight `VTKData` object with the point data of the given VTK file.
+Only numeric data (i.e., `DataArray`) elements will be read.
 
 See also: [`VTKData`](@ref), [`get_cell_data`](@ref)
 """
@@ -473,6 +477,7 @@ get_point_data(vtk_file::VTKFile) = get_data_section(vtk_file, "PointData")
     get_point_data(pvtk_file::PVTKFile)
 
 Retrieve a lightweight vector with `PVTKData` objects with the point data of the given PVTK files.
+Only numeric data (i.e., `DataArray`) elements will be read.
 
 See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
 """
@@ -490,6 +495,7 @@ end
     get_coordinate_data(vtk_file::VTKFile)
 
 Retrieve a lightweight `VTKData` object with the coordinate data of the given VTK file.
+Only coordinates of numeric data (i.e., `DataArray`) elements will be read.
 
 See also: [`VTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
 """
@@ -499,6 +505,7 @@ get_coordinate_data(vtk_file::VTKFile) = get_data_section(vtk_file, "Coordinates
     get_coordinate_data(pvtk_file::PVTKFile)
 
 Retrieve a lightweight `{VTKData` object with the coordinate data of the given VTK file.
+Only coordinates of numeric data (i.e., `DataArray`) elements will be read.
 
 See also: [`PVTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
 """
