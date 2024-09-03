@@ -41,7 +41,8 @@ for part in 1:4
     pvtk["Velocity"] = [x + 2y + 3z + v for v in v_global, x in xs, y in ys, z in zs]
     pvtk["Pressure"] = [x + 2y + 3z for x in xs_c, y in ys_c, z in zs_c]
     pvtk["Phase"] = [trunc(Int64, x * 15) for x in xs_c, y in ys_c, z in zs_c]
-    pvtk["Temperature string"] = [x + 2y + 3z > 0.5 ? "high" : "low" for x in xs, y in ys, z in zs]
+    pvtk["Temperature string"] = [x + 2y + 3z > 0.5 ? "high" : "low"
+                                  for x in xs, y in ys, z in zs]
     return nothing
   end
 end
