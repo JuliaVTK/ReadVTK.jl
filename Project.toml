@@ -1,7 +1,7 @@
 name = "ReadVTK"
 uuid = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 authors = ["Michael Schlottke-Lakemper <michael@sloede.com>"]
-version = "0.2.3"
+version = "0.2.4-DEV"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
