@@ -200,16 +200,25 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
 
     # generate random data
     point_scalar_field = rand(Nx, Ny, Nz)
-    point_data_name = "Point scalar data"
+    point_scalar_name = "Point scalar data"
 
     cell_scalar_field = rand(Nx - 1, Ny - 1, Nz - 1)
-    cell_data_name = "Cell scalar data"
+    cell_scalar_name = "Cell scalar data"
+
+    # generate random string data
+    point_string_field = map(x -> x > 0.5 ? "high" : "low", point_scalar_field)
+    point_string_name = "Point string data"
+
+    cell_string_field = map(x -> x > 0.5 ? "high" : "low", cell_scalar_field)
+    cell_string_name = "Cell string data"
 
     # write vti file using WriteVTK
     path = joinpath(TEST_EXAMPLES_DIR, "grid")
     vtk_grid(path, x, y, z) do vtk
-      vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
-      vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
+      vtk[point_scalar_name, VTKPointData()] = point_scalar_field # scalar field attached to points
+      vtk[cell_scalar_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
+      vtk[point_string_name, VTKPointData()] = point_string_field # string field attached to points
+      vtk[cell_string_name, VTKCellData()] = cell_string_field    # string field attached to cells
       return nothing
     end
 
@@ -230,9 +239,9 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     end
 
     @testset "get scalar cell data" begin
-      cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
+      cell_data_raw = get_data(get_cell_data(vtk)[cell_scalar_name])
       cell_data_reshaped = reshape(cell_data_raw, ((Nx - 1), (Ny - 1), (Nz - 1)))
-      cell_data_reshaped1 = get_data_reshaped(get_cell_data(vtk)[cell_data_name],
+      cell_data_reshaped1 = get_data_reshaped(get_cell_data(vtk)[cell_scalar_name],
                                               cell_data = true)
 
       @test cell_data_reshaped == cell_scalar_field
@@ -240,12 +249,20 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     end
 
     @testset "get scalar point data" begin
-      point_data_raw = get_data(get_point_data(vtk)[point_data_name])
+      point_data_raw = get_data(get_point_data(vtk)[point_scalar_name])
       point_data_reshaped = reshape(point_data_raw, (Nx, Ny, Nz))
-      point_data_reshaped1 = get_data_reshaped(get_point_data(vtk)[point_data_name])
+      point_data_reshaped1 = get_data_reshaped(get_point_data(vtk)[point_scalar_name])
 
       @test point_data_reshaped == point_scalar_field
       @test point_data_reshaped1 == point_scalar_field
+    end
+
+    @testset "error on get string cell data" begin
+      @test_throws KeyError get_cell_data(vtk)[cell_string_name]
+    end
+
+    @testset "error on get string point data" begin
+      @test_throws KeyError get_point_data(vtk)[point_string_name]
     end
 
     # generate random 2D data
@@ -255,8 +272,8 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     # write 2D vti file using WriteVTK
     path = joinpath(TEST_EXAMPLES_DIR, "grid_2D")
     vtk_grid(path, x, y) do vtk
-      vtk[point_data_name, VTKPointData()] = point_scalar_field # scalar field attached to points
-      vtk[cell_data_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
+      vtk[point_scalar_name, VTKPointData()] = point_scalar_field # scalar field attached to points
+      vtk[cell_scalar_name, VTKCellData()] = cell_scalar_field    # scalar field attached to cells
       return nothing
     end
 
@@ -275,13 +292,13 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     end
 
     @testset "get 2D scalar cell data" begin
-      cell_data_raw = get_data(get_cell_data(vtk)[cell_data_name])
+      cell_data_raw = get_data(get_cell_data(vtk)[cell_scalar_name])
       cell_data_reshaped = reshape(cell_data_raw, ((Nx - 1), (Ny - 1)))
       @test cell_data_reshaped == cell_scalar_field
     end
 
     @testset "get 2D scalar point data" begin
-      point_data_raw = get_data(get_point_data(vtk)[point_data_name])
+      point_data_raw = get_data(get_point_data(vtk)[point_scalar_name])
       point_data_reshaped = reshape(point_data_raw, (Nx, Ny))
       @test point_data_reshaped == point_scalar_field
     end

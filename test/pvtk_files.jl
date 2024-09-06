@@ -41,6 +41,8 @@ for part in 1:4
     pvtk["Velocity"] = [x + 2y + 3z + v for v in v_global, x in xs, y in ys, z in zs]
     pvtk["Pressure"] = [x + 2y + 3z for x in xs_c, y in ys_c, z in zs_c]
     pvtk["Phase"] = [trunc(Int64, x * 15) for x in xs_c, y in ys_c, z in zs_c]
+    pvtk["Temperature string"] = [x + 2y + 3z > 0.5 ? "high" : "low"
+                                  for x in xs, y in ys, z in zs]
     return nothing
   end
 end
@@ -218,6 +220,14 @@ end
   Phase_read = get_data_reshaped(cell_data["Phase"], cell_data = true)
   @test P_global == P_read
   @test Phase_global == Phase_read
+
+  @testset "error on get string cell data" begin
+    @test_throws KeyError cell_data["Temperature string"]
+  end
+
+  @testset "error on get string point data" begin
+    @test_throws KeyError point_data["Temperature string"]
+  end
 end
 
 # c) PVTU files

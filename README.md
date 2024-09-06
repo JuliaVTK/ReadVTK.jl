@@ -125,6 +125,8 @@ Further contributions to ReadVTK have been made by the following people:
   (Johannes-Gutenberg University Mainz, Germany)
 * [Matthew Whisenant](https://volweb2.utk.edu/~mwhisena/)
   (University of Tennessee, Knoxville)
+* [William Davis](https://posgeo.wordpress.com/)
+  (Terra AI, USA)
 
 ## License and contributing
 ReadVTK is licensed under the MIT license (see [LICENSE.md](LICENSE.md)).
