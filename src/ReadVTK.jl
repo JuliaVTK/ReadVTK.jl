@@ -13,7 +13,8 @@ using Reexport: @reexport
 
 export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,           # structs
        PVTKFile, PVTKData, PVTKDataArray, PVDFile,
-       get_point_data, get_cell_data, get_data, get_data_reshaped,        # get data functions
+       get_point_data, get_cell_data, get_field_data, get_data,           # get data functions
+       get_data_reshaped,
        get_points, get_cells, get_origin, get_spacing, get_primitives,    # get geometry functions
        get_coordinates, get_coordinate_data,                              # get geometry functions
        get_example_file,                                                  # other functions
