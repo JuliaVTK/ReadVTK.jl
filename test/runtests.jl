@@ -445,4 +445,13 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     clean_directory(TEST_EXAMPLES_DIR)
   end
 
+  @testset "Field data" begin
+    # Start with a clean environment: remove example file directory if it exists
+    create_directory(TEST_EXAMPLES_DIR)
+
+    include("fielddata.jl")
+
+    # Clean up afterwards: delete example file directory
+    clean_directory(TEST_EXAMPLES_DIR)
+  end
 end
