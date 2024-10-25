@@ -453,7 +453,7 @@ function get_field_data(vtk_file::VTKFile)
   # Iterate over XML elemens in the section
   for xml_element in child_elements(field_data(vtk_file))
     # We do not know how to handle anything other than `DataArray`s
-    @assert LightXML.name(xml_element) == "DataArray"
+    LightXML.name(xml_element) != "DataArray" && continue
 
     # Store the name and the XML element for each found data array
     push!(names, attribute(xml_element, "Name", required = true))
