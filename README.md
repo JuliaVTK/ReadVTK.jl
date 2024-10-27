@@ -71,6 +71,7 @@ Further example VTK files can be found in the
 ### What works
 * Reading in VTK XML files of type `UnstructuredGrid`, `StructuredGrid`, `RectilinearGrid`,`ImageData`, `PUnstructuredGrid`,`PStructuredGrid` `PRectilinearGrid`,`PImageData`, or `PolyData`
 * Extracting cell or point data
+* Extracting field data
 * Extracting point coordinates
 * Extracting information about cell types
 * Only for `ImageData`,`PImageData` files: get origin, spacing, and extent information
