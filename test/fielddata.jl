@@ -2,7 +2,7 @@
 points = rand(3, 5)
 cells = [
   MeshCell(VTKCellTypes.VTK_TRIANGLE, [1, 4, 2]),
-  MeshCell(VTKCellTypes.VTK_QUAD, [2, 4, 3, 5])
+  MeshCell(VTKCellTypes.VTK_QUAD, [2, 4, 3, 5]),
 ]
 
 scalar = 5.0
