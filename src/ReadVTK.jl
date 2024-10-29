@@ -13,7 +13,8 @@ using Reexport: @reexport
 
 export VTKFile, VTKData, VTKDataArray, VTKCells, VTKPrimitives,           # structs
        PVTKFile, PVTKData, PVTKDataArray, PVDFile,
-       get_point_data, get_cell_data, get_data, get_data_reshaped,        # get data functions
+       get_point_data, get_cell_data, get_field_data, get_data,           # get data functions
+       get_data_reshaped,
        get_points, get_cells, get_origin, get_spacing, get_primitives,    # get geometry functions
        get_coordinates, get_coordinate_data,                              # get geometry functions
        get_example_file,                                                  # other functions
@@ -182,6 +183,11 @@ end
 # Return `Piece` XML element that contains all VTK data
 function piece(vtk_file::VTKFile)
   return LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
+end
+
+# Return `FieldData` XML element that contains all VTK field data
+function field_data(vtk_file::VTKFile)
+  return LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["FieldData"][1]
 end
 
 """
@@ -433,6 +439,29 @@ function get_data_section(vtk_file::VTKFile, section)
   return VTKData(names, data_arrays, vtk_file)
 end
 
+"""
+    get_field_data(vtk_file::VTKFile)
+
+Retrieve a lightweight `VTKData` object with the field data of the given VTK file.
+
+See also: [`VTKData`](@ref), [`get_point_data`](@ref), [`get_cell_data`](@ref)
+"""
+function get_field_data(vtk_file::VTKFile)
+  names = String[]
+  data_arrays = XMLElement[]
+
+  # Iterate over XML elemens in the section
+  for xml_element in child_elements(field_data(vtk_file))
+    # We do not know how to handle anything other than `DataArray`s
+    LightXML.name(xml_element) != "DataArray" && continue
+
+    # Store the name and the XML element for each found data array
+    push!(names, attribute(xml_element, "Name", required = true))
+    push!(data_arrays, xml_element)
+  end
+
+  return VTKData(names, data_arrays, vtk_file)
+end
 
 """
     get_cell_data(vtk_file::VTKFile)
@@ -440,7 +469,7 @@ end
 Retrieve a lightweight `VTKData` object with the cell data of the given VTK file.
 Only numeric data (i.e., `DataArray`) elements will be read.
 
-See also: [`VTKData`](@ref), [`get_point_data`](@ref)
+See also: [`VTKData`](@ref), [`get_point_data`](@ref), [`get_field_data`](@ref)
 """
 get_cell_data(vtk_file::VTKFile) = get_data_section(vtk_file, "CellData")
 
@@ -450,7 +479,7 @@ get_cell_data(vtk_file::VTKFile) = get_data_section(vtk_file, "CellData")
 Retrieve a lightweight vector with `PVTKData` objects with the cell data of the given PVTK files.
 Only numeric data (i.e., `DataArray`) elements will be read.
 
-See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
+See also: [`PVTKData`](@ref), [`get_point_data`](@ref), [`get_field_data`](@ref)
 """
 function get_cell_data(pvtk_file::PVTKFile)
   n_files = length(pvtk_file)
@@ -469,7 +498,7 @@ end
 Retrieve a lightweight `VTKData` object with the point data of the given VTK file.
 Only numeric data (i.e., `DataArray`) elements will be read.
 
-See also: [`VTKData`](@ref), [`get_cell_data`](@ref)
+See also: [`VTKData`](@ref), [`get_cell_data`](@ref), [`get_field_data`](@ref)
 """
 get_point_data(vtk_file::VTKFile) = get_data_section(vtk_file, "PointData")
 
@@ -479,7 +508,7 @@ get_point_data(vtk_file::VTKFile) = get_data_section(vtk_file, "PointData")
 Retrieve a lightweight vector with `PVTKData` objects with the point data of the given PVTK files.
 Only numeric data (i.e., `DataArray`) elements will be read.
 
-See also: [`PVTKData`](@ref), [`get_cell_data`](@ref)
+See also: [`PVTKData`](@ref), [`get_cell_data`](@ref), [`get_field_data`](@ref)
 """
 function get_point_data(pvtk_file::PVTKFile)
   n_files = length(pvtk_file)
@@ -497,7 +526,7 @@ end
 Retrieve a lightweight `VTKData` object with the coordinate data of the given VTK file.
 Only coordinates of numeric data (i.e., `DataArray`) elements will be read.
 
-See also: [`VTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
+See also: [`VTKData`](@ref), [`get_point_data`](@ref), [`get_cell_data`](@ref), [`get_field_data`](@ref)
 """
 get_coordinate_data(vtk_file::VTKFile) = get_data_section(vtk_file, "Coordinates")
 
@@ -507,7 +536,7 @@ get_coordinate_data(vtk_file::VTKFile) = get_data_section(vtk_file, "Coordinates
 Retrieve a lightweight `{VTKData` object with the coordinate data of the given VTK file.
 Only coordinates of numeric data (i.e., `DataArray`) elements will be read.
 
-See also: [`PVTKData`](@ref), [`get_point_data`](@ref),  [`get_cell_data`](@ref)
+See also: [`PVTKData`](@ref), [`get_point_data`](@ref), [`get_cell_data`](@ref), [`get_field_data`](@ref)
 """
 function get_coordinate_data(pvtk_file::PVTKFile)
   return get_data_section.(pvtk_file.vtk_files, "Coordinates")
