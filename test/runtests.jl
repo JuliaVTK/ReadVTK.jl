@@ -455,7 +455,7 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     clean_directory(TEST_EXAMPLES_DIR)
   end
 
-    @testset "Huge mesh" begin
+  @testset "Huge mesh" begin
     # Start with a clean environment: remove example file directory if it exists
     create_directory(TEST_EXAMPLES_DIR)
 
