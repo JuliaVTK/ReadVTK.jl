@@ -105,7 +105,7 @@ function VTKFile(filename)
 
   # Open file and ensure that it is a valid VTK file
   # Allow reading large meshes
-  XML_PARSE_HUGE = 1<<19
+  XML_PARSE_HUGE = 1 << 19
   xml_file = parse_string(xml_file_contents, "UTF-8", XML_PARSE_HUGE)
   root = LightXML.root(xml_file)
   @assert LightXML.name(root) == "VTKFile"
