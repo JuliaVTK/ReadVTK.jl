@@ -454,4 +454,14 @@ clean_directory(TEST_EXAMPLES_DIR) = @test_nowarn rm(TEST_EXAMPLES_DIR, recursiv
     # Clean up afterwards: delete example file directory
     clean_directory(TEST_EXAMPLES_DIR)
   end
+
+  @testset "Huge mesh" begin
+    # Start with a clean environment: remove example file directory if it exists
+    create_directory(TEST_EXAMPLES_DIR)
+
+    include("huge_mesh.jl")
+
+    # Clean up afterwards: delete example file directory
+    clean_directory(TEST_EXAMPLES_DIR)
+  end
 end
