@@ -96,7 +96,7 @@ jobs:
       # At first, we check out the repository and download all artifacts
       # (and list files for debugging).
       - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
       - run: ls -R
       # Next, we merge the individual coverage files and upload
       # the combined results to Coveralls.
