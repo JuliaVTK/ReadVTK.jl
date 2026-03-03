@@ -808,7 +808,8 @@ function get_data(data_array::VTKDataArray{T, N, <:FormatAppended}) where {T, N}
     # If data is stored compressed, the header consists of `3 + num_blocks` integers of type `header_type`.
     # The sum of the subsequent blocks contains the total number of compressed bytes to read.
     first = data_array.offset + 1
-    header_num_blocks = reinterpret(HeaderType, raw[first:(first + sizeof(HeaderType) - 1)])[1]
+    header_num_blocks = reinterpret(HeaderType,
+                                    raw[first:(first + sizeof(HeaderType) - 1)])[1]
     header_len = 3 + header_num_blocks
 
     last_header = data_array.offset + header_len * sizeof(HeaderType)
