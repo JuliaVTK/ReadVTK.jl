@@ -18,9 +18,9 @@ for compress in [true, false]
     y = zeros(FloatType, Nj)
     z = zeros(FloatType, Nk)
 
-    [x[i] = i * i / Ni / Ni for i in 1:Ni]
-    [y[j] = sqrt(j / Nj) for j in 1:Nj]
-    [z[k] = k / Nk for k in 1:Nk]
+    [x[i] in i * i / Ni / Ni for i in 1:Ni]
+    [y[j] in sqrt(j / Nj) for j in 1:Nj]
+    [z[k] in k / Nk for k in 1:Nk]
 
     # Create some scalar and vector data.
     p = zeros(FloatType, Ni, Nj, Nk)

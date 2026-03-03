@@ -47,13 +47,14 @@ mutable struct VTKFile
   appended_data::Vector{UInt8}
   n_points::Int
   n_cells::Int
+  header_type::DataType
 
   # Create inner constructor to add finalizer (this requires VTKFile to be a *mutable* struct)
   function VTKFile(filename, xml_file, file_type, version, byte_order, compressor,
-                   appended_data, n_points, n_cells)
+                   appended_data, n_points, n_cells, header_type)
     # Create new object
     vtk_file = new(filename, xml_file, file_type, version, byte_order, compressor,
-                   appended_data, n_points, n_cells)
+                   appended_data, n_points, n_cells, header_type)
 
     # Create finalizer that releases memory for VTK file
     f(vtk_file) = free(vtk_file.xml_file)
@@ -63,8 +64,8 @@ mutable struct VTKFile
   end
 end
 
-# Header type is hardcoded
-header_type(::VTKFile) = UInt64
+# Header type
+header_type(vtk_file::VTKFile) = vtk_file.header_type
 
 # Return true if data is compressed (= XML attribute `compressor` is non-empty in VTK file)
 is_compressed(vtk_file::VTKFile) = !isempty(vtk_file.compressor)
@@ -133,7 +134,8 @@ function VTKFile(filename)
            (byte_order == "BigEndian" && !is_little_endian))
 
   # Ensure matching header type
-  @assert header_type == "UInt64"
+  @assert header_type in ("UInt32", "UInt64")
+  header_type_parsed = string_to_data_type(header_type)
 
   # Ensure supported compression type
   @assert in(compressor, ("", "vtkZLibDataCompressor"))
@@ -162,7 +164,7 @@ function VTKFile(filename)
 
   # Create and return VTKFile
   return VTKFile(filename, xml_file, file_type, version, byte_order, compressor,
-                 appended_data, n_points, n_cells)
+                 appended_data, n_points, n_cells, header_type_parsed)
 end
 
 # Show basic information on REPL
@@ -766,9 +768,12 @@ function get_data(data_array::VTKDataArray{T, N, <:FormatBinary}) where {T, N}
   raw = base64decode(split(strip(content(data_array.data_array)), "\n")[1])
 
   if is_compressed(data_array)
-    # If data is stored compressed, the first four integers of type `header_type` are the header and
-    # must be discarded
-    first = 1 + 4 * sizeof(header_type(data_array.vtk_file))
+    # If data is stored compressed, the header consists of `3 + num_blocks` integers of type
+    # `header_type`. It must be discarded.
+    HeaderType = header_type(data_array.vtk_file)
+    header_num_blocks = reinterpret(HeaderType, raw[1:sizeof(HeaderType)])[1]
+    header_len = 3 + header_num_blocks
+    first = 1 + header_len * sizeof(HeaderType)
     last = length(raw)
 
     # Pass data through ZLib decompressor
@@ -776,7 +781,8 @@ function get_data(data_array::VTKDataArray{T, N, <:FormatBinary}) where {T, N}
   else
     # If data is stored uncompressed, the first integer of type `header_type` is the header and must
     # be discarded
-    first = 1 + sizeof(header_type(data_array.vtk_file))
+    HeaderType = header_type(data_array.vtk_file)
+    first = 1 + sizeof(HeaderType)
     last = length(raw)
     uncompressed = view(raw, first:last)
   end
@@ -799,24 +805,27 @@ function get_data(data_array::VTKDataArray{T, N, <:FormatAppended}) where {T, N}
   HeaderType = header_type(data_array.vtk_file)
 
   if is_compressed(data_array)
-    # If data is stored compressed, the first four integers of type `header_type` are the header and
-    # the fourth value contains the number of bytes to read
+    # If data is stored compressed, the header consists of `3 + num_blocks` integers of type `header_type`.
+    # The sum of the subsequent blocks contains the total number of compressed bytes to read.
     first = data_array.offset + 1
-    last = data_array.offset + 4 * sizeof(HeaderType)
-    header = Int.(reinterpret(HeaderType, raw[first:last]))
-    n_bytes = header[4]
+    header_num_blocks = reinterpret(HeaderType, raw[first:(first + sizeof(HeaderType) - 1)])[1]
+    header_len = 3 + header_num_blocks
 
-    first = data_array.offset + 4 * sizeof(HeaderType) + 1
-    last = first + n_bytes - 1
+    last_header = data_array.offset + header_len * sizeof(HeaderType)
+    header = Int.(reinterpret(HeaderType, raw[first:last_header]))
+    n_bytes = sum(@view header[4:end])
+
+    first_data = last_header + 1
+    last_data = first_data + n_bytes - 1
 
     # Pass data through ZLib decompressor
-    if last > length(raw)
+    if last_data > length(raw)
       @show data_array data_array.vtk_file.xml_file
-      @show first, last, size(raw)
+      @show first, last_data, size(raw)
       error("mistake in get_data")
     end
 
-    uncompressed = transcode(ZlibDecompressor, raw[first:last])
+    uncompressed = transcode(ZlibDecompressor, raw[first_data:last_data])
   else
     # If data is stored uncompressed, the first integer of type `header_type` is the header and
     # contains the number of bytes to read
@@ -979,7 +988,6 @@ function get_extents(xml_file, min_extent = [0; 0; 0])
 
   return extents
 end
-
 
 
 """
