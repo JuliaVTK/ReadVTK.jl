@@ -106,11 +106,11 @@ for compress in [true, false]
 
     name = vtk_save(vtk)[1]
 
-    # read the file back     
+    # Read the file back
     @testset "$name compress=$compress" begin
       vtk_read = VTKFile(name)
       @testset "coordinates" begin
-        # read coordinates
+        # Read coordinates
         x_read, y_read, z_read = get_coordinates(vtk_read)
 
         @test sum(abs.(x - x_read)) == 0.0
@@ -120,7 +120,7 @@ for compress in [true, false]
         end
       end
 
-      # point data 
+      # Point data
       @testset "point data" begin
         point_data = get_point_data(vtk_read)
         p_read = get_data_reshaped(point_data["p_values"])
@@ -140,4 +140,11 @@ for compress in [true, false]
       end
     end
   end
+end
+
+@testset "Reading inline binary with header format UInt32" begin
+  vtk = VTKFile(get_test_example_file("pointdata_inline_binary_compressed.vts"))
+  point_data = get_point_data(vtk)
+  r = get_data(point_data["RadialDistance"])
+  @test sum(r) == 480.0
 end
